@@ -1,169 +1,158 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2017-2026
  */
 
-
 namespace Aimeos\MShop\Attribute\Manager\Property;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $editor = '';
+    private $object;
+    private $editor = '';
 
+    protected function setUp(): void
+    {
+        $this->editor = \TestHelper::context()->editor();
+        $this->object = new \Aimeos\MShop\Attribute\Manager\Property\Standard(\TestHelper::context());
+    }
 
-	protected function setUp() : void
-	{
-		$this->editor = \TestHelper::context()->editor();
-		$this->object = new \Aimeos\MShop\Attribute\Manager\Property\Standard( \TestHelper::context() );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testCreate()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Property\Iface::class, $this->object->create());
+    }
 
+    public function testCreateType()
+    {
+        $item = $this->object->create(['attribute.property.type' => 'htmlcolor']);
+        $this->assertEquals('htmlcolor', $item->getType());
+    }
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+    public function testSaveUpdateDelete()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'attribute.property.editor', $this->editor));
+        $results = $this->object->search($search)->toArray();
 
+        if (($item = reset($results)) === false) {
+            throw new \RuntimeException('No property item found');
+        }
 
-	public function testCreate()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Property\Iface::class, $this->object->create() );
-	}
+        $item->setId(null);
+        $item->setLanguageId('en');
+        $resultSaved = $this->object->save($item);
+        $itemSaved = $this->object->get($item->getId());
 
+        $itemExp = clone $itemSaved;
+        $itemExp->setValue('unittest');
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($itemExp->getId());
 
-	public function testCreateType()
-	{
-		$item = $this->object->create( ['attribute.property.type' => 'htmlcolor'] );
-		$this->assertEquals( 'htmlcolor', $item->getType() );
-	}
+        $this->object->delete($itemSaved->getId());
 
+        $context = \TestHelper::context();
 
-	public function testSaveUpdateDelete()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'attribute.property.editor', $this->editor ) );
-		$results = $this->object->search( $search )->toArray();
+        $this->assertTrue($item->getId() !== null);
+        $this->assertTrue($itemSaved->getType() !== null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getParentId(), $itemSaved->getParentId());
+        $this->assertEquals($item->getSiteId(), $itemSaved->getSiteId());
+        $this->assertEquals($item->getType(), $itemSaved->getType());
+        $this->assertEquals($item->getLanguageId(), $itemSaved->getLanguageId());
+        $this->assertEquals($item->getValue(), $itemSaved->getValue());
 
-		if( ( $item = reset( $results ) ) === false ) {
-			throw new \RuntimeException( 'No property item found' );
-		}
+        $this->assertEquals($context->editor(), $itemSaved->editor());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified());
 
-		$item->setId( null );
-		$item->setLanguageId( 'en' );
-		$resultSaved = $this->object->save( $item );
-		$itemSaved = $this->object->get( $item->getId() );
+        $this->assertTrue($itemUpd->getType() !== null);
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getParentId(), $itemUpd->getParentId());
+        $this->assertEquals($itemExp->getSiteId(), $itemUpd->getSiteId());
+        $this->assertEquals($itemExp->getType(), $itemUpd->getType());
+        $this->assertEquals($itemExp->getLanguageId(), $itemUpd->getLanguageId());
+        $this->assertEquals($itemExp->getValue(), $itemUpd->getValue());
 
-		$itemExp = clone $itemSaved;
-		$itemExp->setValue( 'unittest' );
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $itemExp->getId() );
+        $this->assertEquals($context->editor(), $itemUpd->editor());
+        $this->assertEquals($itemExp->getTimeCreated(), $itemUpd->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified());
 
-		$this->object->delete( $itemSaved->getId() );
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		$context = \TestHelper::context();
+        $this->expectException(\Aimeos\MShop\Exception::class);
+        $this->object->get($itemSaved->getId());
+    }
 
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertTrue( $itemSaved->getType() !== null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getParentId(), $itemSaved->getParentId() );
-		$this->assertEquals( $item->getSiteId(), $itemSaved->getSiteId() );
-		$this->assertEquals( $item->getType(), $itemSaved->getType() );
-		$this->assertEquals( $item->getLanguageId(), $itemSaved->getLanguageId() );
-		$this->assertEquals( $item->getValue(), $itemSaved->getValue() );
+    public function testGet()
+    {
+        $search = $this->object->filter()->slice(0, 1);
+        $conditions = [
+            $search->compare('~=', 'attribute.property.value', '1024'),
+            $search->compare('==', 'attribute.property.editor', $this->editor),
+        ];
+        $search->setConditions($search->and($conditions));
+        $results = $this->object->search($search)->toArray();
 
-		$this->assertEquals( $context->editor(), $itemSaved->editor() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified() );
+        if (($expected = reset($results)) === false) {
+            throw new \RuntimeException(sprintf('No attribute property item found for value "%1$s".', '1024'));
+        }
 
-		$this->assertTrue( $itemUpd->getType() !== null );
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getParentId(), $itemUpd->getParentId() );
-		$this->assertEquals( $itemExp->getSiteId(), $itemUpd->getSiteId() );
-		$this->assertEquals( $itemExp->getType(), $itemUpd->getType() );
-		$this->assertEquals( $itemExp->getLanguageId(), $itemUpd->getLanguageId() );
-		$this->assertEquals( $itemExp->getValue(), $itemUpd->getValue() );
+        $actual = $this->object->get($expected->getId());
+        $this->assertEquals($expected, $actual);
+    }
 
-		$this->assertEquals( $context->editor(), $itemUpd->editor() );
-		$this->assertEquals( $itemExp->getTimeCreated(), $itemUpd->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified() );
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
+    public function testSearch()
+    {
+        $total = 0;
+        $search = $this->object->filter();
 
-		$this->expectException( \Aimeos\MShop\Exception::class );
-		$this->object->get( $itemSaved->getId() );
-	}
+        $expr = [];
+        $expr[] = $search->compare('!=', 'attribute.property.id', null);
+        $expr[] = $search->compare('!=', 'attribute.property.parentid', null);
+        $expr[] = $search->compare('!=', 'attribute.property.siteid', null);
+        $expr[] = $search->compare('==', 'attribute.property.type', 'size');
+        $expr[] = $search->compare('==', 'attribute.property.languageid', null);
+        $expr[] = $search->compare('==', 'attribute.property.value', '1024');
+        $expr[] = $search->compare('==', 'attribute.property.editor', $this->editor);
 
+        $search->setConditions($search->and($expr));
+        $results = $this->object->search($search, [], $total)->toArray();
+        $this->assertEquals(1, count($results));
+    }
 
-	public function testGet()
-	{
-		$search = $this->object->filter()->slice( 0, 1 );
-		$conditions = array(
-			$search->compare( '~=', 'attribute.property.value', '1024' ),
-			$search->compare( '==', 'attribute.property.editor', $this->editor )
-		);
-		$search->setConditions( $search->and( $conditions ) );
-		$results = $this->object->search( $search )->toArray();
+    public function testGetSubManager()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->getSubManager('type'));
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->getSubManager('type', 'Standard'));
 
-		if( ( $expected = reset( $results ) ) === false ) {
-			throw new \RuntimeException( sprintf( 'No attribute property item found for value "%1$s".', '1024' ) );
-		}
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-		$actual = $this->object->get( $expected->getId() );
-		$this->assertEquals( $expected, $actual );
-	}
-
-
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
-
-
-	public function testSearch()
-	{
-		$total = 0;
-		$search = $this->object->filter();
-
-		$expr = [];
-		$expr[] = $search->compare( '!=', 'attribute.property.id', null );
-		$expr[] = $search->compare( '!=', 'attribute.property.parentid', null );
-		$expr[] = $search->compare( '!=', 'attribute.property.siteid', null );
-		$expr[] = $search->compare( '==', 'attribute.property.type', 'size' );
-		$expr[] = $search->compare( '==', 'attribute.property.languageid', null );
-		$expr[] = $search->compare( '==', 'attribute.property.value', '1024' );
-		$expr[] = $search->compare( '==', 'attribute.property.editor', $this->editor );
-
-		$search->setConditions( $search->and( $expr ) );
-		$results = $this->object->search( $search, [], $total )->toArray();
-		$this->assertEquals( 1, count( $results ) );
-	}
-
-
-	public function testGetSubManager()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->getSubManager( 'type' ) );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->getSubManager( 'type', 'Standard' ) );
-
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
-
-
-	public function testGetSubManagerInvalidName()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'type', 'unknown' );
-	}
+    public function testGetSubManagerInvalidName()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('type', 'unknown');
+    }
 }

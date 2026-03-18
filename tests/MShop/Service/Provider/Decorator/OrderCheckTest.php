@@ -1,220 +1,207 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2013
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Service\Provider\Decorator;
-
 
 class OrderCheckTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $basket;
-	private $context;
-	private $servItem;
-	private $mockProvider;
+    private $object;
+    private $basket;
+    private $context;
+    private $servItem;
+    private $mockProvider;
 
+    protected function setUp(): void
+    {
+        \Aimeos\MShop::cache(true);
 
-	protected function setUp() : void
-	{
-		\Aimeos\MShop::cache( true );
+        $this->context = \TestHelper::context();
+        $this->context->setUser(null);
 
-		$this->context = \TestHelper::context();
-		$this->context->setUser( null );
+        $servManager = \Aimeos\MShop::create($this->context, 'service');
+        $this->servItem = $servManager->create();
 
-		$servManager = \Aimeos\MShop::create( $this->context, 'service' );
-		$this->servItem = $servManager->create();
+        $this->mockProvider = $this->getMockBuilder(\Aimeos\MShop\Service\Provider\Decorator\OrderCheck::class)
+            ->disableOriginalConstructor()->getMock();
 
-		$this->mockProvider = $this->getMockBuilder( \Aimeos\MShop\Service\Provider\Decorator\OrderCheck::class )
-			->disableOriginalConstructor()->getMock();
+        $this->basket = \Aimeos\MShop::create($this->context, 'order')->create();
 
-		$this->basket = \Aimeos\MShop::create( $this->context, 'order' )->create();
+        $this->object = new \Aimeos\MShop\Service\Provider\Decorator\OrderCheck($this->mockProvider, $this->context, $this->servItem);
+    }
 
-		$this->object = new \Aimeos\MShop\Service\Provider\Decorator\OrderCheck( $this->mockProvider, $this->context, $this->servItem );
-	}
+    protected function tearDown(): void
+    {
+        \Aimeos\MShop::cache(false);
+        unset($this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context);
+    }
 
+    public function testGetConfigBE()
+    {
+        $this->mockProvider->expects($this->once())->method('getConfigBE')->willReturn([]);
 
-	protected function tearDown() : void
-	{
-		\Aimeos\MShop::cache( false );
-		unset( $this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context );
-	}
+        $result = $this->object->getConfigBE();
 
+        $this->assertArrayHasKey('ordercheck.total-number-min', $result);
+        $this->assertArrayHasKey('ordercheck.limit-days-pending', $result);
+    }
 
-	public function testGetConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )->method( 'getConfigBE' )->willReturn( [] );
+    public function testCheckConfigBETotal()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-		$result = $this->object->getConfigBE();
+        $attributes = [ 'ordercheck.total-number-min' => '0' ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$this->assertArrayHasKey( 'ordercheck.total-number-min', $result );
-		$this->assertArrayHasKey( 'ordercheck.limit-days-pending', $result );
-	}
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['ordercheck.total-number-min']);
+    }
 
+    public function testCheckConfigBETotalFailure()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-	public function testCheckConfigBETotal()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $attributes = [ 'ordercheck.total-number-min' => 'nope' ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$attributes = array( 'ordercheck.total-number-min' => '0' );
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['ordercheck.total-number-min']);
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['ordercheck.total-number-min'] );
-	}
+    public function testCheckConfigBELimit()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
+        $attributes = [ 'ordercheck.limit-days-pending' => '0' ];
+        $result = $this->object->checkConfigBE($attributes);
 
-	public function testCheckConfigBETotalFailure()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['ordercheck.limit-days-pending']);
+    }
 
-		$attributes = array( 'ordercheck.total-number-min' => 'nope' );
-		$result = $this->object->checkConfigBE( $attributes );
+    public function testCheckConfigBELimitFailure()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['ordercheck.total-number-min'] );
-	}
+        $attributes = [ 'ordercheck.limit-days-pending' => 'nope' ];
+        $result = $this->object->checkConfigBE($attributes);
 
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['ordercheck.limit-days-pending']);
+    }
 
-	public function testCheckConfigBELimit()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+    public function testIsAvailableNoUserId()
+    {
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
-		$attributes = array( 'ordercheck.limit-days-pending' => '0' );
-		$result = $this->object->checkConfigBE( $attributes );
+    public function testIsAvailableNoConfig()
+    {
+        $this->context->setUser(\Aimeos\MShop::create($this->context, 'customer')->find('test@example.com'));
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['ordercheck.limit-days-pending'] );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testCheckConfigBELimitFailure()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+    public function testIsAvailableTotal()
+    {
+        $this->context->setUser(\Aimeos\MShop::create($this->context, 'customer')->find('test@example.com'));
+        $this->servItem->setConfig([ 'ordercheck.total-number-min' => 1 ]);
 
-		$attributes = array( 'ordercheck.limit-days-pending' => 'nope' );
-		$result = $this->object->checkConfigBE( $attributes );
+        $mock = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $this->context ])
+            ->onlyMethods([ 'search' ])
+            ->getMock();
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['ordercheck.limit-days-pending'] );
-	}
+        $mock->expects($this->once())
+            ->method('search')
+            ->willReturn(map([$mock->create()]));
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Standard::class, $mock);
 
-	public function testIsAvailableNoUserId()
-	{
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testIsAvailableNoConfig()
-	{
-		$this->context->setUser( \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' ) );
+    public function testIsAvailableTotalNotEnough()
+    {
+        $this->context->setUser(\Aimeos\MShop::create($this->context, 'customer')->find('test@example.com'));
+        $this->servItem->setConfig([ 'ordercheck.total-number-min' => 1 ]);
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+        $mock = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $this->context ])
+            ->onlyMethods([ 'search' ])
+            ->getMock();
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+        $mock->expects($this->once())
+            ->method('search')
+            ->willReturn(map());
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Standard::class, $mock);
 
-	public function testIsAvailableTotal()
-	{
-		$this->context->setUser( \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' ) );
-		$this->servItem->setConfig( array( 'ordercheck.total-number-min' => 1 ) );
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
-		$mock = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $this->context ) )
-			->onlyMethods( array( 'search' ) )
-			->getMock();
+    public function testIsAvailableLimit()
+    {
+        $this->context->setUser(\Aimeos\MShop::create($this->context, 'customer')->find('test@example.com'));
+        $this->servItem->setConfig([ 'ordercheck.limit-days-pending' => 1 ]);
 
-		$mock->expects( $this->once() )
-			->method( 'search' )
-			->willReturn( map( [$mock->create()] ) );
+        $mock = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $this->context ])
+            ->onlyMethods([ 'search' ])
+            ->getMock();
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Standard::class, $mock );
+        $mock->expects($this->once())
+            ->method('search')
+            ->willReturn(map());
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Standard::class, $mock);
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testIsAvailableTotalNotEnough()
-	{
-		$this->context->setUser( \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' ) );
-		$this->servItem->setConfig( array( 'ordercheck.total-number-min' => 1 ) );
+    public function testIsAvailableLimitTooMuch()
+    {
+        $this->context->setUser(\Aimeos\MShop::create($this->context, 'customer')->find('test@example.com'));
+        $this->servItem->setConfig([ 'ordercheck.limit-days-pending' => 1 ]);
 
-		$mock = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $this->context ) )
-			->onlyMethods( array( 'search' ) )
-			->getMock();
+        $mock = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $this->context ])
+            ->onlyMethods([ 'search' ])
+            ->getMock();
 
-		$mock->expects( $this->once() )
-			->method( 'search' )
-			->willReturn( map() );
+        $mock->expects($this->once())
+            ->method('search')
+            ->willReturn(map([$mock->create()]));
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Standard::class, $mock );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Standard::class, $mock);
 
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableLimit()
-	{
-		$this->context->setUser( \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' ) );
-		$this->servItem->setConfig( array( 'ordercheck.limit-days-pending' => 1 ) );
-
-		$mock = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $this->context ) )
-			->onlyMethods( array( 'search' ) )
-			->getMock();
-
-		$mock->expects( $this->once() )
-			->method( 'search' )
-			->willReturn( map() );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Standard::class, $mock );
-
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
-
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableLimitTooMuch()
-	{
-		$this->context->setUser( \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' ) );
-		$this->servItem->setConfig( array( 'ordercheck.limit-days-pending' => 1 ) );
-
-		$mock = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $this->context ) )
-			->onlyMethods( array( 'search' ) )
-			->getMock();
-
-		$mock->expects( $this->once() )
-			->method( 'search' )
-			->willReturn( map( [$mock->create()] ) );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Standard::class, $mock );
-
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
 }

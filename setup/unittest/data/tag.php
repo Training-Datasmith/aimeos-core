@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -6,12 +8,12 @@
  */
 
 return [
-	'tag' => [
-		['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Expresso'],
-		['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Kaffee'],
-		['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Cappuccino'],
-		['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'herb'],
-		['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'mild'],
-		['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'cremig'],
-	]
+    'tag' => [
+        ['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Expresso'],
+        ['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Kaffee'],
+        ['tag.domain' => 'product', 'tag.type' => 'sort', 'tag.languageid' => 'de', 'tag.label' => 'Cappuccino'],
+        ['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'herb'],
+        ['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'mild'],
+        ['tag.domain' => 'product', 'tag.type' => 'taste', 'tag.languageid' => 'de', 'tag.label' => 'cremig'],
+    ],
 ];

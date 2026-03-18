@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
@@ -7,9 +9,7 @@
  * @subpackage Customer
  */
 
-
 namespace Aimeos\MShop\Customer\Manager\Property\Type;
-
 
 /**
  * Interface for customer property type manager.
@@ -17,7 +17,6 @@ namespace Aimeos\MShop\Customer\Manager\Property\Type;
  * @package MShop
  * @subpackage Customer
  */
-interface Iface
-	extends \Aimeos\MShop\Type\Manager\Iface
+interface Iface extends \Aimeos\MShop\Type\Manager\Iface
 {
 }

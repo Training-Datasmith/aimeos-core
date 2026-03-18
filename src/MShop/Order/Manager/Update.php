@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -7,9 +9,7 @@
  * @subpackage Order
  */
 
-
 namespace Aimeos\MShop\Order\Manager;
-
 
 /**
  * Update trait for order managers
@@ -19,403 +19,375 @@ namespace Aimeos\MShop\Order\Manager;
  */
 trait Update
 {
-	/**
-	 * Returns the context item object.
-	 *
-	 * @return \Aimeos\MShop\ContextIface Context item object
-	 */
-	abstract protected function context() : \Aimeos\MShop\ContextIface;
+    /**
+     * Returns the context item object.
+     *
+     * @return \Aimeos\MShop\ContextIface Context item object
+     */
+    abstract protected function context(): \Aimeos\MShop\ContextIface;
 
+    /**
+     * Blocks the resources listed in the order.
+     *
+     * Every order contains resources like products or redeemed coupon codes
+     * that must be blocked so they can't be used by another customer in a
+     * later order. This method reduces the the stock level of products, the
+     * counts of coupon codes and others.
+     *
+     * It's save to call this method multiple times for one order. In this case,
+     * the actions will be executed only once. All subsequent calls will do
+     * nothing as long as the resources haven't been unblocked in the meantime.
+     *
+     * You can also block and unblock resources several times. Please keep in
+     * mind that unblocked resources may be reused by other orders in the
+     * meantime. This can lead to an oversell of products!
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @return \Aimeos\MShop\Order\Item\Iface Order item object
+     */
+    public function block(\Aimeos\MShop\Order\Item\Iface $orderItem): \Aimeos\MShop\Order\Item\Iface
+    {
+        $this->updateStatus($orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 1, -1);
+        $this->updateStatus($orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 1, -1);
 
-	/**
-	 * Blocks the resources listed in the order.
-	 *
-	 * Every order contains resources like products or redeemed coupon codes
-	 * that must be blocked so they can't be used by another customer in a
-	 * later order. This method reduces the the stock level of products, the
-	 * counts of coupon codes and others.
-	 *
-	 * It's save to call this method multiple times for one order. In this case,
-	 * the actions will be executed only once. All subsequent calls will do
-	 * nothing as long as the resources haven't been unblocked in the meantime.
-	 *
-	 * You can also block and unblock resources several times. Please keep in
-	 * mind that unblocked resources may be reused by other orders in the
-	 * meantime. This can lead to an oversell of products!
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @return \Aimeos\MShop\Order\Item\Iface Order item object
-	 */
-	public function block( \Aimeos\MShop\Order\Item\Iface $orderItem ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		$this->updateStatus( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 1, -1 );
-		$this->updateStatus( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 1, -1 );
+        return $orderItem;
+    }
 
-		return $orderItem;
-	}
+    /**
+     * Frees the resources listed in the order.
+     *
+     * If customers created orders but didn't pay for them, the blocked resources
+     * like products and redeemed coupon codes must be unblocked so they can be
+     * ordered again or used by other customers. This method increased the stock
+     * level of products, the counts of coupon codes and others.
+     *
+     * It's save to call this method multiple times for one order. In this case,
+     * the actions will be executed only once. All subsequent calls will do
+     * nothing as long as the resources haven't been blocked in the meantime.
+     *
+     * You can also unblock and block resources several times. Please keep in
+     * mind that unblocked resources may be reused by other orders in the
+     * meantime. This can lead to an oversell of products!
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @return \Aimeos\MShop\Order\Item\Iface Order item object
+     */
+    public function unblock(\Aimeos\MShop\Order\Item\Iface $orderItem): \Aimeos\MShop\Order\Item\Iface
+    {
+        $this->updateStatus($orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 0, +1);
+        $this->updateStatus($orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 0, +1);
 
+        return $orderItem;
+    }
 
-	/**
-	 * Frees the resources listed in the order.
-	 *
-	 * If customers created orders but didn't pay for them, the blocked resources
-	 * like products and redeemed coupon codes must be unblocked so they can be
-	 * ordered again or used by other customers. This method increased the stock
-	 * level of products, the counts of coupon codes and others.
-	 *
-	 * It's save to call this method multiple times for one order. In this case,
-	 * the actions will be executed only once. All subsequent calls will do
-	 * nothing as long as the resources haven't been blocked in the meantime.
-	 *
-	 * You can also unblock and block resources several times. Please keep in
-	 * mind that unblocked resources may be reused by other orders in the
-	 * meantime. This can lead to an oversell of products!
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @return \Aimeos\MShop\Order\Item\Iface Order item object
-	 */
-	public function unblock( \Aimeos\MShop\Order\Item\Iface $orderItem ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		$this->updateStatus( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 0, +1 );
-		$this->updateStatus( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 0, +1 );
-
-		return $orderItem;
-	}
-
-
-	/**
-	 * Blocks or frees the resources listed in the order if necessary.
-	 *
-	 * After payment status updates, the resources like products or coupon
-	 * codes listed in the order must be blocked or unblocked. This method
-	 * cares about executing the appropriate action depending on the payment
-	 * status.
-	 *
-	 * It's save to call this method multiple times for one order. In this case,
-	 * the actions will be executed only once. All subsequent calls will do
-	 * nothing as long as the payment status hasn't changed in the meantime.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @return \Aimeos\MShop\Order\Item\Iface Order item object
-	 */
-	public function update( \Aimeos\MShop\Order\Item\Iface $orderItem ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		match ($orderItem->getStatusPayment()) {
-            \Aimeos\MShop\Order\Item\Base::PAY_DELETED, \Aimeos\MShop\Order\Item\Base::PAY_CANCELED, \Aimeos\MShop\Order\Item\Base::PAY_REFUSED, \Aimeos\MShop\Order\Item\Base::PAY_REFUND => $this->unblock( $orderItem ),
-            \Aimeos\MShop\Order\Item\Base::PAY_PENDING, \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED, \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED => $this->block( $orderItem ),
+    /**
+     * Blocks or frees the resources listed in the order if necessary.
+     *
+     * After payment status updates, the resources like products or coupon
+     * codes listed in the order must be blocked or unblocked. This method
+     * cares about executing the appropriate action depending on the payment
+     * status.
+     *
+     * It's save to call this method multiple times for one order. In this case,
+     * the actions will be executed only once. All subsequent calls will do
+     * nothing as long as the payment status hasn't changed in the meantime.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @return \Aimeos\MShop\Order\Item\Iface Order item object
+     */
+    public function update(\Aimeos\MShop\Order\Item\Iface $orderItem): \Aimeos\MShop\Order\Item\Iface
+    {
+        match ($orderItem->getStatusPayment()) {
+            \Aimeos\MShop\Order\Item\Base::PAY_DELETED, \Aimeos\MShop\Order\Item\Base::PAY_CANCELED, \Aimeos\MShop\Order\Item\Base::PAY_REFUSED, \Aimeos\MShop\Order\Item\Base::PAY_REFUND => $this->unblock($orderItem),
+            \Aimeos\MShop\Order\Item\Base::PAY_PENDING, \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED, \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED => $this->block($orderItem),
             default => $orderItem,
         };
 
-		return $orderItem;
-	}
+        return $orderItem;
+    }
 
+    /**
+     * Adds a new status record to the order with the type and value.
+     *
+     * @param string $parentid Order ID
+     * @param string $type Status type
+     * @param string $value Status value
+     * @return \Aimeos\MShop\Common\Manager\Iface Same manager for fluent interface
+     */
+    protected function addStatusItem(string $parentid, string $type, string $value): Iface
+    {
+        $manager = \Aimeos\MShop::create($this->context(), 'order/status');
 
-	/**
-	 * Adds a new status record to the order with the type and value.
-	 *
-	 * @param string $parentid Order ID
-	 * @param string $type Status type
-	 * @param string $value Status value
-	 * @return \Aimeos\MShop\Common\Manager\Iface Same manager for fluent interface
-	 */
-	protected function addStatusItem( string $parentid, string $type, string $value ) : Iface
-	{
-		$manager = \Aimeos\MShop::create( $this->context(), 'order/status' );
+        $item = $manager->create();
+        $item->setParentId($parentid);
+        $item->setType($type);
+        $item->setValue($value);
 
-		$item = $manager->create();
-		$item->setParentId( $parentid );
-		$item->setType( $type );
-		$item->setValue( $value );
+        $manager->save($item, false);
 
-		$manager->save( $item, false );
+        return $this;
+    }
 
-		return $this;
-	}
+    /**
+     * Returns the product articles and their bundle product codes for the given article ID
+     *
+     * @param string $prodId Product ID of the article whose stock level changed
+     * @return array Associative list of article codes as keys and lists of bundle product codes as values
+     */
+    protected function getBundleMap(string $prodId): array
+    {
+        $bundleMap = [];
+        $productManager = \Aimeos\MShop::create($this->context(), 'product');
 
+        $search = $productManager->filter();
+        $func = $search->make('product:has', ['product', 'default', $prodId]);
+        $expr = [
+            $search->compare('==', 'product.type', ['bundle', 'group']),
+            $search->compare('!=', $func, null),
+        ];
+        $search->setConditions($search->and($expr));
+        $search->slice(0, 0x7fffffff);
 
-	/**
-	 * Returns the product articles and their bundle product codes for the given article ID
-	 *
-	 * @param string $prodId Product ID of the article whose stock level changed
-	 * @return array Associative list of article codes as keys and lists of bundle product codes as values
-	 */
-	protected function getBundleMap( string $prodId ) : array
-	{
-		$bundleMap = [];
-		$productManager = \Aimeos\MShop::create( $this->context(), 'product' );
+        $bundleItems = $productManager->search($search, [ 'product' ]);
 
-		$search = $productManager->filter();
-		$func = $search->make( 'product:has', ['product', 'default', $prodId] );
-		$expr = [
-			$search->compare( '==', 'product.type', ['bundle', 'group'] ),
-			$search->compare( '!=', $func, null ),
-		];
-		$search->setConditions( $search->and( $expr ) );
-		$search->slice( 0, 0x7fffffff );
+        foreach ($bundleItems as $bundleItem) {
+            foreach ($bundleItem->getRefItems('product', null, 'default') as $item) {
+                $bundleMap[$item->getId()][] = $bundleItem->getId();
+            }
+        }
 
-		$bundleItems = $productManager->search( $search, [ 'product' ] );
+        return $bundleMap;
+    }
 
-		foreach( $bundleItems as $bundleItem )
-		{
-			foreach( $bundleItem->getRefItems( 'product', null, 'default' ) as $item ) {
-				$bundleMap[$item->getId()][] = $bundleItem->getId();
-			}
-		}
+    /**
+     * Returns the last status item for the given order ID.
+     *
+     * @param string $parentid Order ID
+     * @param string $type Status type constant
+     * @param string $status New status value stored along with the order item
+     * @return \Aimeos\MShop\Order\Item\Status\Iface|null Order status item or NULL if no item is available
+     */
+    protected function getLastStatusItem(string $parentid, string $type, string $status): ?\Aimeos\MShop\Order\Item\Status\Iface
+    {
+        $manager = \Aimeos\MShop::create($this->context(), 'order/status');
 
-		return $bundleMap;
-	}
+        $search = $manager->filter();
+        $expr = [
+            $search->compare('==', 'order.status.parentid', $parentid),
+            $search->compare('==', 'order.status.type', $type),
+            $search->compare('==', 'order.status.value', $status),
+        ];
+        $search->setConditions($search->and($expr));
+        $search->setSortations([ $search->sort('-', 'order.status.ctime') ]);
+        $search->slice(0, 1);
 
+        return $manager->search($search)->first();
+    }
 
-	/**
-	 * Returns the last status item for the given order ID.
-	 *
-	 * @param string $parentid Order ID
-	 * @param string $type Status type constant
-	 * @param string $status New status value stored along with the order item
-	 * @return \Aimeos\MShop\Order\Item\Status\Iface|null Order status item or NULL if no item is available
-	 */
-	protected function getLastStatusItem( string $parentid, string $type, string $status ) : ?\Aimeos\MShop\Order\Item\Status\Iface
-	{
-		$manager = \Aimeos\MShop::create( $this->context(), 'order/status' );
+    /**
+     * Returns the stock items for the given product codes
+     *
+     * @param iterable $prodIds List of product codes
+     * @param string $stockType Stock type code the stock items must belong to
+     * @return \Aimeos\Map Associative list of \Aimeos\MShop\Stock\Item\Iface and IDs as values
+     */
+    protected function getStockItems(iterable $prodIds, string $stockType): \Aimeos\Map
+    {
+        $stockManager = \Aimeos\MShop::create($this->context(), 'stock');
 
-		$search = $manager->filter();
-		$expr = [
-			$search->compare( '==', 'order.status.parentid', $parentid ),
-			$search->compare( '==', 'order.status.type', $type ),
-			$search->compare( '==', 'order.status.value', $status ),
-		];
-		$search->setConditions( $search->and( $expr ) );
-		$search->setSortations( [ $search->sort( '-', 'order.status.ctime' ) ] );
-		$search->slice( 0, 1 );
+        $search = $stockManager->filter()->slice(0, 0x7fffffff)
+            ->add(['stock.productid' => $prodIds, 'stock.type' => $stockType]);
 
-		return $manager->search( $search )->first();
-	}
+        return $stockManager->search($search);
+    }
 
+    /**
+     * Increases or decreses the coupon code counts referenced in the order by the given value.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @param int $how Positive or negative integer number for increasing or decreasing the coupon count
+     * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
+     */
+    protected function updateCoupons(\Aimeos\MShop\Order\Item\Iface $orderItem, int $how = +1)
+    {
+        $context = $this->context();
+        $manager = \Aimeos\MShop::create($context, 'order/coupon');
+        $couponCodeManager = \Aimeos\MShop::create($context, 'coupon/code');
 
-	/**
-	 * Returns the stock items for the given product codes
-	 *
-	 * @param iterable $prodIds List of product codes
-	 * @param string $stockType Stock type code the stock items must belong to
-	 * @return \Aimeos\Map Associative list of \Aimeos\MShop\Stock\Item\Iface and IDs as values
-	 */
-	protected function getStockItems( iterable $prodIds, string $stockType ) : \Aimeos\Map
-	{
-		$stockManager = \Aimeos\MShop::create( $this->context(), 'stock' );
+        $search = $manager->filter();
+        $search->setConditions($search->compare('==', 'order.coupon.parentid', $orderItem->getId()));
 
-		$search = $stockManager->filter()->slice( 0, 0x7fffffff )
-			->add( ['stock.productid' => $prodIds, 'stock.type' => $stockType] );
+        $start = 0;
 
-		return $stockManager->search( $search );
-	}
+        $couponCodeManager->begin();
 
+        try {
+            do {
+                $items = $manager->search($search);
 
-	/**
-	 * Increases or decreses the coupon code counts referenced in the order by the given value.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @param int $how Positive or negative integer number for increasing or decreasing the coupon count
-	 * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
-	 */
-	protected function updateCoupons( \Aimeos\MShop\Order\Item\Iface $orderItem, int $how = +1 )
-	{
-		$context = $this->context();
-		$manager = \Aimeos\MShop::create( $context, 'order/coupon' );
-		$couponCodeManager = \Aimeos\MShop::create( $context, 'coupon/code' );
+                foreach ($items as $item) {
+                    $couponCodeManager->decrease($item->getCode(), $how * -1);
+                }
 
-		$search = $manager->filter();
-		$search->setConditions( $search->compare( '==', 'order.coupon.parentid', $orderItem->getId() ) );
+                $count = count($items);
+                $start += $count;
+                $search->slice($start);
+            } while ($count >= $search->getLimit());
 
-		$start = 0;
+            $couponCodeManager->commit();
+        } catch (\Exception $e) {
+            $couponCodeManager->rollback();
+            throw $e;
+        }
 
-		$couponCodeManager->begin();
+        return $this;
+    }
 
-		try
-		{
-			do
-			{
-				$items = $manager->search( $search );
+    /**
+     * Increases or decreases the stock level or the coupon code count for referenced items of the given order.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @param string $type Constant from \Aimeos\MShop\Order\Item\Status\Base, e.g. STOCK_UPDATE or COUPON_UPDATE
+     * @param string $status New status value stored along with the order item
+     * @param int $value Number to increse or decrease the stock level or coupon code count
+     * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
+     */
+    protected function updateStatus(\Aimeos\MShop\Order\Item\Iface $orderItem, string $type, string $status, int $value)
+    {
+        $statusItem = $this->getLastStatusItem($orderItem->getId(), $type, $status);
 
-				foreach( $items as $item ) {
-					$couponCodeManager->decrease( $item->getCode(), $how * -1 );
-				}
+        if ($statusItem && $statusItem->getValue() == $status) {
+            return;
+        }
 
-				$count = count( $items );
-				$start += $count;
-				$search->slice( $start );
-			}
-			while( $count >= $search->getLimit() );
+        if ($type == \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE) {
+            $this->updateStock($orderItem, $value);
+        } elseif ($type == \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE) {
+            $this->updateCoupons($orderItem, $value);
+        }
 
-			$couponCodeManager->commit();
-		}
-		catch( \Exception $e )
-		{
-			$couponCodeManager->rollback();
-			throw $e;
-		}
+        return $this->addStatusItem($orderItem->getId(), $type, $status);
+    }
 
-		return $this;
-	}
+    /**
+     * Increases or decreases the stock levels of the products referenced in the order by the given value.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
+     * @param int $how Positive or negative integer number for increasing or decreasing the stock levels
+     * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
+     */
+    protected function updateStock(\Aimeos\MShop\Order\Item\Iface $orderItem, int $how = +1)
+    {
+        $context = $this->context();
+        $stockManager = \Aimeos\MShop::create($context, 'stock');
+        $manager = \Aimeos\MShop::create($context, 'order/product');
 
+        $search = $manager->filter();
+        $search->setConditions($search->compare('==', 'order.product.parentid', $orderItem->getId()));
 
-	/**
-	 * Increases or decreases the stock level or the coupon code count for referenced items of the given order.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @param string $type Constant from \Aimeos\MShop\Order\Item\Status\Base, e.g. STOCK_UPDATE or COUPON_UPDATE
-	 * @param string $status New status value stored along with the order item
-	 * @param int $value Number to increse or decrease the stock level or coupon code count
-	 * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
-	 */
-	protected function updateStatus( \Aimeos\MShop\Order\Item\Iface $orderItem, string $type, string $status, int $value )
-	{
-		$statusItem = $this->getLastStatusItem( $orderItem->getId(), $type, $status );
+        $start = 0;
 
-		if( $statusItem && $statusItem->getValue() == $status ) {
-			return;
-		}
+        $stockManager->begin();
 
-		if( $type == \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE ) {
-			$this->updateStock( $orderItem, $value );
-		} elseif( $type == \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE ) {
-			$this->updateCoupons( $orderItem, $value );
-		}
+        try {
+            do {
+                $items = $manager->search($search);
 
-		return $this->addStatusItem( $orderItem->getId(), $type, $status );
-	}
+                foreach ($items as $item) {
+                    $stockManager->decrease([$item->getProductId() => -1 * $how * $item->getQuantity()], $item->getStockType());
 
+                    switch ($item->getType()) {
+                        case 'default':
+                            $this->updateStockBundle($item->getParentProductId(), $item->getStockType());
+                            break;
+                        case 'select':
+                            $this->updateStockSelection($item->getParentProductId(), $item->getStockType());
+                            break;
+                    }
+                }
 
-	/**
-	 * Increases or decreases the stock levels of the products referenced in the order by the given value.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $orderItem Order item object
-	 * @param int $how Positive or negative integer number for increasing or decreasing the stock levels
-	 * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
-	 */
-	protected function updateStock( \Aimeos\MShop\Order\Item\Iface $orderItem, int $how = +1 )
-	{
-		$context = $this->context();
-		$stockManager = \Aimeos\MShop::create( $context, 'stock' );
-		$manager = \Aimeos\MShop::create( $context, 'order/product' );
+                $count = count($items);
+                $start += $count;
+                $search->slice($start);
+            } while ($count >= $search->getLimit());
 
-		$search = $manager->filter();
-		$search->setConditions( $search->compare( '==', 'order.product.parentid', $orderItem->getId() ) );
+            $stockManager->commit();
+        } catch (\Exception $e) {
+            $stockManager->rollback();
+            throw $e;
+        }
 
-		$start = 0;
+        return $this;
+    }
 
-		$stockManager->begin();
+    /**
+     * Updates the stock levels of bundles for a specific type
+     *
+     * @param string $prodId Unique product ID
+     * @param string $stockType Unique stock type
+     * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
+     */
+    protected function updateStockBundle(string $prodId, string $stockType)
+    {
+        if (($bundleMap = $this->getBundleMap($prodId)) === []) {
+            return;
+        }
 
-		try
-		{
-			do
-			{
-				$items = $manager->search( $search );
+        $bundleIds = $stock = [];
 
-				foreach( $items as $item )
-				{
-					$stockManager->decrease( [$item->getProductId() => -1 * $how * $item->getQuantity()], $item->getStockType() );
+        foreach ($this->getStockItems(array_keys($bundleMap), $stockType) as $stockItem) {
+            if (isset($bundleMap[$stockItem->getProductId()]) && $stockItem->getStockLevel() !== null) {
+                foreach ($bundleMap[$stockItem->getProductId()] as $bundleId) {
+                    if (isset($stock[$bundleId])) {
+                        $stock[$bundleId] = min($stock[$bundleId], $stockItem->getStockLevel());
+                    } else {
+                        $stock[$bundleId] = $stockItem->getStockLevel();
+                    }
 
-					switch( $item->getType() ) {
-						case 'default':
-							$this->updateStockBundle( $item->getParentProductId(), $item->getStockType() ); break;
-						case 'select':
-							$this->updateStockSelection( $item->getParentProductId(), $item->getStockType() ); break;
-					}
-				}
+                    $bundleIds[$bundleId] = null;
+                }
+            }
+        }
 
-				$count = count( $items );
-				$start += $count;
-				$search->slice( $start );
-			}
-			while( $count >= $search->getLimit() );
+        if (empty($stock)) {
+            return;
+        }
 
-			$stockManager->commit();
-		}
-		catch( \Exception $e )
-		{
-			$stockManager->rollback();
-			throw $e;
-		}
+        $stockManager = \Aimeos\MShop::create($this->context(), 'stock');
 
-		return $this;
-	}
+        foreach ($this->getStockItems(array_keys($bundleIds), $stockType) as $item) {
+            if (isset($stock[$item->getProductId()])) {
+                $item->setStockLevel($stock[$item->getProductId()]);
+                $stockManager->save($item);
+            }
+        }
 
+        return $this;
+    }
 
-	/**
-	 * Updates the stock levels of bundles for a specific type
-	 *
-	 * @param string $prodId Unique product ID
-	 * @param string $stockType Unique stock type
-	 * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
-	 */
-	protected function updateStockBundle( string $prodId, string $stockType )
-	{
-		if( ( $bundleMap = $this->getBundleMap( $prodId ) ) === [] ) {
-			return;
-		}
+    /**
+     * Updates the stock levels of selection products for a specific type
+     *
+     * @param string $prodId Unique product ID
+     * @param string $stocktype Unique stock type
+     * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
+     */
+    protected function updateStockSelection(string $prodId, string $stocktype)
+    {
+        $stockManager = \Aimeos\MShop::create($this->context(), 'stock');
+        $productManager = \Aimeos\MShop::create($this->context(), 'product');
 
+        $productItem = $productManager->get($prodId, ['product']);
+        $prodIds = $productItem->getRefItems('product', 'default', 'default')->getId()->push($productItem->getId());
 
-		$bundleIds = $stock = [];
+        $stockItems = $this->getStockItems($prodIds, $stocktype);
+        $selStockItem = $stockItems->col(null, 'stock.productid')->pull($prodId) ?: $stockManager->create();
 
-		foreach( $this->getStockItems( array_keys( $bundleMap ), $stockType ) as $stockItem )
-		{
-			if( isset( $bundleMap[$stockItem->getProductId()] ) && $stockItem->getStockLevel() !== null )
-			{
-				foreach( $bundleMap[$stockItem->getProductId()] as $bundleId )
-				{
-					if( isset( $stock[$bundleId] ) ) {
-						$stock[$bundleId] = min( $stock[$bundleId], $stockItem->getStockLevel() );
-					} else {
-						$stock[$bundleId] = $stockItem->getStockLevel();
-					}
+        $sum = $stockItems->getStockLevel()->reduce(fn ($result, $value) => $result !== null && $value !== null ? $result + $value : null, 0);
 
-					$bundleIds[$bundleId] = null;
-				}
-			}
-		}
+        $selStockItem->setProductId($productItem->getId())->setType($stocktype)->setStockLevel($sum);
+        $stockManager->save($selStockItem, false);
 
-		if( empty( $stock ) ) {
-			return;
-		}
-
-		$stockManager = \Aimeos\MShop::create( $this->context(), 'stock' );
-
-		foreach( $this->getStockItems( array_keys( $bundleIds ), $stockType ) as $item )
-		{
-			if( isset( $stock[$item->getProductId()] ) )
-			{
-				$item->setStockLevel( $stock[$item->getProductId()] );
-				$stockManager->save( $item );
-			}
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 * Updates the stock levels of selection products for a specific type
-	 *
-	 * @param string $prodId Unique product ID
-	 * @param string $stocktype Unique stock type
-	 * @return \Aimeos\Controller\Common\Order\Iface Order controller for fluent interface
-	 */
-	protected function updateStockSelection( string $prodId, string $stocktype )
-	{
-		$stockManager = \Aimeos\MShop::create( $this->context(), 'stock' );
-		$productManager = \Aimeos\MShop::create( $this->context(), 'product' );
-
-		$productItem = $productManager->get( $prodId, ['product'] );
-		$prodIds = $productItem->getRefItems( 'product', 'default', 'default' )->getId()->push( $productItem->getId() );
-
-		$stockItems = $this->getStockItems( $prodIds, $stocktype );
-		$selStockItem = $stockItems->col( null, 'stock.productid' )->pull( $prodId ) ?: $stockManager->create();
-
-		$sum = $stockItems->getStockLevel()->reduce( fn($result, $value) => $result !== null && $value !== null ? $result + $value : null, 0 );
-
-		$selStockItem->setProductId( $productItem->getId() )->setType( $stocktype )->setStockLevel( $sum );
-		$stockManager->save( $selStockItem, false );
-
-		return $this;
-	}
+        return $this;
+    }
 }

@@ -1,218 +1,207 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2017-2026
  */
 
-
 namespace Aimeos\MShop\Coupon\Provider;
-
 
 class FixedRebateTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $order;
+    private $object;
+    private $order;
 
+    protected function setUp(): void
+    {
+        $context = \TestHelper::context();
 
-	protected function setUp() : void
-	{
-		$context = \TestHelper::context();
+        $couponItem = \Aimeos\MShop::create($context, 'coupon')->create();
+        $couponItem->setConfig([ 'fixedrebate.productcode' => 'U:MD', 'fixedrebate.rebate' => ['EUR' => '2.50'] ]);
 
-		$couponItem = \Aimeos\MShop::create( $context, 'coupon' )->create();
-		$couponItem->setConfig( array( 'fixedrebate.productcode' => 'U:MD', 'fixedrebate.rebate' => ['EUR' => '2.50'] ) );
+        $this->order = \Aimeos\MShop::create($context, 'order')->create()->off();
+        $this->object = new \Aimeos\MShop\Coupon\Provider\FixedRebate($context, $couponItem, '90AB');
+    }
 
-		$this->order = \Aimeos\MShop::create( $context, 'order' )->create()->off();
-		$this->object = new \Aimeos\MShop\Coupon\Provider\FixedRebate( $context, $couponItem, '90AB' );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+        unset($this->order);
+    }
 
+    public function testGetConfigBE()
+    {
+        $result = $this->object->getConfigBE();
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-		unset( $this->order );
-	}
+        $this->assertArrayHasKey('fixedrebate.productcode', $result);
+        $this->assertArrayHasKey('fixedrebate.rebate', $result);
+    }
 
+    public function testCheckConfigBE()
+    {
+        $attributes = ['fixedrebate.productcode' => 'test', 'fixedrebate.rebate' => ['EUR' => '10.00']];
+        $result = $this->object->checkConfigBE($attributes);
 
-	public function testGetConfigBE()
-	{
-		$result = $this->object->getConfigBE();
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['fixedrebate.productcode']);
+        $this->assertNull($result['fixedrebate.rebate']);
+    }
 
-		$this->assertArrayHasKey( 'fixedrebate.productcode', $result );
-		$this->assertArrayHasKey( 'fixedrebate.rebate', $result );
-	}
+    public function testCheckConfigBEFailure()
+    {
+        $result = $this->object->checkConfigBE([]);
 
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['fixedrebate.productcode']);
+        $this->assertIsString($result['fixedrebate.rebate']);
+    }
 
-	public function testCheckConfigBE()
-	{
-		$attributes = ['fixedrebate.productcode' => 'test', 'fixedrebate.rebate' => ['EUR' => '10.00']];
-		$result = $this->object->checkConfigBE( $attributes );
+    public function testIsAvailable()
+    {
+        $this->assertTrue($this->object->isAvailable($this->order));
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['fixedrebate.productcode'] );
-		$this->assertNull( $result['fixedrebate.rebate'] );
-	}
+    public function testUpdate()
+    {
+        $products = $this->getOrderProducts();
+        $this->order->addProduct($products['CNE']);
 
+        $this->assertInstanceOf(\Aimeos\MShop\Coupon\Provider\Iface::class, $this->object->update($this->order));
 
-	public function testCheckConfigBEFailure()
-	{
-		$result = $this->object->checkConfigBE( [] );
+        $coupons = $this->order->getCoupons()->get('90AB', []);
+        $products = $this->order->getProducts();
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['fixedrebate.productcode'] );
-		$this->assertIsString( $result['fixedrebate.rebate'] );
-	}
+        if (($product = reset($coupons)) === false) {
+            throw new \RuntimeException('No coupon available');
+        }
 
+        $this->assertEquals(2, count($products));
+        $this->assertEquals('-2.50', $product->getPrice()->getValue());
+        $this->assertEquals('2.50', $product->getPrice()->getRebate());
+        $this->assertEquals('U:MD', $product->getProductCode());
+        $this->assertNotEquals('', $product->getProductId());
+        $this->assertEquals('', $product->getVendor());
+        $this->assertEquals('', $product->getMediaUrl());
+        $this->assertEquals('Geldwerter Nachlass', $product->getName());
+    }
 
-	public function testIsAvailable()
-	{
-		$this->assertTrue( $this->object->isAvailable( $this->order ) );
-	}
+    public function testUpdateMultipleCurrencies()
+    {
+        $context = \TestHelper::context();
+        $config = [
+            'fixedrebate.productcode' => 'U:MD',
+            'fixedrebate.rebate' => [
+                'EUR' => '1.25',
+                'USD' => '1.50',
+            ],
+        ];
 
+        $products = $this->getOrderProducts();
+        $this->order->addProduct($products['CNE']);
 
-	public function testUpdate()
-	{
-		$products = $this->getOrderProducts();
-		$this->order->addProduct( $products['CNE'] );
+        $couponItem = \Aimeos\MShop::create($context, 'coupon')->create();
+        $couponItem->setConfig($config);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Coupon\Provider\Iface::class, $this->object->update( $this->order ) );
+        $object = new \Aimeos\MShop\Coupon\Provider\FixedRebate($context, $couponItem, '90AB');
 
-		$coupons = $this->order->getCoupons()->get( '90AB', [] );
-		$products = $this->order->getProducts();
+        $this->assertInstanceOf(\Aimeos\MShop\Coupon\Provider\Iface::class, $object->update($this->order));
 
-		if( ( $product = reset( $coupons ) ) === false ) {
-			throw new \RuntimeException( 'No coupon available' );
-		}
+        $coupons = $this->order->getCoupons()->get('90AB', []);
+        $products = $this->order->getProducts();
 
-		$this->assertEquals( 2, count( $products ) );
-		$this->assertEquals( '-2.50', $product->getPrice()->getValue() );
-		$this->assertEquals( '2.50', $product->getPrice()->getRebate() );
-		$this->assertEquals( 'U:MD', $product->getProductCode() );
-		$this->assertNotEquals( '', $product->getProductId() );
-		$this->assertEquals( '', $product->getVendor() );
-		$this->assertEquals( '', $product->getMediaUrl() );
-		$this->assertEquals( 'Geldwerter Nachlass', $product->getName() );
-	}
+        if (($product = reset($coupons)) === false) {
+            throw new \RuntimeException('No coupon available');
+        }
 
+        $this->assertEquals(2, count($products));
+        $this->assertEquals('-1.25', $product->getPrice()->getValue());
+        $this->assertEquals('1.25', $product->getPrice()->getRebate());
+        $this->assertEquals('U:MD', $product->getProductCode());
+    }
 
-	public function testUpdateMultipleCurrencies()
-	{
-		$context = \TestHelper::context();
-		$config = array(
-			'fixedrebate.productcode' => 'U:MD',
-			'fixedrebate.rebate' => array(
-				'EUR' => '1.25',
-				'USD' => '1.50',
-			),
-		);
+    public function testUpdateMultipleTaxRates()
+    {
+        $products = $this->getOrderProducts();
 
-		$products = $this->getOrderProducts();
-		$this->order->addProduct( $products['CNE'] );
+        $products['CNC']->getPrice()->setTaxRate('10.00');
+        $products['CNE']->getPrice()->setTaxRate('20.00');
 
-		$couponItem = \Aimeos\MShop::create( $context, 'coupon' )->create();
-		$couponItem->setConfig( $config );
+        $products['CNC']->setQuantity(1);
+        $products['CNE']->setQuantity(1);
 
-		$object = new \Aimeos\MShop\Coupon\Provider\FixedRebate( $context, $couponItem, '90AB' );
+        $this->order->addProduct($products['CNE']);
+        $this->order->addProduct($products['CNC']);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Coupon\Provider\Iface::class, $object->update( $this->order ) );
+        $context = \TestHelper::context();
+        $config = [
+            'fixedrebate.productcode' => 'U:MD',
+            'fixedrebate.rebate' => [
+                'EUR' => '50.00',
+            ],
+        ];
 
-		$coupons = $this->order->getCoupons()->get( '90AB', [] );
-		$products = $this->order->getProducts();
+        $couponItem = \Aimeos\MShop::create($context, 'coupon')->create();
+        $couponItem->setConfig($config);
 
-		if( ( $product = reset( $coupons ) ) === false ) {
-			throw new \RuntimeException( 'No coupon available' );
-		}
+        $object = new \Aimeos\MShop\Coupon\Provider\FixedRebate($context, $couponItem, '90AB');
 
-		$this->assertEquals( 2, count( $products ) );
-		$this->assertEquals( '-1.25', $product->getPrice()->getValue() );
-		$this->assertEquals( '1.25', $product->getPrice()->getRebate() );
-		$this->assertEquals( 'U:MD', $product->getProductCode() );
-	}
+        $this->assertInstanceOf(\Aimeos\MShop\Coupon\Provider\Iface::class, $object->update($this->order));
 
+        $coupons = $this->order->getCoupons()->get('90AB', []);
+        $products = $this->order->getProducts();
 
-	public function testUpdateMultipleTaxRates()
-	{
-		$products = $this->getOrderProducts();
+        if (($couponProduct20 = reset($coupons)) === false) {
+            throw new \RuntimeException('No coupon available');
+        }
 
-		$products['CNC']->getPrice()->setTaxRate( '10.00' );
-		$products['CNE']->getPrice()->setTaxRate( '20.00' );
+        if (($couponProduct10 = end($coupons)) === false) {
+            throw new \RuntimeException('No coupon available');
+        }
 
-		$products['CNC']->setQuantity( 1 );
-		$products['CNE']->setQuantity( 1 );
+        $this->assertEquals(4, count($products));
+        $this->assertEquals('-36.00', $couponProduct20->getPrice()->getValue());
+        $this->assertEquals('-1.00', $couponProduct20->getPrice()->getCosts());
+        $this->assertEquals('37.00', $couponProduct20->getPrice()->getRebate());
+        $this->assertEquals('-13.00', $couponProduct10->getPrice()->getValue());
+        $this->assertEquals(0, $couponProduct10->getPrice()->getCosts());
+        $this->assertEquals('13.00', $couponProduct10->getPrice()->getRebate());
+    }
 
-		$this->order->addProduct( $products['CNE'] );
-		$this->order->addProduct( $products['CNC'] );
+    public function testUpdateInvalidConfig()
+    {
+        $context = \TestHelper::context();
+        $couponItem = \Aimeos\MShop::create(\TestHelper::context(), 'coupon')->create();
+        $couponItem->setConfig([ 'fixedrebate.rebate' => '2.50' ]);
 
-		$context = \TestHelper::context();
-		$config = array(
-			'fixedrebate.productcode' => 'U:MD',
-			'fixedrebate.rebate' => array(
-				'EUR' => '50.00',
-			),
-		);
+        $object = new \Aimeos\MShop\Coupon\Provider\FixedRebate($context, $couponItem, '90AB');
 
-		$couponItem = \Aimeos\MShop::create( $context, 'coupon' )->create();
-		$couponItem->setConfig( $config );
+        $this->expectException(\Aimeos\MShop\Coupon\Exception::class);
+        $object->update($this->order);
+    }
 
-		$object = new \Aimeos\MShop\Coupon\Provider\FixedRebate( $context, $couponItem, '90AB' );
+    protected function getOrderProducts()
+    {
+        $products = [];
+        $manager = \Aimeos\MShop::create(\TestHelper::context(), 'order/product');
 
-		$this->assertInstanceOf( \Aimeos\MShop\Coupon\Provider\Iface::class, $object->update( $this->order ) );
+        $search = $manager->filter();
+        $search->setConditions($search->and([
+            $search->compare('==', 'order.product.prodcode', [ 'CNE', 'CNC' ]),
+            $search->compare('==', 'order.product.price', [ '600.00', '36.00' ]),
+        ]));
+        $items = $manager->search($search)->toArray();
 
-		$coupons = $this->order->getCoupons()->get( '90AB', [] );
-		$products = $this->order->getProducts();
+        if (count($items) < 2) {
+            throw new \RuntimeException('Please fix the test data in your database.');
+        }
 
-		if( ( $couponProduct20 = reset( $coupons ) ) === false ) {
-			throw new \RuntimeException( 'No coupon available' );
-		}
+        foreach ($items as $item) {
+            $products[$item->getProductCode()] = $item;
+        }
 
-		if( ( $couponProduct10 = end( $coupons ) ) === false ) {
-			throw new \RuntimeException( 'No coupon available' );
-		}
-
-		$this->assertEquals( 4, count( $products ) );
-		$this->assertEquals( '-36.00', $couponProduct20->getPrice()->getValue() );
-		$this->assertEquals( '-1.00', $couponProduct20->getPrice()->getCosts() );
-		$this->assertEquals( '37.00', $couponProduct20->getPrice()->getRebate() );
-		$this->assertEquals( '-13.00', $couponProduct10->getPrice()->getValue() );
-		$this->assertEquals( 0, $couponProduct10->getPrice()->getCosts() );
-		$this->assertEquals( '13.00', $couponProduct10->getPrice()->getRebate() );
-	}
-
-
-	public function testUpdateInvalidConfig()
-	{
-		$context = \TestHelper::context();
-		$couponItem = \Aimeos\MShop::create( \TestHelper::context(), 'coupon' )->create();
-		$couponItem->setConfig( array( 'fixedrebate.rebate' => '2.50' ) );
-
-		$object = new \Aimeos\MShop\Coupon\Provider\FixedRebate( $context, $couponItem, '90AB' );
-
-		$this->expectException( \Aimeos\MShop\Coupon\Exception::class );
-		$object->update( $this->order );
-	}
-
-
-	protected function getOrderProducts()
-	{
-		$products = [];
-		$manager = \Aimeos\MShop::create( \TestHelper::context(), 'order/product' );
-
-		$search = $manager->filter();
-		$search->setConditions( $search->and( array(
-			$search->compare( '==', 'order.product.prodcode', array( 'CNE', 'CNC' ) ),
-			$search->compare( '==', 'order.product.price', array( '600.00', '36.00' ) )
-		) ) );
-		$items = $manager->search( $search )->toArray();
-
-		if( count( $items ) < 2 ) {
-			throw new \RuntimeException( 'Please fix the test data in your database.' );
-		}
-
-		foreach( $items as $item ) {
-			$products[$item->getProductCode()] = $item;
-		}
-
-		return $products;
-	}
+        return $products;
+    }
 }

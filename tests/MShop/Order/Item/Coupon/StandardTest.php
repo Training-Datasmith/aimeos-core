@@ -1,182 +1,165 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Order\Item\Coupon;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $values;
+    private $object;
+    private $values;
 
+    protected function setUp(): void
+    {
+        $this->values = [
+            'order.coupon.id' => 1,
+            'order.coupon.siteid' => 99,
+            'order.coupon.parentid' => 42,
+            'order.coupon.code' => 'SomeCode',
+            'order.coupon.productid' => 566778,
+            'order.coupon.mtime' => '2001-12-30 23:59:59',
+            'order.coupon.ctime' => '2011-01-01 00:00:01',
+            'order.coupon.editor' => 'unitTestUser',
+        ];
 
-	protected function setUp() : void
-	{
-		$this->values = array(
-			'order.coupon.id' => 1,
-			'order.coupon.siteid' => 99,
-			'order.coupon.parentid' => 42,
-			'order.coupon.code' => 'SomeCode',
-			'order.coupon.productid' => 566778,
-			'order.coupon.mtime' => '2001-12-30 23:59:59',
-			'order.coupon.ctime' => '2011-01-01 00:00:01',
-			'order.coupon.editor' => 'unitTestUser'
-		);
+        $this->object = new \Aimeos\MShop\Order\Item\Coupon\Standard('order.coupon.', $this->values);
+    }
 
-		$this->object = new \Aimeos\MShop\Order\Item\Coupon\Standard( 'order.coupon.', $this->values );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testGetId()
+    {
+        $this->assertEquals(1, $this->object->getId());
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testSetId()
+    {
+        $return = $this->object->setId(null);
 
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Coupon\Iface::class, $return);
+        $this->assertEquals(null, $this->object->getId());
+        $this->assertTrue($this->object->isModified());
 
-	public function testGetId()
-	{
-		$this->assertEquals( 1, $this->object->getId() );
-	}
+        $return = $this->object->setId(5);
 
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Coupon\Iface::class, $return);
+        $this->assertEquals(5, $this->object->getId());
+        $this->assertFalse($this->object->isModified());
+    }
 
-	public function testSetId()
-	{
-		$return = $this->object->setId( null );
+    public function testGetSiteId()
+    {
+        $this->assertEquals(99, $this->object->getSiteId());
+    }
 
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Coupon\Iface::class, $return );
-		$this->assertEquals( null, $this->object->getId() );
-		$this->assertTrue( $this->object->isModified() );
+    public function testGetParentId()
+    {
+        $this->assertEquals(42, $this->object->getParentId());
+    }
 
-		$return = $this->object->setId( 5 );
+    public function testSetParentId()
+    {
+        $return = $this->object->setParentId(99);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Coupon\Iface::class, $return );
-		$this->assertEquals( 5, $this->object->getId() );
-		$this->assertFalse( $this->object->isModified() );
-	}
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Coupon\Iface::class, $return);
+        $this->assertEquals(99, $this->object->getParentId());
+        $this->assertTrue($this->object->isModified());
+    }
 
+    public function testGetCode()
+    {
+        $this->assertEquals('SomeCode', $this->object->getCode());
+    }
 
-	public function testGetSiteId()
-	{
-		$this->assertEquals( 99, $this->object->getSiteId() );
-	}
+    public function testSetCode()
+    {
+        $return = $this->object->setCode('testId');
 
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Coupon\Iface::class, $return);
+        $this->assertEquals('testId', $this->object->getCode());
+        $this->assertTrue($this->object->isModified());
+    }
 
-	public function testGetParentId()
-	{
-		$this->assertEquals( 42, $this->object->getParentId() );
-	}
+    public function testGetProductId()
+    {
+        $this->assertEquals(566778, $this->object->getProductId());
+    }
 
+    public function testSetProductId()
+    {
+        $return = $this->object->setProductId(12345);
 
-	public function testSetParentId()
-	{
-		$return = $this->object->setParentId( 99 );
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Coupon\Iface::class, $return);
+        $this->assertEquals(12345, $this->object->getProductId());
+        $this->assertTrue($this->object->isModified());
+    }
 
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Coupon\Iface::class, $return );
-		$this->assertEquals( 99, $this->object->getParentId() );
-		$this->assertTrue( $this->object->isModified() );
-	}
+    public function testGetTimeModified()
+    {
+        $this->assertEquals('2001-12-30 23:59:59', $this->object->getTimeModified());
+    }
 
+    public function testGetTimeCreated()
+    {
+        $this->assertEquals('2011-01-01 00:00:01', $this->object->getTimeCreated());
+    }
 
-	public function testGetCode()
-	{
-		$this->assertEquals( 'SomeCode', $this->object->getCode() );
-	}
+    public function testGetEditor()
+    {
+        $this->assertEquals('unitTestUser', $this->object->editor());
+    }
 
+    public function testGetResourceType()
+    {
+        $this->assertEquals('order/coupon', $this->object->getResourceType());
+    }
 
-	public function testSetCode()
-	{
-		$return = $this->object->setCode( 'testId' );
+    public function testFromArray()
+    {
+        $item = new \Aimeos\MShop\Order\Item\Coupon\Standard('order.coupon.', []);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Coupon\Iface::class, $return );
-		$this->assertEquals( 'testId', $this->object->getCode() );
-		$this->assertTrue( $this->object->isModified() );
-	}
+        $list = $entries = [
+            'order.coupon.id' => 1,
+            'order.coupon.parentid' => 2,
+            'order.coupon.productid' => 3,
+            'order.coupon.code' => 'test',
+        ];
 
+        $item = $item->fromArray($entries, true);
 
-	public function testGetProductId()
-	{
-		$this->assertEquals( 566778, $this->object->getProductId() );
-	}
+        $this->assertEquals([], $entries);
+        $this->assertEquals($list['order.coupon.id'], $item->getId());
+        $this->assertEquals($list['order.coupon.parentid'], $item->getParentId());
+        $this->assertEquals($list['order.coupon.productid'], $item->getProductId());
+        $this->assertEquals($list['order.coupon.code'], $item->getCode());
+    }
 
+    public function testToArray()
+    {
+        $array = $this->object->toArray(true);
 
-	public function testSetProductId()
-	{
-		$return = $this->object->setProductId( 12345 );
+        $this->assertEquals(count($this->values), count($array));
 
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Coupon\Iface::class, $return );
-		$this->assertEquals( 12345, $this->object->getProductId() );
-		$this->assertTrue( $this->object->isModified() );
-	}
+        $this->assertEquals($this->object->getId(), $array['order.coupon.id']);
+        $this->assertEquals($this->object->getSiteId(), $array['order.coupon.siteid']);
+        $this->assertEquals($this->object->getParentId(), $array['order.coupon.parentid']);
+        $this->assertEquals($this->object->getCode(), $array['order.coupon.code']);
+        $this->assertEquals($this->object->getProductId(), $array['order.coupon.productid']);
+        $this->assertEquals($this->object->getTimeModified(), $array['order.coupon.mtime']);
+        $this->assertEquals($this->object->getTimeCreated(), $array['order.coupon.ctime']);
+        $this->assertEquals($this->object->editor(), $array['order.coupon.editor']);
+    }
 
-
-	public function testGetTimeModified()
-	{
-		$this->assertEquals( '2001-12-30 23:59:59', $this->object->getTimeModified() );
-	}
-
-
-	public function testGetTimeCreated()
-	{
-		$this->assertEquals( '2011-01-01 00:00:01', $this->object->getTimeCreated() );
-	}
-
-
-	public function testGetEditor()
-	{
-		$this->assertEquals( 'unitTestUser', $this->object->editor() );
-	}
-
-
-	public function testGetResourceType()
-	{
-		$this->assertEquals( 'order/coupon', $this->object->getResourceType() );
-	}
-
-
-	public function testFromArray()
-	{
-		$item = new \Aimeos\MShop\Order\Item\Coupon\Standard( 'order.coupon.', [] );
-
-		$list = $entries = array(
-			'order.coupon.id' => 1,
-			'order.coupon.parentid' => 2,
-			'order.coupon.productid' => 3,
-			'order.coupon.code' => 'test',
-		);
-
-		$item = $item->fromArray( $entries, true );
-
-		$this->assertEquals( [], $entries );
-		$this->assertEquals( $list['order.coupon.id'], $item->getId() );
-		$this->assertEquals( $list['order.coupon.parentid'], $item->getParentId() );
-		$this->assertEquals( $list['order.coupon.productid'], $item->getProductId() );
-		$this->assertEquals( $list['order.coupon.code'], $item->getCode() );
-	}
-
-
-	public function testToArray()
-	{
-		$array = $this->object->toArray( true );
-
-		$this->assertEquals( count( $this->values ), count( $array ) );
-
-		$this->assertEquals( $this->object->getId(), $array['order.coupon.id'] );
-		$this->assertEquals( $this->object->getSiteId(), $array['order.coupon.siteid'] );
-		$this->assertEquals( $this->object->getParentId(), $array['order.coupon.parentid'] );
-		$this->assertEquals( $this->object->getCode(), $array['order.coupon.code'] );
-		$this->assertEquals( $this->object->getProductId(), $array['order.coupon.productid'] );
-		$this->assertEquals( $this->object->getTimeModified(), $array['order.coupon.mtime'] );
-		$this->assertEquals( $this->object->getTimeCreated(), $array['order.coupon.ctime'] );
-		$this->assertEquals( $this->object->editor(), $array['order.coupon.editor'] );
-	}
-
-	public function testIsModified()
-	{
-		$this->assertFalse( $this->object->isModified() );
-	}
+    public function testIsModified()
+    {
+        $this->assertFalse($this->object->isModified());
+    }
 }

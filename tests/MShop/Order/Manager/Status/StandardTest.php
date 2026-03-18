@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -8,179 +10,165 @@
 
 namespace Aimeos\MShop\Order\Manager\Status;
 
-
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
-	private $editor = '';
+    private $context;
+    private $object;
+    private $editor = '';
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->editor = $this->context->editor();
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->editor = $this->context->editor();
+        $this->object = new \Aimeos\MShop\Order\Manager\Status\Standard($this->context);
+    }
 
-		$this->object = new \Aimeos\MShop\Order\Manager\Status\Standard( $this->context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testAggregate()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'order.status.editor', 'core'));
+        $result = $this->object->aggregate($search, 'order.status.value')->toArray();
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+        $this->assertEquals(2, count($result));
+        $this->assertArrayHasKey('waiting', $result);
+        $this->assertEquals(2, $result['waiting']);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
-	public function testAggregate()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'order.status.editor', 'core' ) );
-		$result = $this->object->aggregate( $search, 'order.status.value' )->toArray();
+    public function testDelete()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->delete([-1]));
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertArrayHasKey( 'waiting', $result );
-		$this->assertEquals( 2, $result['waiting'] );
-	}
+    public function testCreate()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Status\Iface::class, $this->object->create());
+    }
 
+    public function testGet()
+    {
+        $search = $this->object->filter()->slice(0, 1);
+        $search->setConditions($search->compare('==', 'order.status.value', 'shipped'));
+        $results = $this->object->search($search)->toArray();
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+        if (($expected = reset($results)) === false) {
+            throw new \Aimeos\MShop\Order\Exception('No order status item found');
+        }
 
+        $this->assertEquals($expected, $this->object->get($expected->getId()));
+    }
 
-	public function testDelete()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->delete( [-1] ) );
-	}
+    public function testSaveUpdateDelete()
+    {
+        $search = $this->object->filter();
+        $conditions = [
+            $search->compare('==', 'order.status.value', 'shipped'),
+            $search->compare('==', 'order.status.editor', $this->editor),
+        ];
+        $search->setConditions($search->and($conditions));
+        $results = $this->object->search($search)->toArray();
 
+        if (($item = reset($results)) === false) {
+            throw new \RuntimeException('No order base item found.');
+        }
 
-	public function testCreate()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Status\Iface::class, $this->object->create() );
-	}
+        $item->setId(null);
+        $resultSaved = $this->object->save($item);
+        $itemSaved = $this->object->get($item->getId());
 
+        $itemExp = clone $itemSaved;
+        $itemExp->setType('received');
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($itemExp->getId());
 
-	public function testGet()
-	{
-		$search = $this->object->filter()->slice( 0, 1 );
-		$search->setConditions( $search->compare( '==', 'order.status.value', 'shipped' ) );
-		$results = $this->object->search( $search )->toArray();
+        $this->object->delete($itemSaved->getId());
 
-		if( ( $expected = reset( $results ) ) === false ) {
-			throw new \Aimeos\MShop\Order\Exception( 'No order status item found' );
-		}
+        $this->assertTrue($item->getId() !== null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getSiteId(), $itemSaved->getSiteId());
+        $this->assertEquals($item->getParentId(), $itemSaved->getParentId());
+        $this->assertEquals($item->getType(), $itemSaved->getType());
+        $this->assertEquals($item->getValue(), $itemSaved->getValue());
 
-		$this->assertEquals( $expected, $this->object->get( $expected->getId() ) );
-	}
+        $this->assertEquals($this->editor, $itemSaved->editor());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified());
 
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getSiteId(), $itemUpd->getSiteId());
+        $this->assertEquals($itemExp->getParentId(), $itemUpd->getParentId());
+        $this->assertEquals($itemExp->getType(), $itemUpd->getType());
+        $this->assertEquals($itemExp->getValue(), $itemUpd->getValue());
 
-	public function testSaveUpdateDelete()
-	{
-		$search = $this->object->filter();
-		$conditions = array(
-			$search->compare( '==', 'order.status.value', 'shipped' ),
-			$search->compare( '==', 'order.status.editor', $this->editor )
-		);
-		$search->setConditions( $search->and( $conditions ) );
-		$results = $this->object->search( $search )->toArray();
+        $this->assertEquals($this->editor, $itemUpd->editor());
+        $this->assertEquals($itemExp->getTimeCreated(), $itemUpd->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified());
 
-		if( ( $item = reset( $results ) ) === false ) {
-			throw new \RuntimeException( 'No order base item found.' );
-		}
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		$item->setId( null );
-		$resultSaved = $this->object->save( $item );
-		$itemSaved = $this->object->get( $item->getId() );
+        $this->expectException(\Aimeos\MShop\Exception::class);
+        $this->object->get($itemSaved->getId());
+    }
 
-		$itemExp = clone $itemSaved;
-		$itemExp->setType( 'received' );
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $itemExp->getId() );
+    public function testFilter()
+    {
+        $this->assertInstanceOf(\Aimeos\Base\Criteria\Iface::class, $this->object->filter());
+    }
 
-		$this->object->delete( $itemSaved->getId() );
+    public function testSearch()
+    {
+        $siteid = $this->context->locale()->getSiteId();
 
+        $total = 0;
+        $search = $this->object->filter();
 
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getSiteId(), $itemSaved->getSiteId() );
-		$this->assertEquals( $item->getParentId(), $itemSaved->getParentId() );
-		$this->assertEquals( $item->getType(), $itemSaved->getType() );
-		$this->assertEquals( $item->getValue(), $itemSaved->getValue() );
+        $expr = [];
+        $expr[] = $search->compare('!=', 'order.status.id', null);
+        $expr[] = $search->compare('==', 'order.status.siteid', $siteid);
+        $expr[] = $search->compare('!=', 'order.status.parentid', null);
+        $expr[] = $search->compare('>=', 'order.status.type', 'typestatus');
+        $expr[] = $search->compare('==', 'order.status.value', 'shipped');
+        $expr[] = $search->compare('>=', 'order.status.mtime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('>=', 'order.status.ctime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('==', 'order.status.editor', $this->editor);
 
-		$this->assertEquals( $this->editor, $itemSaved->editor() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified() );
+        $search->setConditions($search->and($expr));
+        $result = $this->object->search($search, [], $total)->toArray();
 
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getSiteId(), $itemUpd->getSiteId() );
-		$this->assertEquals( $itemExp->getParentId(), $itemUpd->getParentId() );
-		$this->assertEquals( $itemExp->getType(), $itemUpd->getType() );
-		$this->assertEquals( $itemExp->getValue(), $itemUpd->getValue() );
+        $this->assertEquals(1, count($result));
+        $this->assertEquals(1, $total);
 
-		$this->assertEquals( $this->editor, $itemUpd->editor() );
-		$this->assertEquals( $itemExp->getTimeCreated(), $itemUpd->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified() );
+        $search = $this->object->filter();
+        $conditions = [
+            $search->compare('>=', 'order.status.value', 'waiting'),
+            $search->compare('==', 'order.status.editor', $this->editor),
+        ];
+        $search->setConditions($search->and($conditions));
+        $search->slice(0, 1);
+        $total = 0;
+        $items = $this->object->search($search, [], $total)->toArray();
+        $this->assertEquals(1, count($items));
+        $this->assertEquals(2, $total);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
+        foreach ($items as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-		$this->expectException( \Aimeos\MShop\Exception::class );
-		$this->object->get( $itemSaved->getId() );
-	}
-
-
-	public function testFilter()
-	{
-		$this->assertInstanceOf( \Aimeos\Base\Criteria\Iface::class, $this->object->filter() );
-	}
-
-
-	public function testSearch()
-	{
-		$siteid = $this->context->locale()->getSiteId();
-
-		$total = 0;
-		$search = $this->object->filter();
-
-		$expr = [];
-		$expr[] = $search->compare( '!=', 'order.status.id', null );
-		$expr[] = $search->compare( '==', 'order.status.siteid', $siteid );
-		$expr[] = $search->compare( '!=', 'order.status.parentid', null );
-		$expr[] = $search->compare( '>=', 'order.status.type', 'typestatus' );
-		$expr[] = $search->compare( '==', 'order.status.value', 'shipped' );
-		$expr[] = $search->compare( '>=', 'order.status.mtime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '>=', 'order.status.ctime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '==', 'order.status.editor', $this->editor );
-
-		$search->setConditions( $search->and( $expr ) );
-		$result = $this->object->search( $search, [], $total )->toArray();
-
-		$this->assertEquals( 1, count( $result ) );
-		$this->assertEquals( 1, $total );
-
-
-		$search = $this->object->filter();
-		$conditions = array(
-			$search->compare( '>=', 'order.status.value', 'waiting' ),
-			$search->compare( '==', 'order.status.editor', $this->editor )
-		);
-		$search->setConditions( $search->and( $conditions ) );
-		$search->slice( 0, 1 );
-		$total = 0;
-		$items = $this->object->search( $search, [], $total )->toArray();
-		$this->assertEquals( 1, count( $items ) );
-		$this->assertEquals( 2, $total );
-
-		foreach( $items as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
-
-
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 }

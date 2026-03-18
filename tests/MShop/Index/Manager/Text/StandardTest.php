@@ -1,194 +1,179 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Text;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->object = new \Aimeos\MShop\Index\Manager\Text\Standard($this->context);
+    }
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->object = new \Aimeos\MShop\Index\Manager\Text\Standard( $this->context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear([ -1 ]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testCleanup()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup('1970-01-01 00:00:00'));
+    }
 
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear( array( -1 ) ) );
-	}
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
+    public function testIterate()
+    {
+        $filter = $this->object->filter(true);
+        $filter->add($filter->make('index.text:name', ['de']), '=~', 'Cafe');
 
-	public function testCleanup()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup( '1970-01-01 00:00:00' ) );
-	}
+        $cursor = $this->object->cursor($filter);
+        $products = $this->object->iterate($cursor);
 
+        $this->assertEquals(2, count($products));
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+        foreach ($products as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
+    public function testRemove()
+    {
+        $this->assertEquals($this->object, $this->object->remove([-1]));
+    }
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testSearchRelevance()
+    {
+        $config = $this->context->config();
+        $dbadapter = $config->get('resource/db-product/adapter', $config->get('resource/db/adapter'));
 
+        if ($dbadapter === 'sqlsrv') {
+            $this->markTestSkipped('Not supported by SQL Server');
+        }
 
-	public function testIterate()
-	{
-		$filter = $this->object->filter( true );
-		$filter->add( $filter->make( 'index.text:name', ['de'] ), '=~', 'Cafe' );
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>', $search->make('index.text:relevance', ['de', 't-disc']), 0));
+        $search->setSortations([$search->sort('-', $search->make('sort:index.text:relevance', ['de', 't-disc']))]);
 
-		$cursor = $this->object->cursor( $filter );
-		$products = $this->object->iterate( $cursor );
+        $result = $this->object->search($search, []);
 
-		$this->assertEquals( 2, count( $products ) );
+        $this->assertEquals(2, count($result));
+    }
 
-		foreach( $products as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
+    public function testSearchRelevanceCase()
+    {
+        $config = $this->context->config();
+        $dbadapter = $config->get('resource/db-product/adapter', $config->get('resource/db/adapter'));
 
+        if ($dbadapter === 'sqlsrv') {
+            $this->markTestSkipped('Not supported by SQL Server');
+        }
 
-	public function testRemove()
-	{
-		$this->assertEquals( $this->object, $this->object->remove( [-1] ) );
-	}
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>', $search->make('index.text:relevance', ['de', 'T-DISC']), 0));
+        $search->setSortations([$search->sort('-', $search->make('sort:index.text:relevance', ['de', 'T-DISC']))]);
 
+        $result = $this->object->search($search, []);
 
-	public function testSearchRelevance()
-	{
-		$config = $this->context->config();
-		$dbadapter = $config->get( 'resource/db-product/adapter', $config->get( 'resource/db/adapter' ) );
+        $this->assertEquals(2, count($result));
+    }
 
-		if( $dbadapter === 'sqlsrv' ) {
-			$this->markTestSkipped( 'Not supported by SQL Server' );
-		}
+    public function testSearchNoLanguage()
+    {
+        $config = $this->context->config();
+        $dbadapter = $config->get('resource/db-product/adapter', $config->get('resource/db/adapter'));
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>', $search->make( 'index.text:relevance', ['de', 't-disc'] ), 0 ) );
-		$search->setSortations( [$search->sort( '-', $search->make( 'sort:index.text:relevance', ['de', 't-disc'] ) )] );
+        if ($dbadapter === 'sqlsrv') {
+            $this->markTestSkipped('Not supported by SQL Server');
+        }
 
-		$result = $this->object->search( $search, [] );
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>', $search->make('index.text:relevance', ['de', 'language']), 0));
+        $search->setSortations([$search->sort('-', $search->make('sort:index.text:relevance', ['de', 'language']))]);
 
-		$this->assertEquals( 2, count( $result ) );
-	}
+        $result = $this->object->search($search, []);
 
+        $this->assertEquals(3, count($result));
+    }
 
-	public function testSearchRelevanceCase()
-	{
-		$config = $this->context->config();
-		$dbadapter = $config->get( 'resource/db-product/adapter', $config->get( 'resource/db/adapter' ) );
+    public function testSearchName()
+    {
+        $search = $this->object->filter();
 
-		if( $dbadapter === 'sqlsrv' ) {
-			$this->markTestSkipped( 'Not supported by SQL Server' );
-		}
+        $func = $search->make('index.text:name', ['de']);
+        $search->setConditions($search->compare('=~', $func, 'Cafe'));
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>', $search->make( 'index.text:relevance', ['de', 'T-DISC'] ), 0 ) );
-		$search->setSortations( [$search->sort( '-', $search->make( 'sort:index.text:relevance', ['de', 'T-DISC'] ) )] );
+        $sortfunc = $search->make('sort:index.text:name', ['de']);
+        $search->setSortations([ $search->sort('+', $sortfunc) ]);
 
-		$result = $this->object->search( $search, [] );
+        $result = $this->object->search($search, []);
 
-		$this->assertEquals( 2, count( $result ) );
-	}
+        $this->assertEquals(2, count($result));
+    }
 
+    public function testSearchUrl()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.text:url("de")', 'cafe-noire-cappuccino'));
+        $result = $this->object->search($search, []);
 
-	public function testSearchNoLanguage()
-	{
-		$config = $this->context->config();
-		$dbadapter = $config->get( 'resource/db-product/adapter', $config->get( 'resource/db/adapter' ) );
+        $this->assertEquals(1, count($result));
+    }
 
-		if( $dbadapter === 'sqlsrv' ) {
-			$this->markTestSkipped( 'Not supported by SQL Server' );
-		}
+    public function testSaveDeleteItem()
+    {
+        $product = \Aimeos\MShop::create($this->context, 'product')->find('CNC', ['text']);
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>', $search->make( 'index.text:relevance', ['de', 'language'] ), 0 ) );
-		$search->setSortations( [$search->sort( '-', $search->make( 'sort:index.text:relevance', ['de', 'language'] ) )] );
+        $this->object->delete($product->getId());
+        $this->object->save($product);
 
-		$result = $this->object->search( $search, [] );
+        $search = $this->object->filter();
 
-		$this->assertEquals( 3, count( $result ) );
-	}
+        $func = $search->make('index.text:name', ['de']);
+        $search->setConditions($search->compare('==', $func, 'Cafe Noire Expresso'));
 
+        $this->assertEquals(1, count($this->object->search($search)->toArray()));
+    }
 
-	public function testSearchName()
-	{
-		$search = $this->object->filter();
+    public function testSaveDeleteItemNoName()
+    {
+        $product = \Aimeos\MShop::create($this->context, 'product')->find('IJKL', ['text']);
 
-		$func = $search->make( 'index.text:name', ['de'] );
-		$search->setConditions( $search->compare( '=~', $func, 'Cafe' ) );
+        $this->object->delete($product->getId());
+        $this->object->save($product);
 
-		$sortfunc = $search->make( 'sort:index.text:name', ['de'] );
-		$search->setSortations( array( $search->sort( '+', $sortfunc ) ) );
+        $search = $this->object->filter();
 
-		$result = $this->object->search( $search, [] );
+        $func = $search->make('index.text:name', ['de']);
+        $search->setConditions($search->compare('==', $func, 'Unterproduct 3'));
 
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchUrl()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.text:url("de")', 'cafe-noire-cappuccino' ) );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 1, count( $result ) );
-	}
-
-
-	public function testSaveDeleteItem()
-	{
-		$product = \Aimeos\MShop::create( $this->context, 'product' )->find( 'CNC', ['text'] );
-
-		$this->object->delete( $product->getId() );
-		$this->object->save( $product );
-
-		$search = $this->object->filter();
-
-		$func = $search->make( 'index.text:name', ['de'] );
-		$search->setConditions( $search->compare( '==', $func, 'Cafe Noire Expresso' ) );
-
-		$this->assertEquals( 1, count( $this->object->search( $search )->toArray() ) );
-	}
-
-
-	public function testSaveDeleteItemNoName()
-	{
-		$product = \Aimeos\MShop::create( $this->context, 'product' )->find( 'IJKL', ['text'] );
-
-		$this->object->delete( $product->getId() );
-		$this->object->save( $product );
-
-		$search = $this->object->filter();
-
-		$func = $search->make( 'index.text:name', ['de'] );
-		$search->setConditions( $search->compare( '==', $func, 'Unterproduct 3' ) );
-
-		$this->assertEquals( 1, count( $this->object->search( $search )->toArray() ) );
-	}
+        $this->assertEquals(1, count($this->object->search($search)->toArray()));
+    }
 }

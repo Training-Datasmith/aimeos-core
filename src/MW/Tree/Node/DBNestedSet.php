@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -8,9 +10,7 @@
  * @subpackage Tree
  */
 
-
 namespace Aimeos\MW\Tree\Node;
-
 
 /**
  * Nested set implementation of a tree node
@@ -22,17 +22,17 @@ namespace Aimeos\MW\Tree\Node;
  */
 class DBNestedSet extends Standard
 {
-	/**
-	 * Tests if a node has children.
-	 *
-	 * @return bool True if node has children, false if not
-	 */
-	public function hasChildren() : bool
-	{
-		if( isset( $this->right ) && isset( $this->left ) && $this->right > $this->left + 1 ) {
-			return true;
-		}
+    /**
+     * Tests if a node has children.
+     *
+     * @return bool True if node has children, false if not
+     */
+    public function hasChildren(): bool
+    {
+        if (isset($this->right) && isset($this->left) && $this->right > $this->left + 1) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

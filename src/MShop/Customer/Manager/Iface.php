@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -8,9 +10,7 @@
  * @subpackage Customer
  */
 
-
 namespace Aimeos\MShop\Customer\Manager;
-
 
 /**
  * Interface for customer DAOs used by the shop.
@@ -18,7 +18,6 @@ namespace Aimeos\MShop\Customer\Manager;
  * @package MShop
  * @subpackage Customer
  */
-interface Iface
-	extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common\Manager\Find\Iface
+interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common\Manager\Find\Iface
 {
 }

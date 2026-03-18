@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -8,9 +10,7 @@
  * @subpackage Plugin
  */
 
-
 namespace Aimeos\MShop\Plugin\Provider\Order;
-
 
 /**
  * Adds address and service items to the basket
@@ -39,337 +39,316 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class Autofill
-	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
-	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Autofill extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = [
-		'address' => [
-			'code' => 'address',
-			'internalcode' => 'address',
-			'label' => 'Add customer address automatically',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-		'delivery' => [
-			'code' => 'delivery',
-			'internalcode' => 'delivery',
-			'label' => 'Add delivery option automatically',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-		'deliverycode' => [
-			'code' => 'deliverycode',
-			'internalcode' => 'deliverycode',
-			'label' => 'Add delivery by code',
-			'default' => '',
-			'required' => false,
-		],
-		'payment' => [
-			'code' => 'payment',
-			'internalcode' => 'payment',
-			'label' => 'Add payment option automatically',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-		'paymentcode' => [
-			'code' => 'paymentcode',
-			'internalcode' => 'paymentcode',
-			'label' => 'Add payment by code',
-			'default' => '',
-			'required' => false,
-		],
-		'useorder' => [
-			'code' => 'useorder',
-			'internalcode' => 'useorder',
-			'label' => 'Add from last order',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-		'orderaddress' => [
-			'code' => 'orderaddress',
-			'internalcode' => 'orderaddress',
-			'label' => 'Add address from last order',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-		'orderservice' => [
-			'code' => 'orderservice',
-			'internalcode' => 'orderservice',
-			'label' => 'Add delivery/payment from last order',
-			'type' => 'bool',
-			'default' => '',
-			'required' => false,
-		],
-	];
+    private array $beConfig = [
+        'address' => [
+            'code' => 'address',
+            'internalcode' => 'address',
+            'label' => 'Add customer address automatically',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+        'delivery' => [
+            'code' => 'delivery',
+            'internalcode' => 'delivery',
+            'label' => 'Add delivery option automatically',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+        'deliverycode' => [
+            'code' => 'deliverycode',
+            'internalcode' => 'deliverycode',
+            'label' => 'Add delivery by code',
+            'default' => '',
+            'required' => false,
+        ],
+        'payment' => [
+            'code' => 'payment',
+            'internalcode' => 'payment',
+            'label' => 'Add payment option automatically',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+        'paymentcode' => [
+            'code' => 'paymentcode',
+            'internalcode' => 'paymentcode',
+            'label' => 'Add payment by code',
+            'default' => '',
+            'required' => false,
+        ],
+        'useorder' => [
+            'code' => 'useorder',
+            'internalcode' => 'useorder',
+            'label' => 'Add from last order',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+        'orderaddress' => [
+            'code' => 'orderaddress',
+            'internalcode' => 'orderaddress',
+            'label' => 'Add address from last order',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+        'orderservice' => [
+            'code' => 'orderservice',
+            'internalcode' => 'orderservice',
+            'label' => 'Add delivery/payment from last order',
+            'type' => 'bool',
+            'default' => '',
+            'required' => false,
+        ],
+    ];
 
+    /**
+     * Checks the backend configuration attributes for validity.
+     *
+     * @param array $attributes Attributes added by the shop owner in the administraton interface
+     * @return array An array with the attribute keys as key and an error message as values for all attributes that are
+     * 	known by the provider but aren't valid
+     */
+    public function checkConfigBE(array $attributes): array
+    {
+        $errors = parent::checkConfigBE($attributes);
 
-	/**
-	 * Checks the backend configuration attributes for validity.
-	 *
-	 * @param array $attributes Attributes added by the shop owner in the administraton interface
-	 * @return array An array with the attribute keys as key and an error message as values for all attributes that are
-	 * 	known by the provider but aren't valid
-	 */
-	public function checkConfigBE( array $attributes ) : array
-	{
-		$errors = parent::checkConfigBE( $attributes );
+        return array_merge($errors, $this->checkConfig($this->beConfig, $attributes));
+    }
 
-		return array_merge( $errors, $this->checkConfig( $this->beConfig, $attributes ) );
-	}
+    /**
+     * Returns the configuration attribute definitions of the provider to generate a list of available fields and
+     * rules for the value of each field in the administration interface.
+     *
+     * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
+     */
+    public function getConfigBE(): array
+    {
+        return $this->getConfigItems($this->beConfig);
+    }
 
+    /**
+     * Subscribes itself to a publisher
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
+     * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
+     */
+    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    {
+        $plugin = $this->object();
 
-	/**
-	 * Returns the configuration attribute definitions of the provider to generate a list of available fields and
-	 * rules for the value of each field in the administration interface.
-	 *
-	 * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
-	 */
-	public function getConfigBE() : array
-	{
-		return $this->getConfigItems( $this->beConfig );
-	}
+        $p->attach($plugin, 'addAddress.after');
+        $p->attach($plugin, 'setAddresses.after');
+        $p->attach($plugin, 'addProduct.after');
+        $p->attach($plugin, 'setProducts.after');
+        $p->attach($plugin, 'deleteService.after');
 
+        return $this;
+    }
 
-	/**
-	 * Subscribes itself to a publisher
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
-	 * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
-	 */
-	public function register( \Aimeos\MShop\Order\Item\Iface $p ) : \Aimeos\MShop\Plugin\Provider\Iface
-	{
-		$plugin = $this->object();
+    /**
+     * Receives a notification from a publisher object
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
+     * @param string $action Name of the action to listen for
+     * @param mixed $value Object or value changed in publisher
+     * @return mixed Modified value parameter
+     * @throws \Aimeos\MShop\Plugin\Provider\Exception if an error occurs
+     */
+    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    {
+        $context = $this->context();
+        $services = $order->getServices();
+        $addresses = $order->getAddresses();
 
-		$p->attach( $plugin, 'addAddress.after' );
-		$p->attach( $plugin, 'setAddresses.after' );
-		$p->attach( $plugin, 'addProduct.after' );
-		$p->attach( $plugin, 'setProducts.after' );
-		$p->attach( $plugin, 'deleteService.after' );
+        if (($userid = $context->user()) !== null
+            && (bool) $this->getConfigValue('useorder', false) === true
+            && ($addresses->isEmpty() || $services->isEmpty())
+        ) {
+            $orderManager = \Aimeos\MShop::create($context, 'order');
 
-		return $this;
-	}
+            $search = $orderManager->filter()->add([
+                'order.customerid' => $userid,
+                'order.languageid' => $order->locale()->getLanguageId(),
+                'order.currencyid' => $order->locale()->getCurrencyId(),
+            ])->order('-order.id')->slice(0, 1);
 
+            if (($item = $orderManager->search($search, ['order/address', 'order/service', 'service'])->first()) !== null) {
+                $this->setAddresses($order, $item);
+                $this->setServices($order, $item);
+            }
+        }
 
-	/**
-	 * Receives a notification from a publisher object
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
-	 * @param string $action Name of the action to listen for
-	 * @param mixed $value Object or value changed in publisher
-	 * @return mixed Modified value parameter
-	 * @throws \Aimeos\MShop\Plugin\Provider\Exception if an error occurs
-	 */
-	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null )
-	{
-		$context = $this->context();
-		$services = $order->getServices();
-		$addresses = $order->getAddresses();
+        $this->setAddressDefault($order);
+        $this->setServicesDefault($order);
 
-		if( ( $userid = $context->user() ) !== null
-			&& (bool) $this->getConfigValue( 'useorder', false ) === true
-			&& ( $addresses->isEmpty() || $services->isEmpty() )
-		) {
-			$orderManager = \Aimeos\MShop::create( $context, 'order' );
+        return $value;
+    }
 
-			$search = $orderManager->filter()->add( [
-				'order.customerid' => $userid,
-				'order.languageid' => $order->locale()->getLanguageId(),
-				'order.currencyid' => $order->locale()->getCurrencyId(),
-			] )->order( '-order.id' )->slice( 0, 1 );
+    /**
+     * Returns the order service item for the given type and code if available.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Basket of the customer
+     * @param string $type Service type constant from \Aimeos\MShop\Order\Item\Service\Base
+     * @param string|null $code Service item code
+     * @return \Aimeos\MShop\Order\Item\Service\Iface|null Order service item if available or null otherwise
+     */
+    protected function getServiceItem(
+        \Aimeos\MShop\Order\Item\Iface $order,
+        string $type,
+        ?string $code = null
+    ): ?\Aimeos\MShop\Order\Item\Service\Iface {
+        $context = $this->context();
+        $serviceManager = \Aimeos\MShop::create($context, 'service');
 
-			if( ( $item = $orderManager->search( $search, ['order/address', 'order/service', 'service'] )->first() ) !== null )
-			{
-				$this->setAddresses( $order, $item );
-				$this->setServices( $order, $item );
-			}
-		}
+        $filter = $serviceManager->filter(true)->add(['service.type' => $type])->order('service.position');
 
-		$this->setAddressDefault( $order );
-		$this->setServicesDefault( $order );
+        if ($code !== null) {
+            $filter->add('service.code', '==', $code);
+        }
 
-		return $value;
-	}
+        foreach ($serviceManager->search($filter, ['media', 'price', 'text']) as $item) {
+            $provider = $serviceManager->getProvider($item, $item->getType());
 
+            if ($provider->isAvailable($order) === true) {
+                return \Aimeos\MShop::create($context, 'order/service')->create()
+                    ->copyFrom($item)->setPrice($provider->calcPrice($order));
+            }
+        }
 
-	/**
-	 * Returns the order service item for the given type and code if available.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Basket of the customer
-	 * @param string $type Service type constant from \Aimeos\MShop\Order\Item\Service\Base
-	 * @param string|null $code Service item code
-	 * @return \Aimeos\MShop\Order\Item\Service\Iface|null Order service item if available or null otherwise
-	 */
-	protected function getServiceItem( \Aimeos\MShop\Order\Item\Iface $order, string $type,
-		?string $code = null ) : ?\Aimeos\MShop\Order\Item\Service\Iface
-	{
-		$context = $this->context();
-		$serviceManager = \Aimeos\MShop::create( $context, 'service' );
+        return null;
+    }
 
-		$filter = $serviceManager->filter( true )->add( ['service.type' => $type] )->order( 'service.position' );
+    /**
+     * Adds the addresses from the given order item to the basket.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
+     * @param \Aimeos\MShop\Order\Item\Iface $item Existing order to fetch the addresses from
+     * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
+     */
+    protected function setAddresses(
+        \Aimeos\MShop\Order\Item\Iface $order,
+        \Aimeos\MShop\Order\Item\Iface $item
+    ): \Aimeos\MShop\Order\Item\Iface {
+        if ($order->getAddresses()->isEmpty() && (bool) $this->getConfigValue('orderaddress', true) === true) {
+            $map = $item->getAddresses();
 
-		if( $code !== null ) {
-			$filter->add( 'service.code', '==', $code );
-		}
+            foreach ($map as $list) {
+                map($list)->setId(null);
+            }
 
-		foreach( $serviceManager->search( $filter, ['media', 'price', 'text'] ) as $item )
-		{
-			$provider = $serviceManager->getProvider( $item, $item->getType() );
+            $order->setAddresses($map);
+        }
 
-			if( $provider->isAvailable( $order ) === true )
-			{
-				return \Aimeos\MShop::create( $context, 'order/service' )->create()
-					->copyFrom( $item )->setPrice( $provider->calcPrice( $order ) );
-			}
-		}
+        return $order;
+    }
 
-		return null;
-	}
+    /**
+     * Adds the services from the given order item to the basket.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
+     * @param \Aimeos\MShop\Order\Item\Iface $item Existing order to fetch the services from
+     * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
+     */
+    protected function setServices(
+        \Aimeos\MShop\Order\Item\Iface $order,
+        \Aimeos\MShop\Order\Item\Iface $item
+    ): \Aimeos\MShop\Order\Item\Iface {
+        if ($order->getServices()->isEmpty() && $this->getConfigValue('orderservice', true) == true) {
+            $map = $item->getServices()->all();
+            $serviceManager = \Aimeos\MShop::create($this->context(), 'service');
 
+            foreach ($map as $type => $list) {
+                foreach ($list as $key => $service) {
+                    if ($serviceItem = $service->getServiceItem()) {
+                        $provider = $serviceManager->getProvider($serviceItem, $service->getType());
 
-	/**
-	 * Adds the addresses from the given order item to the basket.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Existing order to fetch the addresses from
-	 * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
-	 */
-	protected function setAddresses( \Aimeos\MShop\Order\Item\Iface $order,
-		\Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		if( $order->getAddresses()->isEmpty() && (bool) $this->getConfigValue( 'orderaddress', true ) === true )
-		{
-			$map = $item->getAddresses();
+                        if ($provider->isAvailable($order) === true) {
+                            $attrItems = $service->getAttributeItems()->filter(fn ($attr) => in_array($attr->getType(), ['', 'hidden']));
 
-			foreach( $map as $list ) {
-				map( $list )->setId( null );
-			}
+                            $service->setId(null)->setAttributeItems($attrItems->setId(null));
+                        } else {
+                            unset($map[$type][$key]);
+                        }
+                    }
+                }
+            }
 
-			$order->setAddresses( $map );
-		}
+            $order->setServices($map);
+        }
 
-		return $order;
-	}
+        return $order;
+    }
 
+    /**
+     * Adds the default addresses to the basket if they are not available.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
+     * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
+     */
+    protected function setAddressDefault(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    {
+        $context = $this->context();
+        $addresses = $order->getAddresses();
+        $type = \Aimeos\MShop\Order\Item\Address\Base::TYPE_PAYMENT;
 
-	/**
-	 * Adds the services from the given order item to the basket.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Existing order to fetch the services from
-	 * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
-	 */
-	protected function setServices( \Aimeos\MShop\Order\Item\Iface $order,
-		\Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		if( $order->getServices()->isEmpty() && $this->getConfigValue( 'orderservice', true ) == true )
-		{
-			$map = $item->getServices()->all();
-			$serviceManager = \Aimeos\MShop::create( $this->context(), 'service' );
+        if ($context->user() !== null && !isset($addresses[$type])
+            && (bool) $this->getConfigValue('address', false) === true
+        ) {
+            $address = \Aimeos\MShop::create($context, 'customer')
+                ->get($context->user())->getPaymentAddress();
 
-			foreach( $map as $type => $list )
-			{
-				foreach( $list as $key => $service )
-				{
-					if( $serviceItem = $service->getServiceItem() )
-					{
-						$provider = $serviceManager->getProvider( $serviceItem, $service->getType() );
+            $addrItem = \Aimeos\MShop::create($context, 'order/address')
+                ->create()->copyFrom($address);
 
-						if( $provider->isAvailable( $order ) === true )
-						{
-							$attrItems = $service->getAttributeItems()->filter( fn($attr) => in_array( $attr->getType(), ['', 'hidden'] ) );
+            $order->addAddress($addrItem, $type);
+        }
 
-							$service->setId( null )->setAttributeItems( $attrItems->setId( null ) );
-						}
-						else
-						{
-							unset( $map[$type][$key] );
-						}
-					}
-				}
-			}
+        return $order;
+    }
 
-			$order->setServices( $map );
-		}
+    /**
+     * Adds the default services to the basket if they are not available.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
+     * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
+     */
+    protected function setServicesDefault(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    {
+        $type = \Aimeos\MShop\Order\Item\Service\Base::TYPE_DELIVERY;
 
-		return $order;
-	}
+        foreach ($order->getService($type) as $pos => $service) {
+            if ($this->getServiceItem($order, $type, $service->getCode()) === null) {
+                $order->deleteService($type, $pos);
+            }
+        }
 
+        if ($order->getService($type) === [] && (bool) $this->getConfigValue('delivery', false) === true
+            && (($item = $this->getServiceItem($order, $type, $this->getConfigValue('deliverycode'))) !== null
+            || ($item = $this->getServiceItem($order, $type)) !== null)
+        ) {
+            $order->addService($item, $type);
+        }
 
-	/**
-	 * Adds the default addresses to the basket if they are not available.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
-	 * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
-	 */
-	protected function setAddressDefault( \Aimeos\MShop\Order\Item\Iface $order ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		$context = $this->context();
-		$addresses = $order->getAddresses();
-		$type = \Aimeos\MShop\Order\Item\Address\Base::TYPE_PAYMENT;
+        $type = \Aimeos\MShop\Order\Item\Service\Base::TYPE_PAYMENT;
 
-		if( $context->user() !== null && !isset( $addresses[$type] )
-			&& (bool) $this->getConfigValue( 'address', false ) === true
-		) {
-			$address = \Aimeos\MShop::create( $context, 'customer' )
-				->get( $context->user() )->getPaymentAddress();
+        foreach ($order->getService($type) as $pos => $service) {
+            if ($this->getServiceItem($order, $type, $service->getCode()) === null) {
+                $order->deleteService($type, $pos);
+            }
+        }
 
-			$addrItem = \Aimeos\MShop::create( $context, 'order/address' )
-				->create()->copyFrom( $address );
+        if ($order->getService($type) === [] && (bool) $this->getConfigValue('payment', false) === true
+            && (($item = $this->getServiceItem($order, $type, $this->getConfigValue('paymentcode'))) !== null
+            || ($item = $this->getServiceItem($order, $type)) !== null)
+        ) {
+            $order->addService($item, $type);
+        }
 
-			$order->addAddress( $addrItem, $type );
-		}
-
-		return $order;
-	}
-
-
-	/**
-	 * Adds the default services to the basket if they are not available.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Basket object
-	 * @return \Aimeos\MShop\Order\Item\Iface Updated basket object
-	 */
-	protected function setServicesDefault( \Aimeos\MShop\Order\Item\Iface $order ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		$type = \Aimeos\MShop\Order\Item\Service\Base::TYPE_DELIVERY;
-
-		foreach( $order->getService( $type ) as $pos => $service )
-		{
-			if( $this->getServiceItem( $order, $type, $service->getCode() ) === null ) {
-				$order->deleteService( $type, $pos );
-			}
-		}
-
-		if( $order->getService( $type ) === [] && (bool) $this->getConfigValue( 'delivery', false ) === true
-			&& ( ( $item = $this->getServiceItem( $order, $type, $this->getConfigValue( 'deliverycode' ) ) ) !== null
-			|| ( $item = $this->getServiceItem( $order, $type ) ) !== null )
-		) {
-			$order->addService( $item, $type );
-		}
-
-
-		$type = \Aimeos\MShop\Order\Item\Service\Base::TYPE_PAYMENT;
-
-		foreach( $order->getService( $type ) as $pos => $service )
-		{
-			if( $this->getServiceItem( $order, $type, $service->getCode() ) === null ) {
-				$order->deleteService( $type, $pos );
-			}
-		}
-
-		if( $order->getService( $type ) === [] && (bool) $this->getConfigValue( 'payment', false ) === true
-			&& ( ( $item = $this->getServiceItem( $order, $type, $this->getConfigValue( 'paymentcode' ) ) ) !== null
-			|| ( $item = $this->getServiceItem( $order, $type ) ) !== null )
-		) {
-			$order->addService( $item, $type );
-		}
-
-		return $order;
-	}
+        return $order;
+    }
 }

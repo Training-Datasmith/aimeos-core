@@ -1,160 +1,150 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Media\Manager\Type;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $editor = '';
+    private $object;
+    private $editor = '';
 
+    protected function setUp(): void
+    {
+        $this->editor = \TestHelper::context()->editor();
+        $this->object = new \Aimeos\MShop\Media\Manager\Type\Standard(\TestHelper::context());
+    }
 
-	protected function setUp() : void
-	{
-		$this->editor = \TestHelper::context()->editor();
-		$this->object = new \Aimeos\MShop\Media\Manager\Type\Standard( \TestHelper::context() );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
+    public function testCreate()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Type\Item\Iface::class, $this->object->create());
+    }
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
+    public function testGet()
+    {
+        $search = $this->object->filter()->add('media.type.editor', '==', $this->editor);
+        $item = $this->object->search($search)->first(new \RuntimeException('No type item found'));
 
+        $this->assertEquals($item, $this->object->get($item->getId()));
+    }
 
-	public function testCreate()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Type\Item\Iface::class, $this->object->create() );
-	}
+    public function testSaveUpdateDelete()
+    {
+        $search = $this->object->filter()->add('media.type.editor', '==', $this->editor);
+        $item = $this->object->search($search)->first(new \RuntimeException('No type item found'));
 
+        $item->setId(null);
+        $item->setCode('unitTestSave');
+        $resultSaved = $this->object->save($item);
+        $itemSaved = $this->object->get($item->getId());
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+        $itemExp = clone $itemSaved;
+        $itemExp->setCode('unitTestSave2');
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($itemExp->getId());
 
+        $this->object->delete($itemSaved->getId());
 
-	public function testGet()
-	{
-		$search = $this->object->filter()->add( 'media.type.editor', '==', $this->editor );
-		$item = $this->object->search( $search )->first( new \RuntimeException( 'No type item found' ) );
+        $this->assertTrue($item->getId() !== null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getSiteId(), $itemSaved->getSiteId());
+        $this->assertEquals($item->getCode(), $itemSaved->getCode());
+        $this->assertEquals($item->getDomain(), $itemSaved->getDomain());
+        $this->assertEquals($item->getLabel(), $itemSaved->getLabel());
+        $this->assertEquals($item->getStatus(), $itemSaved->getStatus());
 
-		$this->assertEquals( $item, $this->object->get( $item->getId() ) );
-	}
+        $this->assertEquals($this->editor, $itemSaved->editor());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified());
 
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getSiteId(), $itemUpd->getSiteId());
+        $this->assertEquals($itemExp->getCode(), $itemUpd->getCode());
+        $this->assertEquals($itemExp->getDomain(), $itemUpd->getDomain());
+        $this->assertEquals($itemExp->getLabel(), $itemUpd->getLabel());
+        $this->assertEquals($itemExp->getStatus(), $itemUpd->getStatus());
 
-	public function testSaveUpdateDelete()
-	{
-		$search = $this->object->filter()->add( 'media.type.editor', '==', $this->editor );
-		$item = $this->object->search( $search )->first( new \RuntimeException( 'No type item found' ) );
+        $this->assertEquals($this->editor, $itemUpd->editor());
+        $this->assertEquals($itemExp->getTimeCreated(), $itemUpd->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified());
 
-		$item->setId( null );
-		$item->setCode( 'unitTestSave' );
-		$resultSaved = $this->object->save( $item );
-		$itemSaved = $this->object->get( $item->getId() );
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		$itemExp = clone $itemSaved;
-		$itemExp->setCode( 'unitTestSave2' );
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $itemExp->getId() );
+        $this->expectException(\Aimeos\MShop\Exception::class);
+        $this->object->get($itemSaved->getId());
+    }
 
-		$this->object->delete( $itemSaved->getId() );
+    public function testSearch()
+    {
+        //search without base criteria
+        $search = $this->object->filter();
 
+        $expr = [];
+        $expr[] = $search->compare('!=', 'media.type.id', null);
+        $expr[] = $search->compare('!=', 'media.type.siteid', null);
+        $expr[] = $search->compare('==', 'media.type.domain', 'media');
+        $expr[] = $search->compare('==', 'media.type.code', 'slideshow');
+        $expr[] = $search->compare('>', 'media.type.label', '');
+        $expr[] = $search->compare('>=', 'media.type.position', 0);
+        $expr[] = $search->compare('==', 'media.type.status', 1);
+        $expr[] = $search->compare('>=', 'media.type.mtime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('>=', 'media.type.ctime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('==', 'media.type.editor', $this->editor);
 
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getSiteId(), $itemSaved->getSiteId() );
-		$this->assertEquals( $item->getCode(), $itemSaved->getCode() );
-		$this->assertEquals( $item->getDomain(), $itemSaved->getDomain() );
-		$this->assertEquals( $item->getLabel(), $itemSaved->getLabel() );
-		$this->assertEquals( $item->getStatus(), $itemSaved->getStatus() );
+        $total = 0;
+        $search->add($search->and($expr));
+        $results = $this->object->search($search, [], $total)->toArray();
 
-		$this->assertEquals( $this->editor, $itemSaved->editor() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified() );
+        $this->assertEquals(1, count($results));
+        $this->assertEquals(1, $total);
 
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getSiteId(), $itemUpd->getSiteId() );
-		$this->assertEquals( $itemExp->getCode(), $itemUpd->getCode() );
-		$this->assertEquals( $itemExp->getDomain(), $itemUpd->getDomain() );
-		$this->assertEquals( $itemExp->getLabel(), $itemUpd->getLabel() );
-		$this->assertEquals( $itemExp->getStatus(), $itemUpd->getStatus() );
+        // search with base criteria
+        $search = $this->object->filter(true);
+        $expr = [
+            $search->compare('==', 'media.type.code', 'default'),
+            $search->compare('==', 'media.type.editor', $this->editor),
+            $search->getConditions(),
+        ];
+        $search->add($search->and($expr))->slice(0, 5);
+        $search->setSortations([$search->sort('-', 'media.type.position')]);
 
-		$this->assertEquals( $this->editor, $itemUpd->editor() );
-		$this->assertEquals( $itemExp->getTimeCreated(), $itemUpd->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified() );
+        $results = $this->object->search($search, [], $total)->toArray();
 
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
+        $this->assertEquals(1, count($results));
+        $this->assertEquals(1, $total);
 
-		$this->expectException( \Aimeos\MShop\Exception::class );
-		$this->object->get( $itemSaved->getId() );
-	}
+        foreach ($results as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-
-	public function testSearch()
-	{
-		//search without base criteria
-		$search = $this->object->filter();
-
-		$expr = [];
-		$expr[] = $search->compare( '!=', 'media.type.id', null );
-		$expr[] = $search->compare( '!=', 'media.type.siteid', null );
-		$expr[] = $search->compare( '==', 'media.type.domain', 'media' );
-		$expr[] = $search->compare( '==', 'media.type.code', 'slideshow' );
-		$expr[] = $search->compare( '>', 'media.type.label', '' );
-		$expr[] = $search->compare( '>=', 'media.type.position', 0 );
-		$expr[] = $search->compare( '==', 'media.type.status', 1 );
-		$expr[] = $search->compare( '>=', 'media.type.mtime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '>=', 'media.type.ctime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '==', 'media.type.editor', $this->editor );
-
-		$total = 0;
-		$search->add( $search->and( $expr ) );
-		$results = $this->object->search( $search, [], $total )->toArray();
-
-		$this->assertEquals( 1, count( $results ) );
-		$this->assertEquals( 1, $total );
-
-		// search with base criteria
-		$search = $this->object->filter( true );
-		$expr = array(
-			$search->compare( '==', 'media.type.code', 'default' ),
-			$search->compare( '==', 'media.type.editor', $this->editor ),
-			$search->getConditions(),
-		);
-		$search->add( $search->and( $expr ) )->slice( 0, 5 );
-		$search->setSortations( [$search->sort( '-', 'media.type.position' )] );
-
-		$results = $this->object->search( $search, [], $total )->toArray();
-
-		$this->assertEquals( 1, count( $results ) );
-		$this->assertEquals( 1, $total );
-
-		foreach( $results as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
-
-
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 }

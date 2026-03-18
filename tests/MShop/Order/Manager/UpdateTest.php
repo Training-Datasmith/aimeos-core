@@ -1,606 +1,556 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Order\Manager;
-
 
 class UpdateTest extends \PHPUnit\Framework\TestCase
 {
-	protected function setUp() : void
-	{
-		\Aimeos\MShop::cache( true );
-	}
+    protected function setUp(): void
+    {
+        \Aimeos\MShop::cache(true);
+    }
 
+    protected function tearDown(): void
+    {
+        \Aimeos\MShop::cache(false);
+    }
 
-	protected function tearDown() : void
-	{
-		\Aimeos\MShop::cache( false );
-	}
+    public function testBlock()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'updateStatus' ])
+            ->getMock();
 
-	public function testBlock()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        $object->expects($this->exactly(2))->method('updateStatus')
+            ->with($this->equalTo($orderItem), $this->anything(), $this->equalTo(1), $this->equalTo(-1));
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'updateStatus' ) )
-			->getMock();
+        $object->block($orderItem);
+    }
 
-		$object->expects( $this->exactly( 2 ) )->method( 'updateStatus' )
-			->with( $this->equalTo( $orderItem ), $this->anything(), $this->equalTo( 1 ), $this->equalTo( -1 ) );
+    public function testUnblock()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
-		$object->block( $orderItem );
-	}
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'updateStatus' ])
+            ->getMock();
 
+        $object->expects($this->exactly(2))->method('updateStatus')
+            ->with($this->equalTo($orderItem), $this->anything(), $this->equalTo(0), $this->equalTo(+1));
 
-	public function testUnblock()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        $object->unblock($orderItem);
+    }
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'updateStatus' ) )
-			->getMock();
+    public function testUpdateBlock()
+    {
+        $context = \TestHelper::context();
 
-		$object->expects( $this->exactly( 2 ) )->method( 'updateStatus' )
-			->with( $this->equalTo( $orderItem ), $this->anything(), $this->equalTo( 0 ), $this->equalTo( +1 ) );
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
+        $orderItem->setStatusPayment(\Aimeos\MShop\Order\Item\Base::PAY_PENDING);
 
-		$object->unblock( $orderItem );
-	}
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'block' ])
+            ->getMock();
 
+        $object->expects($this->once())->method('block')->with($this->equalTo($orderItem));
 
-	public function testUpdateBlock()
-	{
-		$context = \TestHelper::context();
+        $object->update($orderItem);
+    }
 
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
-		$orderItem->setStatusPayment( \Aimeos\MShop\Order\Item\Base::PAY_PENDING );
+    public function testUpdateUnblock()
+    {
+        $context = \TestHelper::context();
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'block' ) )
-			->getMock();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
+        $orderItem->setStatusPayment(\Aimeos\MShop\Order\Item\Base::PAY_DELETED);
 
-		$object->expects( $this->once() )->method( 'block' )->with( $this->equalTo( $orderItem ) );
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'unblock' ])
+            ->getMock();
 
-		$object->update( $orderItem );
-	}
+        $object->expects($this->once())->method('unblock')->with($this->equalTo($orderItem));
 
+        $object->update($orderItem);
+    }
 
-	public function testUpdateUnblock()
-	{
-		$context = \TestHelper::context();
+    public function testAddStatusItem()
+    {
+        $context = \TestHelper::context();
 
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
-		$orderItem->setStatusPayment( \Aimeos\MShop\Order\Item\Base::PAY_DELETED );
+        $statusStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Status\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'save' ])
+            ->getMock();
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'unblock' ) )
-			->getMock();
+        $statusStub->expects($this->once())->method('save');
 
-		$object->expects( $this->once() )->method( 'unblock' )->with( $this->equalTo( $orderItem ) );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Status\Standard::class, $statusStub);
 
-		$object->update( $orderItem );
-	}
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('addStatusItem');
+        $method->setAccessible(true);
 
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $method->invokeArgs($object, [ 1, 2, 3 ]);
+    }
 
-	public function testAddStatusItem()
-	{
-		$context = \TestHelper::context();
+    public function testGetBundleMap()
+    {
+        $context = \TestHelper::context();
+        $prodId = \Aimeos\MShop::create($context, 'product')->find('CNC')->getId();
 
-		$statusStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Status\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'save' ) )
-			->getMock();
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('getBundleMap');
+        $method->setAccessible(true);
 
-		$statusStub->expects( $this->once() )->method( 'save' );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $result = $method->invokeArgs($object, [ $prodId ]);
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Status\Standard::class, $statusStub );
+        $this->assertEquals(2, count($result));
+    }
 
+    public function testGetContext()
+    {
+        $context = \TestHelper::context();
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'addStatusItem' );
-		$method->setAccessible( true );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('context');
+        $method->setAccessible(true);
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$method->invokeArgs( $object, array( 1, 2, 3 ) );
-	}
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $result = $method->invokeArgs($object, []);
 
+        $this->assertInstanceOf(\Aimeos\MShop\ContextIface::class, $result);
+        $this->assertSame($context, $result);
+    }
 
-	public function testGetBundleMap()
-	{
-		$context = \TestHelper::context();
-		$prodId = \Aimeos\MShop::create( $context, 'product' )->find( 'CNC' )->getId();
+    public function testGetLastStatusItem()
+    {
+        $context = \TestHelper::context();
+        $orderItem = $this->getOrderItem('2008-02-15 12:34:56');
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'getBundleMap' );
-		$method->setAccessible( true );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('getLastStatusItem');
+        $method->setAccessible(true);
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$result = $method->invokeArgs( $object, array( $prodId ) );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $result = $method->invokeArgs($object, [ $orderItem->getId(), 'typestatus', 'shipped' ]);
 
-		$this->assertEquals( 2, count( $result ) );
-	}
+        $this->assertNotEquals(false, $result);
+        $this->assertInstanceOf(\Aimeos\MShop\Order\Item\Status\Iface::class, $result);
+        $this->assertEquals('shipped', $result->getValue());
+    }
 
+    public function testGetLastStatusItemFalse()
+    {
+        $context = \TestHelper::context();
 
-	public function testGetContext()
-	{
-		$context = \TestHelper::context();
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('getLastStatusItem');
+        $method->setAccessible(true);
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'context' );
-		$method->setAccessible( true );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $result = $method->invokeArgs($object, [ -1, 0, 0 ]);
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$result = $method->invokeArgs( $object, [] );
+        $this->assertNull($result);
+    }
 
-		$this->assertInstanceOf( \Aimeos\MShop\ContextIface::class, $result );
-		$this->assertSame( $context, $result );
-	}
+    public function testGetStockItems()
+    {
+        $context = \TestHelper::context();
+        $prodid = \Aimeos\MShop::create($context, 'product')->find('CNE')->getId();
 
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('getStockItems');
+        $method->setAccessible(true);
 
-	public function testGetLastStatusItem()
-	{
-		$context = \TestHelper::context();
-		$orderItem = $this->getOrderItem( '2008-02-15 12:34:56' );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $result = $method->invokeArgs($object, [[$prodid], 'default']);
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'getLastStatusItem' );
-		$method->setAccessible( true );
+        $this->assertEquals(1, count($result));
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$result = $method->invokeArgs( $object, array( $orderItem->getId(), 'typestatus', 'shipped' ) );
+        foreach ($result as $item) {
+            $this->assertInstanceOf(\Aimeos\MShop\Stock\Item\Iface::class, $item);
+        }
+    }
 
-		$this->assertNotEquals( false, $result );
-		$this->assertInstanceOf( \Aimeos\MShop\Order\Item\Status\Iface::class, $result );
-		$this->assertEquals( 'shipped', $result->getValue() );
-	}
+    public function testUpdateCoupons()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
+        $orderCouponStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Coupon\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
-	public function testGetLastStatusItemFalse()
-	{
-		$context = \TestHelper::context();
+        $orderCouponStub->expects($this->once())->method('search')
+            ->willReturn(map([$orderCouponStub->create()->setCode('test')]));
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'getLastStatusItem' );
-		$method->setAccessible( true );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Coupon\Standard::class, $orderCouponStub);
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$result = $method->invokeArgs( $object, array( -1, 0, 0 ) );
+        $couponCodeStub = $this->getMockBuilder(\Aimeos\MShop\Coupon\Manager\Code\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'increase' ])
+            ->getMock();
 
-		$this->assertNull( $result );
-	}
+        $couponCodeStub->expects($this->once())->method('increase');
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Coupon\Manager\Code\Standard::class, $couponCodeStub);
 
-	public function testGetStockItems()
-	{
-		$context = \TestHelper::context();
-		$prodid = \Aimeos\MShop::create( $context, 'product' )->find( 'CNE' )->getId();
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateCoupons');
+        $method->setAccessible(true);
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'getStockItems' );
-		$method->setAccessible( true );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$result = $method->invokeArgs( $object, [[$prodid], 'default'] );
+    public function testUpdateCouponsException()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
-		$this->assertEquals( 1, count( $result ) );
+        $orderCouponStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Coupon\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
-		foreach( $result as $item ) {
-			$this->assertInstanceOf( \Aimeos\MShop\Stock\Item\Iface::class, $item );
-		}
-	}
+        $orderCouponStub->expects($this->once())->method('search')
+            ->willReturn(map([$orderCouponStub->create()->setCode('test')]));
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Coupon\Standard::class, $orderCouponStub);
 
-	public function testUpdateCoupons()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        $couponCodeStub = $this->getMockBuilder(\Aimeos\MShop\Coupon\Manager\Code\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'increase' ])
+            ->getMock();
 
+        $couponCodeStub->expects($this->once())->method('increase')
+            ->will($this->throwException(new \RuntimeException()));
 
-		$orderCouponStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Coupon\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
+        \Aimeos\MShop::inject(\Aimeos\MShop\Coupon\Manager\Code\Standard::class, $couponCodeStub);
 
-		$orderCouponStub->expects( $this->once() )->method( 'search' )
-			->willReturn( map( [$orderCouponStub->create()->setCode( 'test' )] ) );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateCoupons');
+        $method->setAccessible(true);
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Coupon\Standard::class, $orderCouponStub );
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
 
+        $this->expectException(\Exception::class);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-		$couponCodeStub = $this->getMockBuilder( \Aimeos\MShop\Coupon\Manager\Code\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'increase' ) )
-			->getMock();
+    public function testUpdateStatus()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create()->setId(-1);
+        $statusItem = \Aimeos\MShop::create($context, 'order/status')->create();
+        $statusItem->setValue(1);
 
-		$couponCodeStub->expects( $this->once() )->method( 'increase' );
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'addStatusItem', 'getLastStatusItem' ])
+            ->getMock();
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Coupon\Manager\Code\Standard::class, $couponCodeStub );
+        $object->expects($this->never())->method('addStatusItem');
 
+        $object->expects($this->once())->method('getLastStatusItem')
+            ->willReturn($statusItem);
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateCoupons' );
-		$method->setAccessible( true );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStatus');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, 'type', 1, 0 ]);
+    }
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
+    public function testUpdateStatusStock()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create()->setId(-1);
+        $statusItem = \Aimeos\MShop::create($context, 'order/status')->create();
 
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'addStatusItem', 'getLastStatusItem', 'updateStock' ])
+            ->getMock();
 
-	public function testUpdateCouponsException()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        $object->expects($this->once())->method('getLastStatusItem')
+            ->willReturn($statusItem);
 
+        $object->expects($this->once())->method('updateStock');
+        $object->expects($this->once())->method('addStatusItem');
 
-		$orderCouponStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Coupon\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStatus');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 1, 0 ]);
+    }
 
-		$orderCouponStub->expects( $this->once() )->method( 'search' )
-			->willReturn( map( [$orderCouponStub->create()->setCode( 'test' )] ) );
+    public function testUpdateStatusCoupons()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create()->setId(-1);
+        $statusItem = \Aimeos\MShop::create($context, 'order/status')->create();
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Coupon\Standard::class, $orderCouponStub );
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'addStatusItem', 'getLastStatusItem', 'updateCoupons' ])
+            ->getMock();
 
+        $object->expects($this->once())->method('getLastStatusItem')
+            ->willReturn($statusItem);
 
-		$couponCodeStub = $this->getMockBuilder( \Aimeos\MShop\Coupon\Manager\Code\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'increase' ) )
-			->getMock();
+        $object->expects($this->once())->method('updateCoupons');
+        $object->expects($this->once())->method('addStatusItem');
 
-		$couponCodeStub->expects( $this->once() )->method( 'increase' )
-			->will( $this->throwException( new \RuntimeException() ) );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStatus');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 1, 0 ]);
+    }
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Coupon\Manager\Code\Standard::class, $couponCodeStub );
+    public function testUpdateStock()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
+        $orderProductStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Product\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateCoupons' );
-		$method->setAccessible( true );
+        $orderProductStub->expects($this->once())->method('search')
+            ->willReturn(map([$orderProductStub->create()]));
 
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub);
 
-		$this->expectException( \Exception::class );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
+        $stockStub = $this->getMockBuilder(\Aimeos\MShop\Stock\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'decrease' ])
+            ->getMock();
 
+        $stockStub->expects($this->once())->method('decrease');
 
-	public function testUpdateStatus()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create()->setId( -1 );
-		$statusItem = \Aimeos\MShop::create( $context, 'order/status' )->create();
-		$statusItem->setValue( 1 );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Stock\Manager\Standard::class, $stockStub);
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'addStatusItem', 'getLastStatusItem' ) )
-			->getMock();
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'updateStockBundle', 'updateStockSelection' ])
+            ->getMock();
 
-		$object->expects( $this->never() )->method( 'addStatusItem' );
+        $object->expects($this->never())->method('updateStockBundle');
+        $object->expects($this->never())->method('updateStockSelection');
 
-		$object->expects( $this->once() )->method( 'getLastStatusItem' )
-			->willReturn( $statusItem );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStock');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStatus' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, 'type', 1, 0 ) );
-	}
+    public function testUpdateStockArticle()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
+        $orderProductStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Product\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
-	public function testUpdateStatusStock()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create()->setId( -1 );
-		$statusItem = \Aimeos\MShop::create( $context, 'order/status' )->create();
+        $orderProductItem = $orderProductStub->create();
+        $orderProductItem->setType('default');
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'addStatusItem', 'getLastStatusItem', 'updateStock' ) )
-			->getMock();
+        $orderProductStub->expects($this->once())->method('search')
+            ->willReturn(map([$orderProductItem]));
 
-		$object->expects( $this->once() )->method( 'getLastStatusItem' )
-			->willReturn( $statusItem );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub);
 
-		$object->expects( $this->once() )->method( 'updateStock' );
-		$object->expects( $this->once() )->method( 'addStatusItem' );
+        $stockStub = $this->getMockBuilder(\Aimeos\MShop\Stock\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'decrease' ])
+            ->getMock();
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStatus' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::STOCK_UPDATE, 1, 0 ) );
-	}
+        $stockStub->expects($this->once())->method('decrease');
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Stock\Manager\Standard::class, $stockStub);
 
-	public function testUpdateStatusCoupons()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create()->setId( -1 );
-		$statusItem = \Aimeos\MShop::create( $context, 'order/status' )->create();
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'updateStockBundle', 'updateStockSelection' ])
+            ->getMock();
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'addStatusItem', 'getLastStatusItem', 'updateCoupons' ) )
-			->getMock();
+        $object->expects($this->once())->method('updateStockBundle');
+        $object->expects($this->never())->method('updateStockSelection');
 
-		$object->expects( $this->once() )->method( 'getLastStatusItem' )
-			->willReturn( $statusItem );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStock');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-		$object->expects( $this->once() )->method( 'updateCoupons' );
-		$object->expects( $this->once() )->method( 'addStatusItem' );
+    public function testUpdateStockSelect()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStatus' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, \Aimeos\MShop\Order\Item\Status\Base::COUPON_UPDATE, 1, 0 ) );
-	}
+        $orderProductStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Product\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
+        $orderProductItem = $orderProductStub->create();
+        $orderProductItem->setType('select');
 
-	public function testUpdateStock()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        $orderProductStub->expects($this->once())->method('search')
+            ->willReturn(map([$orderProductItem]));
 
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub);
 
-		$orderProductStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Product\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
+        $stockStub = $this->getMockBuilder(\Aimeos\MShop\Stock\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'decrease' ])
+            ->getMock();
 
-		$orderProductStub->expects( $this->once() )->method( 'search' )
-			->willReturn( map( [$orderProductStub->create()] ) );
+        $stockStub->expects($this->once())->method('decrease');
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Stock\Manager\Standard::class, $stockStub);
 
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'updateStockBundle', 'updateStockSelection' ])
+            ->getMock();
 
-		$stockStub = $this->getMockBuilder( \Aimeos\MShop\Stock\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'decrease' ) )
-			->getMock();
+        $object->expects($this->never())->method('updateStockBundle');
+        $object->expects($this->once())->method('updateStockSelection');
 
-		$stockStub->expects( $this->once() )->method( 'decrease' );
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStock');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Stock\Manager\Standard::class, $stockStub );
+    public function testUpdateStockException()
+    {
+        $context = \TestHelper::context();
+        $orderItem = \Aimeos\MShop::create($context, 'order')->create();
 
+        $orderProductStub = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Product\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods(['search'])
+            ->getMock();
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'updateStockBundle', 'updateStockSelection' ) )
-			->getMock();
+        $orderProductStub->expects($this->once())->method('search')
+            ->will($this->throwException(new \RuntimeException()));
 
-		$object->expects( $this->never() )->method( 'updateStockBundle' );
-		$object->expects( $this->never() )->method( 'updateStockSelection' );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub);
 
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStock');
+        $method->setAccessible(true);
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStock' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
 
+        $this->expectException(\Exception::class);
+        $method->invokeArgs($object, [ $orderItem, 1 ]);
+    }
 
-	public function testUpdateStockArticle()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+    public function testUpdateStockBundle()
+    {
+        $context = \TestHelper::context();
 
+        $stockStub = $this->getMockBuilder(\Aimeos\MShop\Stock\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'save' ])
+            ->getMock();
 
-		$orderProductStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Product\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
+        $stockStub->expects($this->once())->method('save')->with($this->callback(function ($item) {
+            return $item->getStockLevel() === 10;
+        }));
 
-		$orderProductItem = $orderProductStub->create();
-		$orderProductItem->setType( 'default' );
+        \Aimeos\MShop::inject(\Aimeos\MShop\Stock\Manager\Standard::class, $stockStub);
 
-		$orderProductStub->expects( $this->once() )->method( 'search' )
-			->willReturn( map( [$orderProductItem] ) );
+        $stockItem = $stockStub->create();
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub );
+        $stockItem1 = clone $stockItem;
+        $stockItem1->setProductId('123');
+        $stockItem1->setStockLevel(10);
 
+        $stockItem2 = clone $stockItem;
+        $stockItem2->setProductId('456');
+        $stockItem2->setStockLevel(20);
 
-		$stockStub = $this->getMockBuilder( \Aimeos\MShop\Stock\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'decrease' ) )
-			->getMock();
+        $stockItem3 = clone $stockItem;
+        $stockItem3->setProductId('789');
+        $stockItem3->setStockLevel(30);
 
-		$stockStub->expects( $this->once() )->method( 'decrease' );
+        $object = $this->getMockBuilder(\Aimeos\MShop\Order\Manager\Standard::class)
+            ->setConstructorArgs([$context])
+            ->onlyMethods(['getBundleMap', 'getStockItems'])
+            ->getMock();
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Stock\Manager\Standard::class, $stockStub );
+        $object->expects($this->once())->method('getBundleMap')
+            ->willReturn(['123' => ['789'], '456' => ['789']]);
 
+        $object->expects($this->exactly(2))->method('getStockItems')
+            ->willReturn(
+                map([$stockItem2, $stockItem1]),
+                map([$stockItem3])
+            );
 
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'updateStockBundle', 'updateStockSelection' ) )
-			->getMock();
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStockBundle');
+        $method->setAccessible(true);
+        $method->invokeArgs($object, [1, 'default']);
+    }
 
-		$object->expects( $this->once() )->method( 'updateStockBundle' );
-		$object->expects( $this->never() )->method( 'updateStockSelection' );
+    public function testUpdateStockSelection()
+    {
+        $context = \TestHelper::context();
+        $prodId = \Aimeos\MShop::create($context, 'product')->find('U:TEST')->getId();
 
+        $stockStub = $this->getMockBuilder(\Aimeos\MShop\Stock\Manager\Standard::class)
+            ->setConstructorArgs([ $context ])
+            ->onlyMethods([ 'save', 'type' ])
+            ->getMock();
 
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStock' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
+        $stockStub->method('type')->willReturn(['stock']);
 
+        $stockStub->expects($this->once())->method('save')->with($this->callback(function ($item) {
+            return $item->getStockLevel() === 300;
+        }));
 
-	public function testUpdateStockSelect()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
+        \Aimeos\MShop::inject(\Aimeos\MShop\Stock\Manager\Standard::class, $stockStub);
 
+        $class = new \ReflectionClass(\Aimeos\MShop\Order\Manager\Standard::class);
+        $method = $class->getMethod('updateStockSelection');
+        $method->setAccessible(true);
 
-		$orderProductStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Product\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
+        $object = new \Aimeos\MShop\Order\Manager\Standard($context);
+        $method->invokeArgs($object, [ $prodId, 'default' ]);
+    }
 
-		$orderProductItem = $orderProductStub->create();
-		$orderProductItem->setType( 'select' );
+    protected function getOrderItem($datepayment): \Aimeos\MShop\Order\Item\Iface
+    {
+        $manager = \Aimeos\MShop::create(\TestHelper::context(), 'order');
 
-		$orderProductStub->expects( $this->once() )->method( 'search' )
-			->willReturn( map( [$orderProductItem] ) );
+        $search = $manager->filter();
+        $search->setConditions($search->compare('==', 'order.datepayment', $datepayment));
 
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub );
-
-
-		$stockStub = $this->getMockBuilder( \Aimeos\MShop\Stock\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'decrease' ) )
-			->getMock();
-
-		$stockStub->expects( $this->once() )->method( 'decrease' );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Stock\Manager\Standard::class, $stockStub );
-
-
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'updateStockBundle', 'updateStockSelection' ) )
-			->getMock();
-
-		$object->expects( $this->never() )->method( 'updateStockBundle' );
-		$object->expects( $this->once() )->method( 'updateStockSelection' );
-
-
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStock' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
-
-
-	public function testUpdateStockException()
-	{
-		$context = \TestHelper::context();
-		$orderItem = \Aimeos\MShop::create( $context, 'order' )->create();
-
-
-		$orderProductStub = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Product\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( ['search'] )
-			->getMock();
-
-		$orderProductStub->expects( $this->once() )->method( 'search' )
-			->will( $this->throwException( new \RuntimeException() ) );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Order\Manager\Product\Standard::class, $orderProductStub );
-
-
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStock' );
-		$method->setAccessible( true );
-
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-
-		$this->expectException( \Exception::class );
-		$method->invokeArgs( $object, array( $orderItem, 1 ) );
-	}
-
-
-	public function testUpdateStockBundle()
-	{
-		$context = \TestHelper::context();
-
-
-		$stockStub = $this->getMockBuilder( \Aimeos\MShop\Stock\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'save' ) )
-			->getMock();
-
-		$stockStub->expects( $this->once() )->method( 'save' )->with( $this->callback( function( $item ) {
-			return $item->getStockLevel() === 10;
-		} ) );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Stock\Manager\Standard::class, $stockStub );
-
-
-		$stockItem = $stockStub->create();
-
-		$stockItem1 = clone $stockItem;
-		$stockItem1->setProductId( '123' );
-		$stockItem1->setStockLevel( 10 );
-
-		$stockItem2 = clone $stockItem;
-		$stockItem2->setProductId( '456' );
-		$stockItem2->setStockLevel( 20 );
-
-		$stockItem3 = clone $stockItem;
-		$stockItem3->setProductId( '789' );
-		$stockItem3->setStockLevel( 30 );
-
-
-		$object = $this->getMockBuilder( \Aimeos\MShop\Order\Manager\Standard::class )
-			->setConstructorArgs( [$context] )
-			->onlyMethods( ['getBundleMap', 'getStockItems'] )
-			->getMock();
-
-		$object->expects( $this->once() )->method( 'getBundleMap' )
-			->willReturn( ['123' => ['789'], '456' => ['789']] );
-
-		$object->expects( $this->exactly( 2 ) )->method( 'getStockItems' )
-			->willReturn(
-				map( [$stockItem2, $stockItem1] ),
-				map( [$stockItem3] )
-			);
-
-
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStockBundle' );
-		$method->setAccessible( true );
-		$method->invokeArgs( $object, [1, 'default'] );
-	}
-
-
-	public function testUpdateStockSelection()
-	{
-		$context = \TestHelper::context();
-		$prodId = \Aimeos\MShop::create( $context, 'product' )->find( 'U:TEST' )->getId();
-
-
-		$stockStub = $this->getMockBuilder( \Aimeos\MShop\Stock\Manager\Standard::class )
-			->setConstructorArgs( array( $context ) )
-			->onlyMethods( array( 'save', 'type' ) )
-			->getMock();
-
-		$stockStub->method( 'type' )->willReturn( ['stock'] );
-
-		$stockStub->expects( $this->once() )->method( 'save' )->with( $this->callback( function( $item ) {
-			return $item->getStockLevel() === 300;
-		} ) );
-
-		\Aimeos\MShop::inject( \Aimeos\MShop\Stock\Manager\Standard::class, $stockStub );
-
-
-		$class = new \ReflectionClass( \Aimeos\MShop\Order\Manager\Standard::class );
-		$method = $class->getMethod( 'updateStockSelection' );
-		$method->setAccessible( true );
-
-		$object = new \Aimeos\MShop\Order\Manager\Standard( $context );
-		$method->invokeArgs( $object, array( $prodId, 'default' ) );
-	}
-
-
-	protected function getOrderItem( $datepayment ) : \Aimeos\MShop\Order\Item\Iface
-	{
-		$manager = \Aimeos\MShop::create( \TestHelper::context(), 'order' );
-
-		$search = $manager->filter();
-		$search->setConditions( $search->compare( '==', 'order.datepayment', $datepayment ) );
-
-		return $manager->search( $search )->first();
-	}
+        return $manager->search($search)->first();
+    }
 }

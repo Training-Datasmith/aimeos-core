@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2017-2026
@@ -7,9 +9,7 @@
  * @subpackage Plugin
  */
 
-
 namespace Aimeos\MShop\Plugin\Provider\Decorator;
-
 
 /**
  * Prevent recursive plugin calls
@@ -17,31 +17,28 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
  * @package MShop
  * @subpackage Plugin
  */
-class Singleton
-	extends \Aimeos\MShop\Plugin\Provider\Decorator\Base
-	implements \Aimeos\MShop\Plugin\Provider\Decorator\Iface
+class Singleton extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \Aimeos\MShop\Plugin\Provider\Decorator\Iface
 {
-	private bool $singleton = false;
+    private bool $singleton = false;
 
+    /**
+     * Receives a notification from a publisher object
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
+     * @param string $action Name of the action to listen for
+     * @param mixed $value Object or value changed in publisher
+     * @return mixed Modified value parameter
+     */
+    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    {
+        if ($this->singleton === true) {
+            return $value;
+        }
 
-	/**
-	 * Receives a notification from a publisher object
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
-	 * @param string $action Name of the action to listen for
-	 * @param mixed $value Object or value changed in publisher
-	 * @return mixed Modified value parameter
-	 */
-	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null )
-	{
-		if( $this->singleton === true ) {
-			return $value;
-		}
+        $this->singleton = true;
+        $value = $this->getProvider()->update($order, $action, $value);
+        $this->singleton = false;
 
-		$this->singleton = true;
-		$value = $this->getProvider()->update( $order, $action, $value );
-		$this->singleton = false;
-
-		return $value;
-	}
+        return $value;
+    }
 }

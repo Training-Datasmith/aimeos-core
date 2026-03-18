@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -8,9 +10,7 @@
  * @subpackage Cache
  */
 
-
 namespace Aimeos\MAdmin\Cache\Manager;
-
 
 /**
  * Interface for cache manager implementations.
@@ -18,13 +18,12 @@ namespace Aimeos\MAdmin\Cache\Manager;
  * @package MAdmin
  * @subpackage Cache
  */
-interface Iface
-	extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\MShop\Common\Manager\Iface
 {
-	/**
-	 * Returns the cache object
-	 *
-	 * @return \Aimeos\Base\Cache\Iface Cache object
-	 */
-	public function getCache() : \Aimeos\Base\Cache\Iface;
+    /**
+     * Returns the cache object
+     *
+     * @return \Aimeos\Base\Cache\Iface Cache object
+     */
+    public function getCache(): \Aimeos\Base\Cache\Iface;
 }

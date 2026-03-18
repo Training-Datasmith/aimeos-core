@@ -1,39 +1,37 @@
 <?php
 
-namespace Aimeos\MShop;
+declare(strict_types=1);
 
+namespace Aimeos\MShop;
 
 class DemoTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
+    private $object;
 
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp(): void
+    {
+        \Aimeos\MShop::cache(true);
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() : void
-	{
-		\Aimeos\MShop::cache( true );
+        // $this->object = new \Aimeos\MShop\Demo\Manager\Standard( \TestHelper::context() );
+    }
 
-		// $this->object = new \Aimeos\MShop\Demo\Manager\Standard( \TestHelper::context() );
-	}
+    /**
+     * Tears down the fixture, for example, closes a network connection.
+     * This method is called after a test is executed.
+     */
+    protected function tearDown(): void
+    {
+        \Aimeos\MShop::cache(false);
 
+        unset($this->object);
+    }
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() : void
-	{
-		\Aimeos\MShop::cache( false );
-
-		unset( $this->object );
-	}
-
-
-	public function testDemo()
-	{
-		$this->markTestIncomplete( 'Just a demo' );
-	}
+    public function testDemo()
+    {
+        $this->markTestIncomplete('Just a demo');
+    }
 }

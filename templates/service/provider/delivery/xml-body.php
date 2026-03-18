@@ -14,6 +14,6 @@
 
 
 <orders>
-<?= $this->partial( 'service/provider/delivery/xml-item', ['orderItems' => $this->orderItems] ) ?>
+<?= $this->partial('service/provider/delivery/xml-item', ['orderItems' => $this->orderItems]) ?>
 
 </orders>

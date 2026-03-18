@@ -1,35 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
-return array(
-	'manager' => array(
-		'lists' => [
-			'submanagers' => [
-				'type' => 'type',
-			]
-		],
-		'submanagers' => [
-			'lists' => 'lists',
-		],
-		'cleanup' => array(
-			'ansi' => '
+return [
+    'manager' => [
+        'lists' => [
+            'submanagers' => [
+                'type' => 'type',
+            ],
+        ],
+        'submanagers' => [
+            'lists' => 'lists',
+        ],
+        'cleanup' => [
+            'ansi' => '
 				DELETE FROM "mshop_catalog"
 				WHERE :siteid AND "nleft" >= ? AND "nright" <= ?
-			'
-		),
-		'delete' => array(
-			'ansi' => '
+			',
+        ],
+        'delete' => [
+            'ansi' => '
 				DELETE FROM "mshop_catalog"
 				WHERE "siteid" = :siteid AND "nleft" >= ? AND "nright" <= ?
-			'
-		),
-		'get' => array(
-			'ansi' => '
+			',
+        ],
+        'get' => [
+            'ansi' => '
 				SELECT :columns
 					mcat."id", mcat."code", mcat."url", mcat."label", mcat."config",
 					mcat."status", mcat."level", mcat."parentid", mcat."siteid",
@@ -49,69 +50,69 @@ return array(
 					mcat."nleft", mcat."nright", mcat."target", mcat."pathid",
 					mcat."mtime", mcat."editor", mcat."ctime"
 				ORDER BY mcat."nleft"
-			'
-		),
-		'insert' => array(
-			'ansi' => '
+			',
+        ],
+        'insert' => [
+            'ansi' => '
 				INSERT INTO "mshop_catalog" (
 					"siteid", "label", "code", "status", "parentid", "level",
 					"nleft", "nright", "config", "mtime", "ctime", "editor", "target", "pathid"
 				) VALUES (
 					:siteid, ?, ?, ?, ?, ?, ?, ?, \'\', \'1970-01-01 00:00:00\', \'1970-01-01 00:00:00\', \'\', \'\', \'\'
 				)
-			'
-		),
-		'insert-usage' => array(
-			'ansi' => '
+			',
+        ],
+        'insert-usage' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET :names "url" = ?, "config" = ?, "pathid" = ?, "mtime" = ?, "editor" = ?, "target" = ?, "ctime" = ?
 				WHERE "siteid" LIKE ? AND "id" = ?
-			'
-		),
-		'update' => array(
-			'ansi' => '
+			',
+        ],
+        'update' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET "label" = ?, "code" = ?, "status" = ?
 				WHERE "siteid" = :siteid AND "id" = ?
-			'
-		),
-		'update-parentid' => array(
-			'ansi' => '
+			',
+        ],
+        'update-parentid' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET "parentid" = ?
 				WHERE "siteid" = :siteid AND "id" = ?
-			'
-		),
-		'update-usage' => array(
-			'ansi' => '
+			',
+        ],
+        'update-usage' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET :names "url" = ?, "config" = ?, "pathid" = ?, "mtime" = ?, "editor" = ?, "target" = ?
 				WHERE "siteid" LIKE ? AND "id" = ?
-			'
-		),
-		'update-path' => array(
-			'ansi' => '
+			',
+        ],
+        'update-path' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET "pathid" = ?
 				WHERE "id" = ?
-			'
-		),
-		'move-left' => array(
-			'ansi' => '
+			',
+        ],
+        'move-left' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET "nleft" = "nleft" + ?, "level" = "level" + ?
 				WHERE "siteid" = :siteid AND "nleft" >= ? AND "nleft" <= ?
-			'
-		),
-		'move-right' => array(
-			'ansi' => '
+			',
+        ],
+        'move-right' => [
+            'ansi' => '
 				UPDATE "mshop_catalog"
 				SET "nright" = "nright" + ?
 				WHERE "siteid" = :siteid AND "nright" >= ? AND "nright" <= ?
-			'
-		),
-		'search' => array(
-			'ansi' => '
+			',
+        ],
+        'search' => [
+            'ansi' => '
 				SELECT :columns
 					mcat."id", mcat."code", mcat."url", mcat."label", mcat."config",
 					mcat."status", mcat."level", mcat."parentid", mcat."siteid",
@@ -121,10 +122,10 @@ return array(
 				WHERE mcat."siteid" = :siteid AND mcat."nleft" >= ?
 					AND mcat."nright" <= ? AND :cond
 				ORDER BY :order
-			'
-		),
-		'search-item' => array(
-			'ansi' => '
+			',
+        ],
+        'search-item' => [
+            'ansi' => '
 				SELECT :columns,
 					mcat."id", mcat."code", mcat."url", mcat."label", mcat."config",
 					mcat."status", mcat."level", mcat."parentid", mcat."siteid",
@@ -137,7 +138,7 @@ return array(
 				ORDER BY :order
 				OFFSET :start ROWS FETCH NEXT :size ROWS ONLY
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :columns,
 					mcat."id", mcat."code", mcat."url", mcat."label", mcat."config",
 					mcat."status", mcat."level", mcat."parentid", mcat."siteid",
@@ -149,10 +150,10 @@ return array(
 				GROUP BY :group
 				ORDER BY :order
 				LIMIT :size OFFSET :start
-			'
-		),
-		'count' => array(
-			'ansi' => '
+			',
+        ],
+        'count' => [
+            'ansi' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT mcat."id"
@@ -164,7 +165,7 @@ return array(
 					OFFSET 0 ROWS FETCH NEXT 10000 ROWS ONLY
 				) AS list
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT mcat."id"
@@ -175,28 +176,28 @@ return array(
 					ORDER BY mcat."id"
 					LIMIT 10000 OFFSET 0
 				) AS list
-			'
-		),
-		'newid' => array(
-			'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
-			'mysql' => 'SELECT LAST_INSERT_ID()',
-			'oracle' => 'SELECT mshop_catalog_seq.CURRVAL FROM DUAL',
-			'pgsql' => 'SELECT lastval()',
-			'sqlite' => 'SELECT last_insert_rowid()',
-			'sqlsrv' => 'SELECT @@IDENTITY',
-			'sqlanywhere' => 'SELECT @@IDENTITY',
-		),
-		'lock' => array(
-			'db2' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
-			'mysql' => "DO GET_LOCK('aimeos.catalog', -1)", // LOCK TABLE implicit commits transactions
-			'oracle' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
-			'pgsql' => 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-			'sqlanywhere' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
-			'sqlsrv' => "EXEC sp_getapplock @Resource = 'aimeos.catalog', @LockMode = 'Exclusive'",
-		),
-		'unlock' => array(
-			'mysql' => "DO RELEASE_LOCK('aimeos.catalog')",
-			'sqlsrv' => "EXEC sp_releaseapplock @Resource = 'aimeos.catalog'",
-		),
-	),
-);
+			',
+        ],
+        'newid' => [
+            'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+            'mysql' => 'SELECT LAST_INSERT_ID()',
+            'oracle' => 'SELECT mshop_catalog_seq.CURRVAL FROM DUAL',
+            'pgsql' => 'SELECT lastval()',
+            'sqlite' => 'SELECT last_insert_rowid()',
+            'sqlsrv' => 'SELECT @@IDENTITY',
+            'sqlanywhere' => 'SELECT @@IDENTITY',
+        ],
+        'lock' => [
+            'db2' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
+            'mysql' => "DO GET_LOCK('aimeos.catalog', -1)", // LOCK TABLE implicit commits transactions
+            'oracle' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
+            'pgsql' => 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
+            'sqlanywhere' => 'LOCK TABLE "mshop_catalog" IN EXCLUSIVE MODE',
+            'sqlsrv' => "EXEC sp_getapplock @Resource = 'aimeos.catalog', @LockMode = 'Exclusive'",
+        ],
+        'unlock' => [
+            'mysql' => "DO RELEASE_LOCK('aimeos.catalog')",
+            'sqlsrv' => "EXEC sp_releaseapplock @Resource = 'aimeos.catalog'",
+        ],
+    ],
+];

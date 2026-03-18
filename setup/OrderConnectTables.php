@@ -1,186 +1,180 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 class OrderConnectTables extends Base
 {
-	public function before() : array
-	{
-		return ['Order'];
-	}
+    public function before(): array
+    {
+        return ['Order'];
+    }
 
+    public function up()
+    {
+        $this->address()->coupon()->product()->service()->subscription();
+    }
 
-	public function up()
-	{
-		$this->address()->coupon()->product()->service()->subscription();
-	}
+    protected function address()
+    {
+        $db = $this->db('db-order');
 
+        if (!$db->hasColumn('mshop_order_base_address', 'baseid')) {
+            return $this;
+        }
 
-	protected function address()
-	{
-		$db = $this->db( 'db-order' );
+        $db->dropForeign('mshop_order_base_address', 'fk_msordbaad_baseid');
+        $db->dropIndex('mshop_order_base_address', 'unq_msordbaad_bid_type');
 
-		if( !$db->hasColumn( 'mshop_order_base_address', 'baseid' ) ) {
-			return $this;
-		}
+        $db->table('mshop_order_base_address')->bigint('parentid')->null(true)->up();
 
-		$db->dropForeign( 'mshop_order_base_address', 'fk_msordbaad_baseid' );
-		$db->dropIndex( 'mshop_order_base_address', 'unq_msordbaad_bid_type' );
-
-		$db->table( 'mshop_order_base_address' )->bigint( 'parentid' )->null( true )->up();
-
-		$db->exec( '
-			UPDATE ' . $db->qi( 'mshop_order_base_address' ) . ' AS dest
-			SET ' . $db->qi( 'parentid' ) . ' = (
-				SELECT ' . $db->qi( 'id' ) . '
-				FROM ' . $db->qi( 'mshop_order' ) . ' AS src
-				WHERE dest.' . $db->qi( 'baseid' ) . ' = src.' . $db->qi( 'baseid' ) . '
+        $db->exec('
+			UPDATE ' . $db->qi('mshop_order_base_address') . ' AS dest
+			SET ' . $db->qi('parentid') . ' = (
+				SELECT ' . $db->qi('id') . '
+				FROM ' . $db->qi('mshop_order') . ' AS src
+				WHERE dest.' . $db->qi('baseid') . ' = src.' . $db->qi('baseid') . '
 				LIMIT 1
 			)
-		' );
+		');
 
-		$db->dropIndex( 'mshop_order_base_address', [
-			'idx_msordbaad_bid_lname',
-			'idx_msordbaad_bid_addr1',
-			'idx_msordbaad_bid_postal',
-			'idx_msordbaad_bid_city',
-			'idx_msordbaad_bid_email'
-		] );
-		$db->dropColumn( 'mshop_order_base_address', 'baseid' );
+        $db->dropIndex('mshop_order_base_address', [
+            'idx_msordbaad_bid_lname',
+            'idx_msordbaad_bid_addr1',
+            'idx_msordbaad_bid_postal',
+            'idx_msordbaad_bid_city',
+            'idx_msordbaad_bid_email',
+        ]);
+        $db->dropColumn('mshop_order_base_address', 'baseid');
 
-		return $this;
-	}
+        return $this;
+    }
 
+    protected function coupon()
+    {
+        $db = $this->db('db-order');
 
-	protected function coupon()
-	{
-		$db = $this->db( 'db-order' );
+        if (!$db->hasColumn('mshop_order_base_coupon', 'baseid')) {
+            return $this;
+        }
 
-		if( !$db->hasColumn( 'mshop_order_base_coupon', 'baseid' ) ) {
-			return $this;
-		}
+        $db->dropForeign('mshop_order_base_coupon', 'fk_msordbaco_baseid');
 
-		$db->dropForeign( 'mshop_order_base_coupon', 'fk_msordbaco_baseid' );
+        $db->table('mshop_order_base_coupon')->bigint('parentid')->null(true)->up();
 
-		$db->table( 'mshop_order_base_coupon' )->bigint( 'parentid' )->null( true )->up();
-
-		$db->exec( '
-			UPDATE ' . $db->qi( 'mshop_order_base_coupon' ) . ' AS dest
-			SET ' . $db->qi( 'parentid' ) . ' = (
-				SELECT ' . $db->qi( 'id' ) . '
-				FROM ' . $db->qi( 'mshop_order' ) . ' AS src
-				WHERE dest.' . $db->qi( 'baseid' ) . ' = src.' . $db->qi( 'baseid' ) . '
+        $db->exec('
+			UPDATE ' . $db->qi('mshop_order_base_coupon') . ' AS dest
+			SET ' . $db->qi('parentid') . ' = (
+				SELECT ' . $db->qi('id') . '
+				FROM ' . $db->qi('mshop_order') . ' AS src
+				WHERE dest.' . $db->qi('baseid') . ' = src.' . $db->qi('baseid') . '
 				LIMIT 1
 			)
-		' );
+		');
 
-		$db->dropIndex( 'mshop_order_base_coupon', 'idx_msordbaco_bid_code' );
-		$db->dropColumn( 'mshop_order_base_coupon', 'baseid' );
+        $db->dropIndex('mshop_order_base_coupon', 'idx_msordbaco_bid_code');
+        $db->dropColumn('mshop_order_base_coupon', 'baseid');
 
-		return $this;
-	}
+        return $this;
+    }
 
+    protected function product()
+    {
+        $db = $this->db('db-order');
 
-	protected function product()
-	{
-		$db = $this->db( 'db-order' );
+        if (!$db->hasColumn('mshop_order_base_product', 'baseid')) {
+            return $this;
+        }
 
-		if( !$db->hasColumn( 'mshop_order_base_product', 'baseid' ) ) {
-			return $this;
-		}
+        $db->dropForeign('mshop_order_base_product', 'fk_msordbapr_baseid');
+        $db->dropIndex('mshop_order_base_product', 'unq_msordbapr_bid_pos');
 
-		$db->dropForeign( 'mshop_order_base_product', 'fk_msordbapr_baseid' );
-		$db->dropIndex( 'mshop_order_base_product', 'unq_msordbapr_bid_pos' );
+        $db->table('mshop_order_base_product')->bigint('parentid')->null(true)->up();
 
-		$db->table( 'mshop_order_base_product' )->bigint( 'parentid' )->null( true )->up();
-
-		$db->exec( '
-			UPDATE ' . $db->qi( 'mshop_order_base_product' ) . ' AS dest
-			SET ' . $db->qi( 'parentid' ) . ' = (
-				SELECT ' . $db->qi( 'id' ) . '
-				FROM ' . $db->qi( 'mshop_order' ) . ' AS src
-				WHERE dest.' . $db->qi( 'baseid' ) . ' = src.' . $db->qi( 'baseid' ) . '
+        $db->exec('
+			UPDATE ' . $db->qi('mshop_order_base_product') . ' AS dest
+			SET ' . $db->qi('parentid') . ' = (
+				SELECT ' . $db->qi('id') . '
+				FROM ' . $db->qi('mshop_order') . ' AS src
+				WHERE dest.' . $db->qi('baseid') . ' = src.' . $db->qi('baseid') . '
 				LIMIT 1
 			)
-		' );
+		');
 
-		$db->dropIndex( 'mshop_order_base_product', [
-			'idx_msordbapr_bid_pid',
-			'idx_msordbapr_bid_pcd',
-			'idx_msordbapr_bid_qtyo',
-			'idx_msordbapr_ct_pid_bid'
-		] );
-		$db->dropColumn( 'mshop_order_base_product', 'baseid' );
+        $db->dropIndex('mshop_order_base_product', [
+            'idx_msordbapr_bid_pid',
+            'idx_msordbapr_bid_pcd',
+            'idx_msordbapr_bid_qtyo',
+            'idx_msordbapr_ct_pid_bid',
+        ]);
+        $db->dropColumn('mshop_order_base_product', 'baseid');
 
-		return $this;
-	}
+        return $this;
+    }
 
+    protected function service()
+    {
+        $db = $this->db('db-order');
 
-	protected function service()
-	{
-		$db = $this->db( 'db-order' );
+        if (!$db->hasColumn('mshop_order_base_service', 'baseid')) {
+            return $this;
+        }
 
-		if( !$db->hasColumn( 'mshop_order_base_service', 'baseid' ) ) {
-			return $this;
-		}
+        $db->dropForeign('mshop_order_base_service', 'fk_msordbase_baseid');
+        $db->dropIndex('mshop_order_base_service', [
+            'unq_msordbase_bid_cd_typ_sid',
+            'unq_msordbase_bid_sid_cd_typ',
+            'unq_msordbase_sid_bid_cd_typ',
+        ]);
 
-		$db->dropForeign( 'mshop_order_base_service', 'fk_msordbase_baseid' );
-		$db->dropIndex( 'mshop_order_base_service', [
-			'unq_msordbase_bid_cd_typ_sid',
-			'unq_msordbase_bid_sid_cd_typ',
-			'unq_msordbase_sid_bid_cd_typ'
-		] );
+        $db->table('mshop_order_base_service')->bigint('parentid')->null(true)->up();
 
-		$db->table( 'mshop_order_base_service' )->bigint( 'parentid' )->null( true )->up();
-
-		$db->exec( '
-			UPDATE ' . $db->qi( 'mshop_order_base_service' ) . ' AS dest
-			SET ' . $db->qi( 'parentid' ) . ' = (
-				SELECT ' . $db->qi( 'id' ) . '
-				FROM ' . $db->qi( 'mshop_order' ) . ' AS src
-				WHERE dest.' . $db->qi( 'baseid' ) . ' = src.' . $db->qi( 'baseid' ) . '
+        $db->exec('
+			UPDATE ' . $db->qi('mshop_order_base_service') . ' AS dest
+			SET ' . $db->qi('parentid') . ' = (
+				SELECT ' . $db->qi('id') . '
+				FROM ' . $db->qi('mshop_order') . ' AS src
+				WHERE dest.' . $db->qi('baseid') . ' = src.' . $db->qi('baseid') . '
 				LIMIT 1
 			)
-		' );
+		');
 
-		$db->dropIndex( 'mshop_order_base_service', 'idx_msordbase_code_type_sid' );
-		$db->dropColumn( 'mshop_order_base_service', 'baseid' );
+        $db->dropIndex('mshop_order_base_service', 'idx_msordbase_code_type_sid');
+        $db->dropColumn('mshop_order_base_service', 'baseid');
 
-		return $this;
-	}
+        return $this;
+    }
 
+    protected function subscription()
+    {
+        $db = $this->db('db-order');
 
-	protected function subscription()
-	{
-		$db = $this->db( 'db-order' );
+        if (!$db->hasColumn('mshop_subscription', 'baseid')) {
+            return $this;
+        }
 
-		if( !$db->hasColumn( 'mshop_subscription', 'baseid' ) ) {
-			return $this;
-		}
+        $db->dropIndex('mshop_subscription', 'idx_mssub_baseid');
 
-		$db->dropIndex( 'mshop_subscription', 'idx_mssub_baseid' );
+        $db->table('mshop_subscription')->bigint('orderid')->null(true)->up();
 
-		$db->table( 'mshop_subscription' )->bigint( 'orderid' )->null( true )->up();
-
-		$db->exec( '
-			UPDATE ' . $db->qi( 'mshop_subscription' ) . ' AS dest
-			SET ' . $db->qi( 'orderid' ) . ' = (
-				SELECT ' . $db->qi( 'id' ) . '
-				FROM ' . $db->qi( 'mshop_order' ) . ' AS src
-				WHERE dest.' . $db->qi( 'baseid' ) . ' = src.' . $db->qi( 'baseid' ) . '
+        $db->exec('
+			UPDATE ' . $db->qi('mshop_subscription') . ' AS dest
+			SET ' . $db->qi('orderid') . ' = (
+				SELECT ' . $db->qi('id') . '
+				FROM ' . $db->qi('mshop_order') . ' AS src
+				WHERE dest.' . $db->qi('baseid') . ' = src.' . $db->qi('baseid') . '
 				LIMIT 1
 			)
-		' );
+		');
 
-		$db->dropColumn( 'mshop_subscription', 'baseid' );
+        $db->dropColumn('mshop_subscription', 'baseid');
 
-		return $this;
-	}
+        return $this;
+    }
 }

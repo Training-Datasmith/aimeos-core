@@ -1,16 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
-return array(
-	'manager' => array(
-		'address' => array(
-			'aggregate' => array(
-				'ansi' => '
+return [
+    'manager' => [
+        'address' => [
+            'aggregate' => [
+                'ansi' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -23,7 +24,7 @@ return array(
 					) AS list
 					GROUP BY :keys
 				',
-				'mysql' => '
+                'mysql' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -35,12 +36,12 @@ return array(
 						LIMIT :size OFFSET :start
 					) AS list
 					GROUP BY :keys
-				'
-			),
-		),
-		'coupon' => array(
-			'aggregate' => array(
-				'ansi' => '
+				',
+            ],
+        ],
+        'coupon' => [
+            'aggregate' => [
+                'ansi' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -53,7 +54,7 @@ return array(
 					) AS list
 					GROUP BY :keys
 				',
-				'mysql' => '
+                'mysql' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -65,16 +66,16 @@ return array(
 						LIMIT :size OFFSET :start
 					) AS list
 					GROUP BY :keys
-				'
-			),
-		),
-		'product' => array(
-			'submanagers' => [
-				'attribute' => 'attribute'
-			],
-			'attribute' => array(
-				'aggregate' => array(
-					'ansi' => '
+				',
+            ],
+        ],
+        'product' => [
+            'submanagers' => [
+                'attribute' => 'attribute',
+            ],
+            'attribute' => [
+                'aggregate' => [
+                    'ansi' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -87,7 +88,7 @@ return array(
 						) AS list
 						GROUP BY :keys
 					',
-					'mysql' => '
+                    'mysql' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -99,11 +100,11 @@ return array(
 							LIMIT :size OFFSET :start
 						) AS list
 						GROUP BY :keys
-					'
-				),
-			),
-			'aggregate' => array(
-				'ansi' => '
+					',
+                ],
+            ],
+            'aggregate' => [
+                'ansi' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -116,7 +117,7 @@ return array(
 					) AS list
 					GROUP BY :keys
 				',
-				'mysql' => '
+                'mysql' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -128,36 +129,36 @@ return array(
 						LIMIT :size OFFSET :start
 					) AS list
 					GROUP BY :keys
-				'
-			),
-			'insert' => array(
-				'ansi' => '
+				',
+            ],
+            'insert' => [
+                'ansi' => '
 					INSERT INTO "mshop_order_product" ( :names
 						"currencyid", "price", "costs", "rebate", "tax", "taxrate", "taxflag",
 						"mtime", "editor", "siteid", "ctime"
 					) VALUES ( :values
 						?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 					)
-				'
-			),
-			'update' => array(
-				'ansi' => '
+				',
+            ],
+            'update' => [
+                'ansi' => '
 					UPDATE "mshop_order_product"
 					SET :names
 						"currencyid" = ?, "price" = ?, "costs" = ?, "rebate" = ?, "tax" = ?, "taxrate" = ?, "taxflag" = ?,
 						"mtime" = ?, "editor" = ?
 					WHERE "siteid" LIKE ? AND "id" = ?
-				'
-			),
-		),
-		'service' => array(
-			'submanagers' => [
-				'attribute' => 'attribute',
-				'transaction' => 'transaction',
-			],
-			'attribute' => array(
-				'aggregate' => array(
-					'ansi' => '
+				',
+            ],
+        ],
+        'service' => [
+            'submanagers' => [
+                'attribute' => 'attribute',
+                'transaction' => 'transaction',
+            ],
+            'attribute' => [
+                'aggregate' => [
+                    'ansi' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -170,7 +171,7 @@ return array(
 						) AS list
 						GROUP BY :keys
 					',
-					'mysql' => '
+                    'mysql' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -182,12 +183,12 @@ return array(
 							LIMIT :size OFFSET :start
 						) AS list
 						GROUP BY :keys
-					'
-				),
-			),
-			'transaction' => array(
-				'aggregate' => array(
-					'ansi' => '
+					',
+                ],
+            ],
+            'transaction' => [
+                'aggregate' => [
+                    'ansi' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -200,7 +201,7 @@ return array(
 						) AS list
 						GROUP BY :keys
 					',
-					'mysql' => '
+                    'mysql' => '
 						SELECT :keys, :type("val") AS "value"
 						FROM (
 							SELECT :acols, :type(:val) AS "val"
@@ -212,30 +213,30 @@ return array(
 							LIMIT :size OFFSET :start
 						) AS list
 						GROUP BY :keys
-					'
-				),
-				'insert' => array(
-					'ansi' => '
+					',
+                ],
+                'insert' => [
+                    'ansi' => '
 						INSERT INTO "mshop_order_service_tx" ( :names
 							"currencyid", "price", "costs", "rebate", "tax", "taxflag",
 							"mtime", "editor", "siteid", "ctime"
 						) VALUES ( :values
 							?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 						)
-					'
-				),
-				'update' => array(
-					'ansi' => '
+					',
+                ],
+                'update' => [
+                    'ansi' => '
 						UPDATE "mshop_order_service_tx"
 						SET :names
 							"currencyid" = ?, "price" = ?, "costs" = ?, "rebate" = ?, "tax" = ?, "taxflag" = ?,
 							"mtime" = ?, "editor" = ?
 						WHERE "siteid" LIKE ? AND "id" = ?
-					'
-				),
-			),
-			'aggregate' => array(
-				'ansi' => '
+					',
+                ],
+            ],
+            'aggregate' => [
+                'ansi' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -248,7 +249,7 @@ return array(
 					) AS list
 					GROUP BY :keys
 				',
-				'mysql' => '
+                'mysql' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -260,31 +261,31 @@ return array(
 						LIMIT :size OFFSET :start
 					) AS list
 					GROUP BY :keys
-				'
-			),
-			'insert' => array(
-				'ansi' => '
+				',
+            ],
+            'insert' => [
+                'ansi' => '
 					INSERT INTO "mshop_order_service" ( :names
 						"currencyid", "price", "costs", "rebate", "tax", "taxrate", "taxflag",
 						"mtime", "editor", "siteid", "ctime"
 					) VALUES ( :values
 						?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 					)
-				'
-			),
-			'update' => array(
-				'ansi' => '
+				',
+            ],
+            'update' => [
+                'ansi' => '
 					UPDATE "mshop_order_service"
 					SET :names
 						"currencyid" = ?, "price" = ?, "costs" = ?, "rebate" = ?, "tax" = ?, "taxrate" = ?, "taxflag" = ?,
 						"mtime" = ?, "editor" = ?
 					WHERE "siteid" LIKE ? AND "id" = ?
-				'
-			),
-		),
-		'status' => array(
-			'aggregate' => array(
-				'ansi' => '
+				',
+            ],
+        ],
+        'status' => [
+            'aggregate' => [
+                'ansi' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -297,7 +298,7 @@ return array(
 					) AS list
 					GROUP BY :keys
 				',
-				'mysql' => '
+                'mysql' => '
 					SELECT :keys, :type("val") AS "value"
 					FROM (
 						SELECT :acols, :type(:val) AS "val"
@@ -309,11 +310,11 @@ return array(
 						LIMIT :size OFFSET :start
 					) AS list
 					GROUP BY :keys
-				'
-			),
-		),
-		'aggregate' => array(
-			'ansi' => '
+				',
+            ],
+        ],
+        'aggregate' => [
+            'ansi' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :type(:val) AS "val"
@@ -326,7 +327,7 @@ return array(
 				) AS list
 				GROUP BY :keys
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :type(:val) AS "val"
@@ -338,10 +339,10 @@ return array(
 					LIMIT :size OFFSET :start
 				) AS list
 				GROUP BY :keys
-			'
-		),
-		'insert' => array(
-			'ansi' => '
+			',
+        ],
+        'insert' => [
+            'ansi' => '
 				INSERT INTO "mshop_order" ( :names
 					"sitecode", "langid", "currencyid",
 					"price", "costs", "rebate", "tax", "taxflag",
@@ -350,30 +351,30 @@ return array(
 				) VALUES ( :values
 					?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 				)
-			'
-		),
-		'update' => array(
-			'ansi' => '
+			',
+        ],
+        'update' => [
+            'ansi' => '
 				UPDATE "mshop_order"
 				SET :names
 					"sitecode" = ?, "langid" = ?, "currencyid" = ?, "price" = ?, "costs" = ?,
 					"rebate" = ?, "tax" = ?, "taxflag" = ?, "mtime" = ?, "editor" = ?
 			WHERE "siteid" LIKE ? AND "id" = ?
-			'
-		),
-		'subdomains' => [
-			'order/address' => 'order/address',
-			'order/coupon' => 'order/coupon',
-			'order/product' => 'order/product',
-			'order/service' => 'order/service',
-			'order/status' => 'order/status',
-		],
-		'submanagers' => [
-			'address' => 'address',
-			'coupon' => 'coupon',
-			'product' => 'product',
-			'service' => 'service',
-			'status' => 'status',
-		],
-	),
-);
+			',
+        ],
+        'subdomains' => [
+            'order/address' => 'order/address',
+            'order/coupon' => 'order/coupon',
+            'order/product' => 'order/product',
+            'order/service' => 'order/service',
+            'order/status' => 'order/status',
+        ],
+        'submanagers' => [
+            'address' => 'address',
+            'coupon' => 'coupon',
+            'product' => 'product',
+            'service' => 'service',
+            'status' => 'status',
+        ],
+    ],
+];

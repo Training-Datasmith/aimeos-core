@@ -1,209 +1,193 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2016-2026
  */
 
-
 namespace Aimeos\MShop\Service\Provider\Decorator;
-
 
 class CategoryTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $basket;
-	private $context;
-	private $servItem;
-	private $mockProvider;
+    private $object;
+    private $basket;
+    private $context;
+    private $servItem;
+    private $mockProvider;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
+        $servManager = \Aimeos\MShop::create($this->context, 'service');
+        $this->servItem = $servManager->create();
 
-		$servManager = \Aimeos\MShop::create( $this->context, 'service' );
-		$this->servItem = $servManager->create();
+        $this->mockProvider = $this->getMockBuilder(\Aimeos\MShop\Service\Provider\Decorator\Category::class)
+            ->disableOriginalConstructor()->getMock();
 
-		$this->mockProvider = $this->getMockBuilder( \Aimeos\MShop\Service\Provider\Decorator\Category::class )
-			->disableOriginalConstructor()->getMock();
+        $this->basket = \Aimeos\MShop::create($this->context, 'order')->create();
 
-		$this->basket = \Aimeos\MShop::create( $this->context, 'order' )->create();
+        $this->object = new \Aimeos\MShop\Service\Provider\Decorator\Category($this->mockProvider, $this->context, $this->servItem);
+    }
 
-		$this->object = new \Aimeos\MShop\Service\Provider\Decorator\Category( $this->mockProvider, $this->context, $this->servItem );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context);
+    }
 
+    public function testGetConfigBE()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('getConfigBE')
+            ->willReturn([]);
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context );
-	}
+        $result = $this->object->getConfigBE();
 
+        $this->assertArrayHasKey('category.include', $result);
+        $this->assertArrayHasKey('category.exclude', $result);
+    }
 
-	public function testGetConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'getConfigBE' )
-			->willReturn( [] );
+    public function testCheckConfigBE()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-		$result = $this->object->getConfigBE();
+        $attributes = [
+            'category.include' => 'test',
+            'category.exclude' => 'test2',
+        ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$this->assertArrayHasKey( 'category.include', $result );
-		$this->assertArrayHasKey( 'category.exclude', $result );
-	}
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['category.include']);
+        $this->assertNull($result['category.exclude']);
+    }
 
+    public function testCheckConfigBENoConfig()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-	public function testCheckConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $result = $this->object->checkConfigBE([]);
 
-		$attributes = array(
-			'category.include' => 'test',
-			'category.exclude' => 'test2',
-		);
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['category.include']);
+        $this->assertNull($result['category.exclude']);
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['category.include'] );
-		$this->assertNull( $result['category.exclude'] );
-	}
+    public function testCheckConfigBEFailure()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
+        $attributes = [
+            'category.include' => [],
+            'category.exclude' => [],
+        ];
+        $result = $this->object->checkConfigBE($attributes);
 
-	public function testCheckConfigBENoConfig()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['category.include']);
+        $this->assertIsString($result['category.exclude']);
+    }
 
-		$result = $this->object->checkConfigBE( [] );
+    public function testIsAvailableNoConfig()
+    {
+        $this->servItem->setConfig([]);
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['category.include'] );
-		$this->assertNull( $result['category.exclude'] );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testCheckConfigBEFailure()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+    public function testIsAvailableNoInclude()
+    {
+        $this->servItem->setConfig([ 'category.include' => '' ]);
 
-		$attributes = array(
-			'category.include' => [],
-			'category.exclude' => [],
-		);
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['category.include'] );
-		$this->assertIsString( $result['category.exclude'] );
-	}
+    public function testIsAvailableNoExclude()
+    {
+        $this->servItem->setConfig([ 'category.exclude' => '' ]);
 
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
-	public function testIsAvailableNoConfig()
-	{
-		$this->servItem->setConfig( [] );
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+    public function testIsAvailableExclude()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.exclude' => 'new' ]);
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->mockProvider->expects($this->never())->method('isAvailable');
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
+    public function testIsAvailableExcludeMultiple()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.exclude' => 'cafe,new' ]);
 
-	public function testIsAvailableNoInclude()
-	{
-		$this->servItem->setConfig( array( 'category.include' => '' ) );
+        $this->mockProvider->expects($this->never())->method('isAvailable');
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+    public function testIsAvailableExcludeTree()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.exclude' => 'group' ]);
 
+        $this->mockProvider->expects($this->never())->method('isAvailable');
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
-	public function testIsAvailableNoExclude()
-	{
-		$this->servItem->setConfig( array( 'category.exclude' => '' ) );
+    public function testIsAvailableInclude()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.include' => 'new' ]);
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+    public function testIsAvailableIncludeMultiple()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.include' => 'cafe,new' ]);
 
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testIsAvailableExclude()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.exclude' => 'new' ) );
+    public function testIsAvailableIncludeTree()
+    {
+        $this->basket->addProduct($this->getOrderProduct('CNC'));
+        $this->servItem->setConfig([ 'category.include' => 'group' ]);
 
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
+    protected function getOrderProduct($code)
+    {
+        $productManager = \Aimeos\MShop::create($this->context, 'product');
+        $product = $productManager->find($code);
 
-	public function testIsAvailableExcludeMultiple()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.exclude' => 'cafe,new' ) );
+        $orderProductManager = \Aimeos\MShop::create($this->context, 'order/product');
+        $orderProduct = $orderProductManager->create()->copyFrom($product)->setStockType('default');
 
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableExcludeTree()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.exclude' => 'group' ) );
-
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableInclude()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.include' => 'new' ) );
-
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableIncludeMultiple()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.include' => 'cafe,new' ) );
-
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableIncludeTree()
-	{
-		$this->basket->addProduct( $this->getOrderProduct( 'CNC' ) );
-		$this->servItem->setConfig( array( 'category.include' => 'group' ) );
-
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	protected function getOrderProduct( $code )
-	{
-		$productManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$product = $productManager->find( $code );
-
-		$orderProductManager = \Aimeos\MShop::create( $this->context, 'order/product' );
-		$orderProduct = $orderProductManager->create()->copyFrom( $product )->setStockType( 'default' );
-
-		return $orderProduct;
-	}
+        return $orderProduct;
+    }
 }

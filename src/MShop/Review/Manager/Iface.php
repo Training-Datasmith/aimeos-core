@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
@@ -7,9 +9,7 @@
  * @subpackage Review
  */
 
-
 namespace Aimeos\MShop\Review\Manager;
-
 
 /**
  * Generic interface for review manager implementations
@@ -17,7 +17,6 @@ namespace Aimeos\MShop\Review\Manager;
  * @package MShop
  * @subpackage Review
  */
-interface Iface
-	extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\MShop\Common\Manager\Iface
 {
 }

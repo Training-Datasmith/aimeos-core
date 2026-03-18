@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
@@ -7,9 +9,7 @@
  * @subpackage Common
  */
 
-
 namespace Aimeos\MShop\Common\Item\Domain;
-
 
 /**
  * Interface for items which are referenced by other domains
@@ -19,18 +19,18 @@ namespace Aimeos\MShop\Common\Item\Domain;
  */
 interface Iface
 {
-	/**
-	 * Returns the domain name the item is stored for
-	 *
-	 * @return string Domain name e.g. catalog, product, service, ...
-	 */
-	public function getDomain() : string;
+    /**
+     * Returns the domain name the item is stored for
+     *
+     * @return string Domain name e.g. catalog, product, service, ...
+     */
+    public function getDomain(): string;
 
-	/**
-	 * Set the domain name the item is stored for
-	 *
-	 * @param string $domain Domain name e.g. catalog, product, service, ...
-	 * @return \Aimeos\MShop\Common\Item\Iface Item object for chaining method calls
-	 */
-	public function setDomain( string $domain ) : \Aimeos\MShop\Common\Item\Iface;
+    /**
+     * Set the domain name the item is stored for
+     *
+     * @param string $domain Domain name e.g. catalog, product, service, ...
+     * @return \Aimeos\MShop\Common\Item\Iface Item object for chaining method calls
+     */
+    public function setDomain(string $domain): \Aimeos\MShop\Common\Item\Iface;
 }

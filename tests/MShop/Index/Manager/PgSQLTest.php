@@ -1,25 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager;
-
 
 class PgSQLTest extends \PHPUnit\Framework\TestCase
 {
-	public function testGetSubManager()
-	{
-		$class = \Aimeos\MShop\Common\Manager\Iface::class;
-		$object = new \Aimeos\MShop\Index\Manager\PgSQL( \TestHelper::context() );
+    public function testGetSubManager()
+    {
+        $class = \Aimeos\MShop\Common\Manager\Iface::class;
+        $object = new \Aimeos\MShop\Index\Manager\PgSQL(\TestHelper::context());
 
-		$this->assertInstanceOf( $class, $object->getSubManager( 'attribute' ) );
-		$this->assertInstanceOf( $class, $object->getSubManager( 'catalog' ) );
-		$this->assertInstanceOf( $class, $object->getSubManager( 'price' ) );
-		$this->assertInstanceOf( $class, $object->getSubManager( 'supplier' ) );
-		$this->assertInstanceOf( $class, $object->getSubManager( 'text' ) );
-	}
+        $this->assertInstanceOf($class, $object->getSubManager('attribute'));
+        $this->assertInstanceOf($class, $object->getSubManager('catalog'));
+        $this->assertInstanceOf($class, $object->getSubManager('price'));
+        $this->assertInstanceOf($class, $object->getSubManager('supplier'));
+        $this->assertInstanceOf($class, $object->getSubManager('text'));
+    }
 }

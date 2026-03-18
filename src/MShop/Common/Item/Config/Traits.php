@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
@@ -7,9 +9,7 @@
  * @subpackage Common
  */
 
-
 namespace Aimeos\MShop\Common\Item\Config;
-
 
 /**
  * Common trait for items containing configurations
@@ -19,175 +19,161 @@ namespace Aimeos\MShop\Common\Item\Config;
  */
 trait Traits
 {
-	/**
-	 * Returns the prefix for the item properties
-	 *
-	 * @return string Prefix for the item properties
-	 */
-	abstract protected function prefix() : string;
+    /**
+     * Returns the prefix for the item properties
+     *
+     * @return string Prefix for the item properties
+     */
+    abstract protected function prefix(): string;
 
+    /**
+     * Returns the config property of the catalog.
+     *
+     * @return array Returns the config of the catalog node
+     */
+    public function getConfig(): array
+    {
+        return (array) $this->get($this->prefix() . 'config', []);
+    }
 
-	/**
-	 * Returns the config property of the catalog.
-	 *
-	 * @return array Returns the config of the catalog node
-	 */
-	public function getConfig() : array
-	{
-		return (array) $this->get( $this->prefix() . 'config', [] );
-	}
+    /**
+     * Sets the config property of the catalog item.
+     *
+     * @param array $config Configuration to be set for the catalog node
+     * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
+     */
+    public function setConfig(array $config): \Aimeos\MShop\Common\Item\Iface
+    {
+        if (!$this->compareConfig($this->getConfig(), $config)) {
+            $this->set($this->prefix() . 'config', $config);
+        }
 
+        return $this;
+    }
 
-	/**
-	 * Sets the config property of the catalog item.
-	 *
-	 * @param array $config Configuration to be set for the catalog node
-	 * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
-	 */
-	public function setConfig( array $config ) : \Aimeos\MShop\Common\Item\Iface
-	{
-		if( !$this->compareConfig( $this->getConfig(), $config ) ) {
-			$this->set( $this->prefix() . 'config', $config );
-		}
+    /**
+     * Returns the configuration value for the specified path
+     *
+     * @param string $key Key of the associative array or path to value like "path/to/value"
+     * @param mixed $default Default value if no configration is found
+     * @return mixed Configuration value or array of values
+     */
+    public function getConfigValue(string $key, $default = null)
+    {
+        return $this->getArrayValue($this->getConfig(), explode('/', trim($key, '/')), $default);
+    }
 
-		return $this;
-	}
+    /**
+     * Sets all configuration values at once
+     *
+     * @param array $flat Associative list of keys (with "/" for nested arrays) and values
+     * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
+     */
+    public function setConfigFlat(array $flat): \Aimeos\MShop\Common\Item\Iface
+    {
+        $config = [];
 
+        foreach ($flat as $key => $value) {
+            $config = $this->setArrayValue($config, explode('/', trim($key, '/')), $value);
+        }
 
-	/**
-	 * Returns the configuration value for the specified path
-	 *
-	 * @param string $key Key of the associative array or path to value like "path/to/value"
-	 * @param mixed $default Default value if no configration is found
-	 * @return mixed Configuration value or array of values
-	 */
-	public function getConfigValue( string $key, $default = null )
-	{
-		return $this->getArrayValue( $this->getConfig(), explode( '/', trim( $key, '/' ) ), $default );
-	}
+        if (!$this->compareConfig($this->getConfig(), $config)) {
+            return $this->setConfig($config);
+        }
 
+        return $this;
+    }
 
-	/**
-	 * Sets all configuration values at once
-	 *
-	 * @param array $flat Associative list of keys (with "/" for nested arrays) and values
-	 * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
-	 */
-	public function setConfigFlat( array $flat ) : \Aimeos\MShop\Common\Item\Iface
-	{
-		$config = [];
+    /**
+     * Sets the configuration value for the specified path
+     *
+     *  Setting "value" by using "path/to" as key would result in:
+     *  [
+     *    'path' => [
+     *      'to' => 'value'
+     *    ]
+     *  ]
+     *
+     * @param string $key Key of the associative array or path to value like "path/to/value"
+     * @param mixed $value Value to set for the key
+     * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
+     */
+    public function setConfigValue(string $key, $value): \Aimeos\MShop\Common\Item\Iface
+    {
+        return $this->setConfig($this->setArrayValue($this->getConfig(), explode('/', trim($key, '/')), $value));
+    }
 
-		foreach( $flat as $key => $value ) {
-			$config = $this->setArrayValue( $config, explode( '/', trim( $key, '/' ) ), $value );
-		}
+    /**
+     * Returns if two associative arrays with string keys are equal
+     *
+     * @param array $a First associative array
+     * @param array $b Second associative array
+     * @return bool TRUE if arrays are loosly equal, FALSE if there are differences other than the order of keys
+     */
+    protected function compareConfig(array $a, array $b): bool
+    {
+        if (count($a) !== count($b) || array_diff_key($a, $b)) {
+            return false;
+        }
 
-		if( !$this->compareConfig( $this->getConfig(), $config ) ) {
-			return $this->setConfig( $config );
-		}
+        foreach ($a as $k => $v) {
+            $bv = $b[$k];
 
-		return $this;
-	}
+            if (is_array($v) && is_array($bv)) {
+                if (!$this->compareConfig($v, $bv)) {
+                    return false;
+                }
+            } elseif ($v != $bv) {
+                return false;
+            }
+        }
 
+        return true;
+    }
 
-	/**
-	 * Sets the configuration value for the specified path
-	 *
-	 *  Setting "value" by using "path/to" as key would result in:
-	 *  [
-	 *    'path' => [
-	 *      'to' => 'value'
-	 *    ]
-	 *  ]
-	 *
-	 * @param string $key Key of the associative array or path to value like "path/to/value"
-	 * @param mixed $value Value to set for the key
-	 * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
-	 */
-	public function setConfigValue( string $key, $value ) : \Aimeos\MShop\Common\Item\Iface
-	{
-		return $this->setConfig( $this->setArrayValue( $this->getConfig(), explode( '/', trim( $key, '/' ) ), $value ) );
-	}
+    /**
+     * Returns a configuration value from an array
+     *
+     * @param array $config The array to search in
+     * @param array $parts Configuration path parts to look for inside the array
+     * @param mixed $default Default value if no configuration is found
+     * @return mixed Found value or null if no value is available
+     */
+    protected function getArrayValue(array $config, array $parts, $default)
+    {
+        if (($current = array_shift($parts)) !== null && isset($config[$current])) {
+            if (count($parts) > 0) {
+                if (is_array($config[$current])) {
+                    return $this->getArrayValue($config[$current], $parts, $default);
+                }
 
+                return $default;
+            }
 
-	/**
-	 * Returns if two associative arrays with string keys are equal
-	 *
-	 * @param array $a First associative array
-	 * @param array $b Second associative array
-	 * @return bool TRUE if arrays are loosly equal, FALSE if there are differences other than the order of keys
-	 */
-	protected function compareConfig( array $a, array $b ) : bool
-	{
-		if( count( $a ) !== count( $b ) || array_diff_key( $a, $b ) ) {
-			return false;
-		}
+            return $config[$current];
+        }
 
-		foreach( $a as $k => $v )
-		{
-			$bv = $b[$k];
+        return $default;
+    }
 
-			if( is_array( $v ) && is_array( $bv ) )
-			{
-				if( !$this->compareConfig( $v, $bv ) ) {
-					return false;
-				}
-			}
-			elseif( $v != $bv )
-			{
-				return false;
-			}
-		}
+    /**
+     * Sets the value for the given key parts in the array configuration
+     *
+     * @param array $config The configuration array to set the key/value pair in
+     * @param array $parts Configuration path parts to use in the array
+     * @param mixed $value Value to set in the configuration array
+     * @return array Modified configuration array
+     */
+    protected function setArrayValue(array $config, array $parts, $value): array
+    {
+        $current = array_shift($parts);
 
-		return true;
-	}
+        if (!empty($parts)) {
+            $config[$current] = $this->setArrayValue($config[$current] ?? [], $parts, $value);
+        } else {
+            $config[$current] = $value;
+        }
 
-
-	/**
-	 * Returns a configuration value from an array
-	 *
-	 * @param array $config The array to search in
-	 * @param array $parts Configuration path parts to look for inside the array
-	 * @param mixed $default Default value if no configuration is found
-	 * @return mixed Found value or null if no value is available
-	 */
-	protected function getArrayValue( array $config, array $parts, $default )
-	{
-		if( ( $current = array_shift( $parts ) ) !== null && isset( $config[$current] ) )
-		{
-			if( count( $parts ) > 0 )
-			{
-				if( is_array( $config[$current] ) ) {
-					return $this->getArrayValue( $config[$current], $parts, $default );
-				}
-
-				return $default;
-			}
-
-			return $config[$current];
-		}
-
-		return $default;
-	}
-
-
-	/**
-	 * Sets the value for the given key parts in the array configuration
-	 *
-	 * @param array $config The configuration array to set the key/value pair in
-	 * @param array $parts Configuration path parts to use in the array
-	 * @param mixed $value Value to set in the configuration array
-	 * @return array Modified configuration array
-	 */
-	protected function setArrayValue( array $config, array $parts, $value ) : array
-	{
-		$current = array_shift( $parts );
-
-		if( !empty( $parts ) ) {
-			$config[$current] = $this->setArrayValue( $config[$current] ?? [], $parts, $value );
-		} else {
-			$config[$current] = $value;
-		}
-
-		return $config;
-	}
+        return $config;
+    }
 }

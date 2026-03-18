@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -7,9 +9,7 @@
  * @subpackage Locale
  */
 
-
 namespace Aimeos\MShop\Locale\Item\Currency;
-
 
 /**
  * Common interface for all currency items.
@@ -17,36 +17,35 @@ namespace Aimeos\MShop\Locale\Item\Currency;
  * @package MShop
  * @subpackage Locale
  */
-interface Iface
-	extends \Aimeos\MShop\Common\Item\Iface, \Aimeos\MShop\Common\Item\Status\Iface
+interface Iface extends \Aimeos\MShop\Common\Item\Iface, \Aimeos\MShop\Common\Item\Status\Iface
 {
-	/**
-	 * Returns the code of the currency.
-	 *
-	 * @return string Code of the currency
-	 */
-	public function getCode() : string;
+    /**
+     * Returns the code of the currency.
+     *
+     * @return string Code of the currency
+     */
+    public function getCode(): string;
 
-	/**
-	 * Sets the code of the currency.
-	 *
-	 * @param string $key Code of the currency
-	 * @return \Aimeos\MShop\Locale\Item\Currency\Iface Locale currency item for chaining method calls
-	 */
-	public function setCode( string $key ) : \Aimeos\MShop\Common\Item\Iface;
+    /**
+     * Sets the code of the currency.
+     *
+     * @param string $key Code of the currency
+     * @return \Aimeos\MShop\Locale\Item\Currency\Iface Locale currency item for chaining method calls
+     */
+    public function setCode(string $key): \Aimeos\MShop\Common\Item\Iface;
 
-	/**
-	 * Returns the label or symbol of the currency.
-	 *
-	 * @return string Label or symbol of the currency
-	 */
-	public function getLabel() : string;
+    /**
+     * Returns the label or symbol of the currency.
+     *
+     * @return string Label or symbol of the currency
+     */
+    public function getLabel(): string;
 
-	/**
-	 * Sets the label or symbol of the currency.
-	 *
-	 * @param string $label Label or symbol of the currency
-	 * @return \Aimeos\MShop\Locale\Item\Currency\Iface Locale currency item for chaining method calls
-	 */
-	public function setLabel( string $label ) : \Aimeos\MShop\Locale\Item\Currency\Iface;
+    /**
+     * Sets the label or symbol of the currency.
+     *
+     * @param string $label Label or symbol of the currency
+     * @return \Aimeos\MShop\Locale\Item\Currency\Iface Locale currency item for chaining method calls
+     */
+    public function setLabel(string $label): \Aimeos\MShop\Locale\Item\Currency\Iface;
 }

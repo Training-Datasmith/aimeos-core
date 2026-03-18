@@ -1,194 +1,174 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Supplier;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->object = new \Aimeos\MShop\Index\Manager\Supplier\Standard(\TestHelper::context());
+    }
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->object = new \Aimeos\MShop\Index\Manager\Supplier\Standard( \TestHelper::context() );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->context);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear([ -1 ]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->context );
-	}
+    public function testAggregate()
+    {
+        $item = \Aimeos\MShop::create($this->context, 'supplier')->find('unitSupplier001');
 
+        $search = $this->object->filter(true);
+        $result = $this->object->aggregate($search, 'index.supplier.id')->toArray();
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear( array( -1 ) ) );
-	}
+        $this->assertEquals(1, count($result));
+        $this->assertArrayHasKey($item->getId(), $result);
+        $this->assertEquals(2, $result[$item->getId()]);
+    }
 
+    public function testCleanup()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup('1970-01-01 00:00:00'));
+    }
 
-	public function testAggregate()
-	{
-		$item = \Aimeos\MShop::create( $this->context, 'supplier' )->find( 'unitSupplier001' );
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-		$search = $this->object->filter( true );
-		$result = $this->object->aggregate( $search, 'index.supplier.id' )->toArray();
+    public function testIterate()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'supplier')->find('unitSupplier001')->getId();
 
-		$this->assertEquals( 1, count( $result ) );
-		$this->assertArrayHasKey( $item->getId(), $result );
-		$this->assertEquals( 2, $result[$item->getId()] );
-	}
+        $filter = $this->object->filter(true);
+        $filter->add($filter->make('index.supplier:position', ['default', $id]), '>=', 0);
 
+        $cursor = $this->object->cursor($filter);
+        $products = $this->object->iterate($cursor);
 
-	public function testCleanup()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup( '1970-01-01 00:00:00' ) );
-	}
+        $this->assertEquals(2, count($products));
 
+        foreach ($products as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+    public function testRemove()
+    {
+        $this->assertEquals($this->object, $this->object->remove([-1]));
+    }
 
+    public function testSaveDeleteItem()
+    {
+        $supplierManager = \Aimeos\MShop::create($this->context, 'supplier');
+        $supItem = $supplierManager->find('unitSupplier001');
 
-	public function testIterate()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'supplier' )->find( 'unitSupplier001' )->getId();
+        $productManager = \Aimeos\MShop::create($this->context, 'product');
+        $product = $productManager->find('CNC')->setId(null)->setCode('ModifiedCNC')
+            ->addListItem('supplier', $productManager->createListItem(), $supItem);
 
-		$filter = $this->object->filter( true );
-		$filter->add( $filter->make( 'index.supplier:position', ['default', $id] ), '>=', 0 );
+        $product = $productManager->save($product);
 
-		$cursor = $this->object->cursor( $filter );
-		$products = $this->object->iterate( $cursor );
+        $this->object->save($product);
 
-		$this->assertEquals( 2, count( $products ) );
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.supplier.id', $supItem->getId()));
+        $result = $this->object->search($search);
 
-		foreach( $products as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
+        $this->object->delete($product->getId());
+        $productManager->delete($product->getId());
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.supplier.id', $supItem->getId()));
+        $result2 = $this->object->search($search);
 
-	public function testRemove()
-	{
-		$this->assertEquals( $this->object, $this->object->remove( [-1] ) );
-	}
+        $this->assertTrue($result->has($product->getId()));
+        $this->assertFalse($result2->has($product->getId()));
+    }
 
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-	public function testSaveDeleteItem()
-	{
-		$supplierManager = \Aimeos\MShop::create( $this->context, 'supplier' );
-		$supItem = $supplierManager->find( 'unitSupplier001' );
+    public function testSearchId()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'supplier')->find('unitSupplier001')->getId();
 
-		$productManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$product = $productManager->find( 'CNC' )->setId( null )->setCode( 'ModifiedCNC' )
-			->addListItem( 'supplier', $productManager->createListItem(), $supItem );
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.supplier.id', $id));
+        $result = $this->object->search($search, []);
 
-		$product = $productManager->save( $product );
+        $this->assertEquals(2, count($result));
+    }
 
-		$this->object->save( $product );
+    public function testSearchIdNull()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('!=', 'index.supplier.id', null));
+        $result = $this->object->search($search, []);
 
+        $this->assertEquals(2, count($result));
+    }
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.supplier.id', $supItem->getId() ) );
-		$result = $this->object->search( $search );
+    public function testSearchPosition()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'supplier')->find('unitSupplier001')->getId();
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.supplier:position', ['default', $id]), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.supplier:position', ['default', $id]))]);
 
-		$this->object->delete( $product->getId() );
-		$productManager->delete( $product->getId() );
+        $result = $this->object->search($search, []);
 
+        $this->assertEquals(2, count($result));
+    }
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.supplier.id', $supItem->getId() ) );
-		$result2 = $this->object->search( $search );
+    public function testSearchPositionList()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'supplier')->find('unitSupplier001')->getId();
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.supplier:position', ['default', [$id]]), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.supplier:position', ['default', [$id]]))]);
 
-		$this->assertTrue( $result->has( $product->getId() ) );
-		$this->assertFalse( $result2->has( $product->getId() ) );
-	}
+        $result = $this->object->search($search, []);
 
+        $this->assertEquals(2, count($result));
+    }
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testSearchRadiusInside()
+    {
+        $search = $this->object->filter()->order('index.supplier.id');
+        $search->add($search->make('index.supplier:radius', [52.5, 10, 115]), '!=', null);
 
+        $this->assertEquals(2, $this->object->search($search, [])->count());
+    }
 
-	public function testSearchId()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'supplier' )->find( 'unitSupplier001' )->getId();
+    public function testSearchRadiusOutside()
+    {
+        $search = $this->object->filter()->order('index.supplier.id');
+        $search->add($search->make('index.supplier:radius', [52.5, 10, 110]), '!=', null);
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.supplier.id', $id ) );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchIdNull()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '!=', 'index.supplier.id', null ) );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchPosition()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'supplier' )->find( 'unitSupplier001' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.supplier:position', ['default', $id] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.supplier:position', ['default', $id] ) )] );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchPositionList()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'supplier' )->find( 'unitSupplier001' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.supplier:position', ['default', [$id]] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.supplier:position', ['default', [$id]] ) )] );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchRadiusInside()
-	{
-		$search = $this->object->filter()->order( 'index.supplier.id' );
-		$search->add( $search->make( 'index.supplier:radius', [52.5, 10, 115] ), '!=', null );
-
-		$this->assertEquals( 2, $this->object->search( $search, [] )->count() );
-	}
-
-
-	public function testSearchRadiusOutside()
-	{
-		$search = $this->object->filter()->order( 'index.supplier.id' );
-		$search->add( $search->make( 'index.supplier:radius', [52.5, 10, 110] ), '!=', null );
-
-		$this->assertEquals( 0, $this->object->search( $search, [] )->count() );
-	}
+        $this->assertEquals(0, $this->object->search($search, [])->count());
+    }
 }

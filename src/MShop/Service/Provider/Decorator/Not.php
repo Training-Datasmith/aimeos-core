@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2016-2026
@@ -7,9 +9,7 @@
  * @subpackage Service
  */
 
-
 namespace Aimeos\MShop\Service\Provider\Decorator;
-
 
 /**
  * Negation decorator for service providers
@@ -22,18 +22,16 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Not
-	extends \Aimeos\MShop\Service\Provider\Decorator\Base
-	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Not extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	/**
-	 * Checks if the products are withing the allowed code is allowed for the service provider.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
-	 * @return bool True if payment provider can be used, false if not
-	 */
-	public function isAvailable( \Aimeos\MShop\Order\Item\Iface $basket ) : bool
-	{
-		return !$this->getProvider()->isAvailable( $basket );
-	}
+    /**
+     * Checks if the products are withing the allowed code is allowed for the service provider.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
+     * @return bool True if payment provider can be used, false if not
+     */
+    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool
+    {
+        return !$this->getProvider()->isAvailable($basket);
+    }
 }

@@ -1,30 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org], 2018-2026
  */
 
-
 return [
-	'manager' => [
-		'decorators' => [
-			'default' => [
-				'Lazy' => 'Lazy',
-				'Depth' => 'Depth',
-			],
-		],
+    'manager' => [
+        'decorators' => [
+            'default' => [
+                'Lazy' => 'Lazy',
+                'Depth' => 'Depth',
+            ],
+        ],
 
-		// generic SQL statements
+        // generic SQL statements
 
-		'delete' => [
-			'ansi' => '
+        'delete' => [
+            'ansi' => '
 				DELETE FROM ":table"
 				WHERE :cond AND "siteid" LIKE ?
-			'
-		],
-		'insert' => [
-			'ansi' => '
+			',
+        ],
+        'insert' => [
+            'ansi' => '
 				INSERT INTO ":table" (
 					:names
 					"mtime", "editor", "siteid", "ctime"
@@ -32,17 +33,17 @@ return [
 					:values
 					?, ?, ?, ?
 				)
-			'
-		],
-		'update' => [
-			'ansi' => '
+			',
+        ],
+        'update' => [
+            'ansi' => '
 				UPDATE ":table"
 				SET :names "mtime" = ?, "editor" = ?
 				WHERE "siteid" LIKE ? AND "id" = ?
-			'
-		],
-		'search' => [
-			'ansi' => '
+			',
+        ],
+        'search' => [
+            'ansi' => '
 				SELECT :columns
 				FROM ":table" :alias
 				:joins
@@ -51,7 +52,7 @@ return [
 				ORDER BY :order
 				OFFSET :start ROWS FETCH NEXT :size ROWS ONLY
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :columns
 				FROM ":table" :alias
 				:joins
@@ -59,10 +60,10 @@ return [
 				GROUP BY :group
 				ORDER BY :order
 				LIMIT :size OFFSET :start
-			'
-		],
-		'count' => [
-			'ansi' => '
+			',
+        ],
+        'count' => [
+            'ansi' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT :alias."id"
@@ -74,7 +75,7 @@ return [
 					OFFSET 0 ROWS FETCH NEXT 10000 ROWS ONLY
 				) AS list
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT :alias."id"
@@ -85,12 +86,12 @@ return [
 					ORDER BY :alias."id"
 					LIMIT 10000 OFFSET 0
 				) AS list
-			'
-		],
-		'newid' => [
-			'mysql' => 'SELECT LAST_INSERT_ID()',
-			'pgsql' => 'SELECT lastval()',
-			'sqlsrv' => 'SELECT @@IDENTITY',
-		],
-	],
+			',
+        ],
+        'newid' => [
+            'mysql' => 'SELECT LAST_INSERT_ID()',
+            'pgsql' => 'SELECT lastval()',
+            'sqlsrv' => 'SELECT @@IDENTITY',
+        ],
+    ],
 ];

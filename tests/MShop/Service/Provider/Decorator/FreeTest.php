@@ -1,123 +1,114 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  */
 
-
 namespace Aimeos\MShop\Service\Provider\Decorator;
-
 
 class FreeTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $context;
-	private $servItem;
-	private $mockProvider;
+    private $object;
+    private $context;
+    private $servItem;
+    private $mockProvider;
 
+    protected function setUp(): void
+    {
+        \Aimeos\MShop::cache(true);
 
-	protected function setUp() : void
-	{
-		\Aimeos\MShop::cache( true );
+        $this->context = \TestHelper::context();
 
-		$this->context = \TestHelper::context();
+        $servManager = \Aimeos\MShop::create($this->context, 'service');
+        $this->servItem = $servManager->create();
 
-		$servManager = \Aimeos\MShop::create( $this->context, 'service' );
-		$this->servItem = $servManager->create();
+        $this->mockProvider = $this->getMockBuilder(\Aimeos\MShop\Service\Provider\Decorator\Example::class)
+            ->disableOriginalConstructor()->getMock();
 
-		$this->mockProvider = $this->getMockBuilder( \Aimeos\MShop\Service\Provider\Decorator\Example::class )
-			->disableOriginalConstructor()->getMock();
+        $this->object = new \Aimeos\MShop\Service\Provider\Decorator\Free($this->mockProvider, $this->context, $this->servItem);
+    }
 
-		$this->object = new \Aimeos\MShop\Service\Provider\Decorator\Free( $this->mockProvider, $this->context, $this->servItem );
-	}
+    protected function tearDown(): void
+    {
+        \Aimeos\MShop::cache(false);
+        unset($this->object, $this->mockProvider, $this->servItem, $this->context);
+    }
 
+    public function testGetConfigBE()
+    {
+        $this->mockProvider->expects($this->once())->method('getConfigBE')->willReturn([]);
 
-	protected function tearDown() : void
-	{
-		\Aimeos\MShop::cache( false );
-		unset( $this->object, $this->mockProvider, $this->servItem, $this->context );
-	}
+        $result = $this->object->getConfigBE();
 
+        $this->assertArrayHasKey('free.show', $result);
+    }
 
-	public function testGetConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )->method( 'getConfigBE' )->willReturn( [] );
+    public function testCheckConfigBEOK()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-		$result = $this->object->getConfigBE();
+        $attributes = [ 'free.show' => '1' ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$this->assertArrayHasKey( 'free.show', $result );
-	}
+        $this->assertEquals(1, count($result));
+        $this->assertNull($result['free.show']);
+    }
 
+    public function testCheckConfigBEFailure()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-	public function testCheckConfigBEOK()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $attributes = [ 'free.show' => [] ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$attributes = array( 'free.show' => '1' );
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->assertEquals(1, count($result));
+        $this->assertIsString($result['free.show']);
+    }
 
-		$this->assertEquals( 1, count( $result ) );
-		$this->assertNull( $result['free.show'] );
-	}
+    public function testIsAvailable()
+    {
+        $this->servItem->setConfig([ 'free.show' => '1' ]);
+        $basket = \Aimeos\MShop::create($this->context, 'order')->create()->off();
 
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
 
-	public function testCheckConfigBEFailure()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $this->assertTrue($this->object->isAvailable($basket));
+    }
 
-		$attributes = array( 'free.show' => [] );
-		$result = $this->object->checkConfigBE( $attributes );
+    public function testIsAvailableNotZero()
+    {
+        $this->servItem->setConfig([ 'free.show' => '1' ]);
+        $basket = \Aimeos\MShop::create($this->context, 'order')->create()->off();
+        $basket->getPrice()->setValue('0.01')->setId('');
 
-		$this->assertEquals( 1, count( $result ) );
-		$this->assertIsString( $result['free.show'] );
-	}
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($basket));
+    }
 
-	public function testIsAvailable()
-	{
-		$this->servItem->setConfig( array( 'free.show' => '1' ) );
-		$basket = \Aimeos\MShop::create( $this->context, 'order' )->create()->off();
+    public function testIsNotAvailableHidden()
+    {
+        $this->servItem->setConfig([ 'free.show' => '0' ]);
+        $basket = \Aimeos\MShop::create($this->context, 'order')->create()->off();
 
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
+        $this->assertFalse($this->object->isAvailable($basket));
+    }
 
-		$this->assertTrue( $this->object->isAvailable( $basket ) );
-	}
+    public function testIsAvailableHiddenNotZero()
+    {
+        $this->servItem->setConfig([ 'free.show' => '0' ]);
+        $basket = \Aimeos\MShop::create($this->context, 'order')->create()->off();
+        $basket->getPrice()->setValue('0.01')->setId('');
 
+        $this->mockProvider->expects($this->once())->method('isAvailable')->willReturn(true);
 
-	public function testIsAvailableNotZero()
-	{
-		$this->servItem->setConfig( array( 'free.show' => '1' ) );
-		$basket = \Aimeos\MShop::create( $this->context, 'order' )->create()->off();
-		$basket->getPrice()->setValue( '0.01' )->setId( '' );
-
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-
-		$this->assertTrue( $this->object->isAvailable( $basket ) );
-	}
-
-
-	public function testIsNotAvailableHidden()
-	{
-		$this->servItem->setConfig( array( 'free.show' => '0' ) );
-		$basket = \Aimeos\MShop::create( $this->context, 'order' )->create()->off();
-
-		$this->assertFalse( $this->object->isAvailable( $basket ) );
-	}
-
-
-	public function testIsAvailableHiddenNotZero()
-	{
-		$this->servItem->setConfig( array( 'free.show' => '0' ) );
-		$basket = \Aimeos\MShop::create( $this->context, 'order' )->create()->off();
-		$basket->getPrice()->setValue( '0.01' )->setId( '' );
-
-		$this->mockProvider->expects( $this->once() )->method( 'isAvailable' )->willReturn( true );
-
-		$this->assertTrue( $this->object->isAvailable( $basket ) );
-	}
+        $this->assertTrue($this->object->isAvailable($basket));
+    }
 }

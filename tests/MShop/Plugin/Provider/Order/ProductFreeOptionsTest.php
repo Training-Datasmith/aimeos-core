@@ -1,130 +1,121 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2017-2026
  */
 
-
 namespace Aimeos\MShop\Plugin\Provider\Order;
-
 
 class ProductFreeOptionsTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $plugin = \Aimeos\MShop::create($this->context, 'plugin')->create();
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$plugin = \Aimeos\MShop::create( $this->context, 'plugin' )->create();
+        $this->object = new \Aimeos\MShop\Plugin\Provider\Order\ProductFreeOptions($this->context, $plugin);
+    }
 
-		$this->object = new \Aimeos\MShop\Plugin\Provider\Order\ProductFreeOptions( $this->context, $plugin );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->context);
+    }
 
+    public function testRegister()
+    {
+        $order = \Aimeos\MShop::create($this->context, 'order')->create();
+        $this->assertInstanceOf(\Aimeos\MShop\Plugin\Provider\Iface::class, $this->object->register($order));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->context );
-	}
+    public function testUpdate()
+    {
+        $prodManager = \Aimeos\MShop::create($this->context, 'product');
+        $attrManager = \Aimeos\MShop::create($this->context, 'attribute');
 
+        $basket = \Aimeos\MShop::create($this->context, 'order')->create()->off();
+        $product = \Aimeos\MShop::create($this->context, 'order/product')->create();
+        $attribute = \Aimeos\MShop::create($this->context, 'order/product/attribute')->create();
 
-	public function testRegister()
-	{
-		$order = \Aimeos\MShop::create( $this->context, 'order' )->create();
-		$this->assertInstanceOf( \Aimeos\MShop\Plugin\Provider\Iface::class, $this->object->register( $order ) );
-	}
+        $attribute = $attribute->setQuantity(2)->setCode('size')->setType('config')
+            ->setAttributeId($attrManager->find('xs', [], 'product', 'size')->getId());
 
+        $product = $product->setAttributeItem($attribute)->setProductId($prodManager->find('CNE')->getId());
 
-	public function testUpdate()
-	{
-		$prodManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$attrManager = \Aimeos\MShop::create( $this->context, 'attribute' );
+        $this->assertEquals($product, $this->object->update($basket, 'addProduct.after', $product));
+        $this->assertEquals([$product], $this->object->update($basket, 'addProduct.after', [$product]));
 
-		$basket = \Aimeos\MShop::create( $this->context, 'order' )->create()->off();
-		$product = \Aimeos\MShop::create( $this->context, 'order/product' )->create();
-		$attribute = \Aimeos\MShop::create( $this->context, 'order/product/attribute' )->create();
+        $this->assertEquals('30.95', $product->getPrice()->getValue());
+    }
 
-		$attribute = $attribute->setQuantity( 2 )->setCode( 'size' )->setType( 'config' )
-			->setAttributeId( $attrManager->find( 'xs', [], 'product', 'size' )->getId() );
+    public function testAddPrices()
+    {
+        $price = \Aimeos\MShop::create($this->context, 'price')->create()->setValue('10.00');
 
-		$product = $product->setAttributeItem( $attribute )->setProductId( $prodManager->find( 'CNE' )->getId() );
+        $attrManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $attrItem = $attrManager->find('xs', ['price'], 'product', 'size');
+        $attrItem2 = $attrManager->find('xl', ['price'], 'product', 'size');
 
-		$this->assertEquals( $product, $this->object->update( $basket, 'addProduct.after', $product ) );
-		$this->assertEquals( [$product], $this->object->update( $basket, 'addProduct.after', [$product] ) );
+        $quantities = [$attrItem->getId() => 2, $attrItem2->getId() => 1];
+        $attrItems = [$attrItem->getId() => $attrItem, $attrItem2->getId() => $attrItem2];
 
-		$this->assertEquals( '30.95', $product->getPrice()->getValue() );
-	}
+        $price = $this->access('addPrices')->invokeArgs($this->object, [$price, $attrItems, $quantities, 2]);
 
+        $this->assertEquals('25.00', $price->getValue());
+    }
 
-	public function testAddPrices()
-	{
-		$price = \Aimeos\MShop::create( $this->context, 'price' )->create()->setValue( '10.00' );
+    public function testSortByPrice()
+    {
+        $attrManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $attrItem = $attrManager->find('xs', ['price'], 'product', 'size');
 
-		$attrManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$attrItem = $attrManager->find( 'xs', ['price'], 'product', 'size' );
-		$attrItem2 = $attrManager->find( 'xl', ['price'], 'product', 'size' );
+        $quantities = [1 => 2];
+        $attrItems = [1 => $attrItem];
 
-		$quantities = [$attrItem->getId() => 2, $attrItem2->getId() => 1];
-		$attrItems = [$attrItem->getId() => $attrItem, $attrItem2->getId() => $attrItem2];
+        $items = $this->access('sortByPrice')->invokeArgs($this->object, [$attrItems, $quantities]);
 
-		$price = $this->access( 'addPrices' )->invokeArgs( $this->object, [$price, $attrItems, $quantities, 2] );
+        $this->assertEquals([1], array_keys($items));
+    }
 
-		$this->assertEquals( '25.00', $price->getValue() );
-	}
+    public function testSortByPriceFirstNoPrice()
+    {
+        $attrManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $attrItem1 = $attrManager->find('xs', ['price'], 'product', 'size');
+        $attrItem2 = $attrManager->find('s', [], 'product', 'size');
 
+        $quantities = [1 => 1, 2 => 1];
+        $attrItems = [1 => $attrItem2, 2 => $attrItem1];
 
-	public function testSortByPrice()
-	{
-		$attrManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$attrItem = $attrManager->find( 'xs', ['price'], 'product', 'size' );
+        $items = $this->access('sortByPrice')->invokeArgs($this->object, [$attrItems, $quantities]);
 
-		$quantities = [1 => 2];
-		$attrItems = [1 => $attrItem];
+        $this->assertEquals([2, 1], array_keys($items));
+    }
 
-		$items = $this->access( 'sortByPrice' )->invokeArgs( $this->object, [$attrItems, $quantities] );
+    public function testSortByPriceSecondNoPrice()
+    {
+        $attrManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $attrItem1 = $attrManager->find('xs', ['price'], 'product', 'size');
+        $attrItem2 = $attrManager->find('s', [], 'product', 'size');
 
-		$this->assertEquals( [1], array_keys( $items ) );
-	}
+        $quantities = [1 => 1, 2 => 1];
+        $attrItems = [1 => $attrItem1, 2 => $attrItem2];
 
+        $items = $this->access('sortByPrice')->invokeArgs($this->object, [$attrItems, $quantities]);
 
-	public function testSortByPriceFirstNoPrice()
-	{
-		$attrManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$attrItem1 = $attrManager->find( 'xs', ['price'], 'product', 'size' );
-		$attrItem2 = $attrManager->find( 's', [], 'product', 'size' );
+        $this->assertEquals([1, 2], array_keys($items));
+    }
 
-		$quantities = [1 => 1, 2 => 1];
-		$attrItems = [1 => $attrItem2, 2 => $attrItem1];
+    protected function access($name)
+    {
+        $class = new \ReflectionClass(\Aimeos\MShop\Plugin\Provider\Order\ProductFreeOptions::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
 
-		$items = $this->access( 'sortByPrice' )->invokeArgs( $this->object, [$attrItems, $quantities] );
-
-		$this->assertEquals( [2, 1], array_keys( $items ) );
-	}
-
-
-	public function testSortByPriceSecondNoPrice()
-	{
-		$attrManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$attrItem1 = $attrManager->find( 'xs', ['price'], 'product', 'size' );
-		$attrItem2 = $attrManager->find( 's', [], 'product', 'size' );
-
-		$quantities = [1 => 1, 2 => 1];
-		$attrItems = [1 => $attrItem1, 2 => $attrItem2];
-
-		$items = $this->access( 'sortByPrice' )->invokeArgs( $this->object, [$attrItems, $quantities] );
-
-		$this->assertEquals( [1, 2], array_keys( $items ) );
-	}
-
-
-	protected function access( $name )
-	{
-		$class = new \ReflectionClass( \Aimeos\MShop\Plugin\Provider\Order\ProductFreeOptions::class );
-		$method = $class->getMethod( $name );
-		$method->setAccessible( true );
-
-		return $method;
-	}
+        return $method;
+    }
 }

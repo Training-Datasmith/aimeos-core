@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -7,9 +9,7 @@
  * @subpackage Stock
  */
 
-
 namespace Aimeos\MShop\Stock\Manager\Type;
-
 
 /**
  * Generic interface for stock type objects
@@ -17,7 +17,6 @@ namespace Aimeos\MShop\Stock\Manager\Type;
  * @package MShop
  * @subpackage Stock
  */
-interface Iface
-	extends \Aimeos\MShop\Type\Manager\Iface
+interface Iface extends \Aimeos\MShop\Type\Manager\Iface
 {
 }

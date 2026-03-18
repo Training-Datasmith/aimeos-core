@@ -1,154 +1,143 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MAdmin\Log\Manager;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->object = new \Aimeos\MAdmin\Log\Manager\Standard(\TestHelper::context());
+    }
 
-	protected function setUp() : void
-	{
-		$this->object = new \Aimeos\MAdmin\Log\Manager\Standard( \TestHelper::context() );
-	}
+    protected function tearDown(): void
+    {
+        $this->object = null;
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MAdmin\Log\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
-	protected function tearDown() : void
-	{
-		$this->object = null;
-	}
+    public function testCreate()
+    {
+        $this->assertInstanceOf(\Aimeos\MAdmin\Log\Item\Iface::class, $this->object->create());
+    }
 
+    public function testDelete()
+    {
+        $this->assertInstanceOf(\Aimeos\MAdmin\Log\Manager\Iface::class, $this->object->delete([-1]));
+    }
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MAdmin\Log\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attr) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attr);
+        }
+    }
 
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-	public function testCreate()
-	{
-		$this->assertInstanceOf( \Aimeos\MAdmin\Log\Item\Iface::class, $this->object->create() );
-	}
+    public function testSearch()
+    {
+        $search = $this->object->filter();
 
+        $expr = [];
+        $expr[] = $search->compare('!=', 'log.id', null);
+        $expr[] = $search->compare('!=', 'log.siteid', null);
+        $expr[] = $search->compare('==', 'log.facility', 'unittest facility');
+        $expr[] = $search->compare('>=', 'log.timestamp', '2010-01-01 00:00:00');
+        $expr[] = $search->compare('==', 'log.priority', 1);
+        $expr[] = $search->compare('==', 'log.message', 'unittest message');
+        $expr[] = $search->compare('==', 'log.request', 'unittest request');
 
-	public function testDelete()
-	{
-		$this->assertInstanceOf( \Aimeos\MAdmin\Log\Manager\Iface::class, $this->object->delete( [-1] ) );
-	}
+        $total = 0;
+        $search->setConditions($search->and($expr));
+        $results = $this->object->search($search, [], $total)->toArray();
 
+        $this->assertEquals(1, count($results));
+        $this->assertEquals(1, $total);
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attr ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attr );
-		}
-	}
+        foreach ($results as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
+    public function testGet()
+    {
+        $criteria = $this->object->filter()->slice(0, 1);
+        $criteria->setConditions($criteria->compare('==', 'log.priority', 1));
+        $result = $this->object->search($criteria)->toArray();
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+        if (($item = reset($result)) === false) {
+            throw new \RuntimeException('No item found');
+        }
 
+        $this->assertEquals($item, $this->object->get($item->getId()));
+    }
 
-	public function testSearch()
-	{
-		$search = $this->object->filter();
+    public function testSaveUpdateDelete()
+    {
+        $item = $this->object->create();
+        $item->setMessage('unit test message');
+        $item->setRequest('unit test rqst');
+        $resultSaved = $this->object->save($item);
 
-		$expr = [];
-		$expr[] = $search->compare( '!=', 'log.id', null );
-		$expr[] = $search->compare( '!=', 'log.siteid', null );
-		$expr[] = $search->compare( '==', 'log.facility', 'unittest facility' );
-		$expr[] = $search->compare( '>=', 'log.timestamp', '2010-01-01 00:00:00' );
-		$expr[] = $search->compare( '==', 'log.priority', 1 );
-		$expr[] = $search->compare( '==', 'log.message', 'unittest message' );
-		$expr[] = $search->compare( '==', 'log.request', 'unittest request' );
+        $itemSaved = $this->object->get($item->getId());
 
-		$total = 0;
-		$search->setConditions( $search->and( $expr ) );
-		$results = $this->object->search( $search, [], $total )->toArray();
+        $itemExp = clone $itemSaved;
+        $itemExp->setRequest('unit test request');
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($item->getId());
 
-		$this->assertEquals( 1, count( $results ) );
-		$this->assertEquals( 1, $total );
+        $this->object->delete($item->getId());
 
-		foreach( $results as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
+        $this->assertTrue($item->getId() !== null);
+        $this->assertTrue($item->getTimestamp() === null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getSiteid(), $itemSaved->getSiteId());
+        $this->assertEquals($item->getFacility(), $itemSaved->getFacility());
+        $this->assertEquals($item->getMessage(), $itemSaved->getMessage());
+        $this->assertEquals($item->getRequest(), $itemSaved->getRequest());
+        $this->assertEquals($item->getPriority(), $itemSaved->getPriority());
 
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getSiteid(), $itemUpd->getSiteId());
+        $this->assertEquals($itemExp->getFacility(), $itemUpd->getFacility());
+        $this->assertEquals($itemExp->getMessage(), $itemUpd->getMessage());
+        $this->assertEquals($itemExp->getRequest(), $itemUpd->getRequest());
+        $this->assertEquals($itemExp->getPriority(), $itemUpd->getPriority());
 
-	public function testGet()
-	{
-		$criteria = $this->object->filter()->slice( 0, 1 );
-		$criteria->setConditions( $criteria->compare( '==', 'log.priority', 1 ) );
-		$result = $this->object->search( $criteria )->toArray();
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		if( ( $item = reset( $result ) ) === false ) {
-			throw new \RuntimeException( 'No item found' );
-		}
+        $this->expectException(\Aimeos\MAdmin\Log\Exception::class);
+        $this->object->get($item->getId());
+    }
 
-		$this->assertEquals( $item, $this->object->get( $item->getId() ) );
-	}
+    public function testLog()
+    {
+        $mock = $this->getMockBuilder(\Aimeos\MAdmin\Log\Manager\Standard::class)
+            ->setConstructorArgs([ \TestHelper::context() ])
+            ->onlyMethods([ 'save' ])
+            ->getMock();
 
+        $mock->expects($this->once())->method('save');
 
-	public function testSaveUpdateDelete()
-	{
-		$item = $this->object->create();
-		$item->setMessage( 'unit test message' );
-		$item->setRequest( 'unit test rqst' );
-		$resultSaved = $this->object->save( $item );
-
-		$itemSaved = $this->object->get( $item->getId() );
-
-		$itemExp = clone $itemSaved;
-		$itemExp->setRequest( 'unit test request' );
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $item->getId() );
-
-		$this->object->delete( $item->getId() );
-
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertTrue( $item->getTimestamp() === null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getSiteid(), $itemSaved->getSiteId() );
-		$this->assertEquals( $item->getFacility(), $itemSaved->getFacility() );
-		$this->assertEquals( $item->getMessage(), $itemSaved->getMessage() );
-		$this->assertEquals( $item->getRequest(), $itemSaved->getRequest() );
-		$this->assertEquals( $item->getPriority(), $itemSaved->getPriority() );
-
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getSiteid(), $itemUpd->getSiteId() );
-		$this->assertEquals( $itemExp->getFacility(), $itemUpd->getFacility() );
-		$this->assertEquals( $itemExp->getMessage(), $itemUpd->getMessage() );
-		$this->assertEquals( $itemExp->getRequest(), $itemUpd->getRequest() );
-		$this->assertEquals( $itemExp->getPriority(), $itemUpd->getPriority() );
-
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
-
-		$this->expectException( \Aimeos\MAdmin\Log\Exception::class );
-		$this->object->get( $item->getId() );
-	}
-
-
-	public function testLog()
-	{
-		$mock = $this->getMockBuilder( \Aimeos\MAdmin\Log\Manager\Standard::class )
-			->setConstructorArgs( array( \TestHelper::context() ) )
-			->onlyMethods( array( 'save' ) )
-			->getMock();
-
-		$mock->expects( $this->once() )->method( 'save' );
-
-		$mock->log( 'test' );
-	}
+        $mock->log('test');
+    }
 }

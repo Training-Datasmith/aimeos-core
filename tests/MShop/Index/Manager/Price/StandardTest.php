@@ -1,115 +1,105 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Price;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->object = new \Aimeos\MShop\Index\Manager\Price\Standard($this->context);
+    }
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->object = new \Aimeos\MShop\Index\Manager\Price\Standard( $this->context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->context);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear([ -1 ]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->context );
-	}
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
+    public function testSaveDeleteItem()
+    {
+        $productManager = \Aimeos\MShop::create($this->context, 'product');
+        $product = $productManager->find('CNC', ['price']);
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear( array( -1 ) ) );
-	}
+        $this->object->delete($product->getId());
+        $this->object->save($product);
 
+        $search = $this->object->filter();
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+        $func = $search->make('index.price:value', ['EUR']);
+        $search->setConditions($search->compare('==', $func, '18.00'));
 
+        $this->assertEquals(3, count($this->object->search($search)->toArray()));
+    }
 
-	public function testSaveDeleteItem()
-	{
-		$productManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$product = $productManager->find( 'CNC', ['price'] );
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-		$this->object->delete( $product->getId() );
-		$this->object->save( $product );
+    public function testIterate()
+    {
+        $filter = $this->object->filter();
+        $filter->add($filter->make('index.price:value', ['EUR']), '>=', '18.00');
 
-		$search = $this->object->filter();
+        $cursor = $this->object->cursor($filter->slice(0, 5));
+        $products1 = $this->object->iterate($cursor);
+        $products2 = $this->object->iterate($cursor);
 
-		$func = $search->make( 'index.price:value', ['EUR'] );
-		$search->setConditions( $search->compare( '==', $func, '18.00' ) );
+        $this->assertEquals(5, count($products1));
+        $this->assertEquals(3, count($products2));
 
-		$this->assertEquals( 3, count( $this->object->search( $search )->toArray() ) );
-	}
+        foreach ($products1 as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
+    public function testRemove()
+    {
+        $this->assertEquals($this->object, $this->object->remove([-1]));
+    }
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testSearch()
+    {
+        $search = $this->object->filter();
 
+        $func = $search->make('index.price:value', ['EUR']);
+        $search->setConditions($search->compare('>=', $func, '18.00'));
 
-	public function testIterate()
-	{
-		$filter = $this->object->filter();
-		$filter->add( $filter->make( 'index.price:value', ['EUR'] ), '>=', '18.00' );
+        $sortfunc = $search->make('sort:index.price:value', ['EUR']);
+        $search->setSortations([ $search->sort('+', $sortfunc) ]);
 
-		$cursor = $this->object->cursor( $filter->slice( 0, 5 ) );
-		$products1 = $this->object->iterate( $cursor );
-		$products2 = $this->object->iterate( $cursor );
+        $result = $this->object->search($search, []);
 
-		$this->assertEquals( 5, count( $products1 ) );
-		$this->assertEquals( 3, count( $products2 ) );
+        $this->assertEquals(8, count($result));
+    }
 
-		foreach( $products1 as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
-
-
-	public function testRemove()
-	{
-		$this->assertEquals( $this->object, $this->object->remove( [-1] ) );
-	}
-
-
-	public function testSearch()
-	{
-		$search = $this->object->filter();
-
-		$func = $search->make( 'index.price:value', ['EUR'] );
-		$search->setConditions( $search->compare( '>=', $func, '18.00' ) );
-
-		$sortfunc = $search->make( 'sort:index.price:value', ['EUR'] );
-		$search->setSortations( array( $search->sort( '+', $sortfunc ) ) );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 8, count( $result ) );
-	}
-
-
-	public function testCleanup()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup( '1970-01-01 00:00:00' ) );
-	}
+    public function testCleanup()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup('1970-01-01 00:00:00'));
+    }
 
 }

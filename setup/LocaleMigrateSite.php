@@ -1,56 +1,52 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 class LocaleMigrateSite extends Base
 {
-	public function before() : array
-	{
-		return ['Locale'];
-	}
+    public function before(): array
+    {
+        return ['Locale'];
+    }
 
+    public function after(): array
+    {
+        return [];
+    }
 
-	public function after() : array
-	{
-		return [];
-	}
+    public function up()
+    {
+        $db = $this->db('db-locale');
 
+        if (!$db->hasTable('mshop_locale') || $db->hasColumn('mshop_locale', 'site_id')) {
+            return;
+        }
 
-	public function up()
-	{
-		$db = $this->db( 'db-locale' );
+        $this->info('Use "id" column in "mshop_locale_site"', 'vv');
 
-		if( !$db->hasTable( 'mshop_locale' ) || $db->hasColumn( 'mshop_locale', 'site_id' ) ) {
-			return;
-		}
+        $db->dropForeign('mshop_locale', 'fk_msloc_siteid')
+            ->dropIndex('mshop_locale', 'unq_msloc_sid_lang_curr')
+            ->dropIndex('mshop_locale', 'idx_msloc_sid_curid')
+            ->dropIndex('mshop_locale', 'idx_msloc_sid_status')
+            ->dropIndex('mshop_locale', 'idx_msloc_sid_pos')
+            ->dropIndex('mshop_locale', 'fk_msloc_siteid');
 
-		$this->info( 'Use "id" column in "mshop_locale_site"', 'vv' );
+        $db->table('mshop_locale')->int('site_id')->null(true)->up();
 
+        $result = $db->stmt()->select('id', 'siteid')->from('mshop_locale_site')->executeQuery();
+        $db2 = $this->db('db-locale', true);
 
-		$db->dropForeign( 'mshop_locale', 'fk_msloc_siteid' )
-			->dropIndex( 'mshop_locale', 'unq_msloc_sid_lang_curr' )
-			->dropIndex( 'mshop_locale', 'idx_msloc_sid_curid' )
-			->dropIndex( 'mshop_locale', 'idx_msloc_sid_status' )
-			->dropIndex( 'mshop_locale', 'idx_msloc_sid_pos' )
-			->dropIndex( 'mshop_locale', 'fk_msloc_siteid' );
+        while ($row = $result->fetchAssociative()) {
+            $db2->update('mshop_locale', ['site_id' => $row['id']], ['siteid' => $row['siteid']]);
+        }
 
-		$db->table( 'mshop_locale' )->int( 'site_id' )->null( true )->up();
-
-
-		$result = $db->stmt()->select( 'id', 'siteid' )->from( 'mshop_locale_site' )->executeQuery();
-		$db2 = $this->db( 'db-locale', true );
-
-		while( $row = $result->fetchAssociative() ) {
-			$db2->update( 'mshop_locale', ['site_id' => $row['id']], ['siteid' => $row['siteid']] );
-		}
-
-		$db2->close();
-	}
+        $db2->close();
+    }
 }

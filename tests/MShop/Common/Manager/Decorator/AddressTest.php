@@ -1,61 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2024-2026
  */
 
-
 namespace Aimeos\MShop\Common\Manager\Decorator;
-
 
 class AddressTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
-	private $stub;
+    private $context;
+    private $object;
+    private $stub;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
+        $this->stub = $this->getMockBuilder('\\Aimeos\\MShop\\Customer\\Manager\\Standard')
+            ->setConstructorArgs([$this->context])
+            ->onlyMethods(['saveRefs', 'searchRefs', 'type'])
+            ->getMock();
 
-		$this->stub = $this->getMockBuilder( '\\Aimeos\\MShop\\Customer\\Manager\\Standard' )
-			->setConstructorArgs( [$this->context] )
-			->onlyMethods( ['saveRefs', 'searchRefs', 'type'] )
-			->getMock();
+        $this->stub->method('type')->willReturn(['customer']);
 
-		$this->stub->method( 'type' )->willReturn( ['customer'] );
+        $this->object = new \Aimeos\MShop\Common\Manager\Decorator\Address($this->stub, $this->context);
+    }
 
-		$this->object = new \Aimeos\MShop\Common\Manager\Decorator\Address( $this->stub, $this->context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->context);
+    }
 
+    public function testSaveRefs()
+    {
+        $custItem = \Aimeos\MShop::create($this->context, 'customer')->find('test@example.com');
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->context );
-	}
+        $this->stub->expects($this->once())->method('saveRefs')->willReturn($custItem);
 
+        $this->object->saveRefs($custItem);
+    }
 
-	public function testSaveRefs()
-	{
-		$custItem = \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' );
+    public function testSearchRefs()
+    {
+        $custItem = \Aimeos\MShop::create($this->context, 'customer')->find('test@example.com');
+        $entries = [$custItem->getId() => $custItem->toArray(true)];
 
-		$this->stub->expects( $this->once() )->method( 'saveRefs' )->willReturn( $custItem );
+        $this->stub->expects($this->once())->method('searchRefs')->willReturn($entries);
 
-		$this->object->saveRefs( $custItem );
-	}
+        $entries = $this->object->searchRefs($entries, ['customer/address']);
 
-
-	public function testSearchRefs()
-	{
-		$custItem = \Aimeos\MShop::create( $this->context, 'customer' )->find( 'test@example.com' );
-		$entries = [$custItem->getId() => $custItem->toArray( true )];
-
-		$this->stub->expects( $this->once() )->method( 'searchRefs' )->willReturn( $entries );
-
-		$entries = $this->object->searchRefs( $entries, ['customer/address'] );
-
-		$this->assertEquals( 1, count( current( $entries )['.addritems'] ) );
-	}
+        $this->assertEquals(1, count(current($entries)['.addritems']));
+    }
 }

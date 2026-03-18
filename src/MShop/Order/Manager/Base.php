@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -7,9 +9,7 @@
  * @subpackage Order
  */
 
-
 namespace Aimeos\MShop\Order\Manager;
-
 
 /**
  * Basic methods and constants for order items (shopping basket).
@@ -19,277 +19,256 @@ namespace Aimeos\MShop\Order\Manager;
  */
 abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 {
-	/**
-	 * Returns the address item map for the given order IDs
-	 *
-	 * @param string[] $ids List of order IDs
-	 * @param array $ref List of referenced domains that should be fetched too
-	 * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order address ID/item pairs as values
-	 */
-	protected function getAddresses( array $ids, array $ref ) : \Aimeos\Map
-	{
-		$manager = $this->object()->getSubManager( 'address' );
+    /**
+     * Returns the address item map for the given order IDs
+     *
+     * @param string[] $ids List of order IDs
+     * @param array $ref List of referenced domains that should be fetched too
+     * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order address ID/item pairs as values
+     */
+    protected function getAddresses(array $ids, array $ref): \Aimeos\Map
+    {
+        $manager = $this->object()->getSubManager('address');
 
-		$filter = $manager->filter()
-			->add( 'order.address.parentid', '==', $ids )
-			->order( ['order.address.type', 'order.address.position', 'order.address.id'] )
-			->slice( 0, 0x7fffffff );
+        $filter = $manager->filter()
+            ->add('order.address.parentid', '==', $ids)
+            ->order(['order.address.type', 'order.address.position', 'order.address.id'])
+            ->slice(0, 0x7fffffff);
 
-		return $manager->search( $filter, $ref )->groupBy( 'order.address.parentid' );
-	}
+        return $manager->search($filter, $ref)->groupBy('order.address.parentid');
+    }
 
+    /**
+     * Returns the coupon map for the given order IDs
+     *
+     * @param string[] $ids List of order IDs
+     * @param array $ref List of referenced domains that should be fetched too
+     * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order coupon ID/item pairs as values
+     */
+    protected function getCoupons(array $ids, array $ref): \Aimeos\Map
+    {
+        $manager = $this->object()->getSubManager('coupon');
 
-	/**
-	 * Returns the coupon map for the given order IDs
-	 *
-	 * @param string[] $ids List of order IDs
-	 * @param array $ref List of referenced domains that should be fetched too
-	 * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order coupon ID/item pairs as values
-	 */
-	protected function getCoupons( array $ids, array $ref ) : \Aimeos\Map
-	{
-		$manager = $this->object()->getSubManager( 'coupon' );
+        $filter = $manager->filter()
+            ->add('order.coupon.parentid', '==', $ids)
+            ->order('order.coupon.code')
+            ->slice(0, 0x7fffffff);
 
-		$filter = $manager->filter()
-			->add( 'order.coupon.parentid', '==', $ids )
-			->order( 'order.coupon.code' )
-			->slice( 0, 0x7fffffff );
+        return $manager->search($filter, $ref)->groupBy('order.coupon.parentid');
+    }
 
-		return $manager->search( $filter, $ref )->groupBy( 'order.coupon.parentid' );
-	}
+    /**
+     * Retrieves the ordered products from the storage.
+     *
+     * @param string[] $ids List of order IDs
+     * @param array $ref List of referenced domains that should be fetched too
+     * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order product ID/item pairs as values
+     */
+    protected function getProducts(array $ids, array $ref): \Aimeos\Map
+    {
+        $manager = $this->object()->getSubManager('product');
 
+        $filter = $manager->filter()
+            ->add('order.product.parentid', '==', $ids)
+            ->order('order.product.position')
+            ->slice(0, 0x7fffffff);
+        $items = $manager->search($filter, $ref);
+        $map = $items->groupBy('order.product.orderproductid');
 
-	/**
-	 * Retrieves the ordered products from the storage.
-	 *
-	 * @param string[] $ids List of order IDs
-	 * @param array $ref List of referenced domains that should be fetched too
-	 * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order product ID/item pairs as values
-	 */
-	protected function getProducts( array $ids, array $ref ) : \Aimeos\Map
-	{
-		$manager = $this->object()->getSubManager( 'product' );
+        foreach ($map as $id => $list) {
+            $items[$id]?->setProducts($list);
+        }
 
-		$filter = $manager->filter()
-			->add( 'order.product.parentid', '==', $ids )
-			->order( 'order.product.position' )
-			->slice( 0, 0x7fffffff );
-		$items = $manager->search( $filter, $ref );
-		$map = $items->groupBy( 'order.product.orderproductid' );
+        return map($map->get(''))->groupBy('order.product.parentid');
+    }
 
-		foreach( $map as $id => $list ) {
-			$items[$id]?->setProducts( $list );
-		}
+    /**
+     * Retrieves the order services from the storage.
+     *
+     * @param string[] $ids List of order IDs
+     * @param array $ref List of referenced domains that should be fetched too
+     * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and service ID/item pairs as values
+     */
+    protected function getServices(array $ids, array $ref): \Aimeos\Map
+    {
+        $manager = $this->object()->getSubManager('service');
 
-		return map( $map->get( '' ) )->groupBy( 'order.product.parentid' );
-	}
+        $filter = $manager->filter()
+            ->add('order.service.parentid', '==', $ids)
+            ->order(['order.service.type', 'order.service.position', 'order.service.id'])
+            ->slice(0, 0x7fffffff);
 
+        return $manager->search($filter, $ref)->groupBy('order.service.parentid');
+    }
 
-	/**
-	 * Retrieves the order services from the storage.
-	 *
-	 * @param string[] $ids List of order IDs
-	 * @param array $ref List of referenced domains that should be fetched too
-	 * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and service ID/item pairs as values
-	 */
-	protected function getServices( array $ids, array $ref ) : \Aimeos\Map
-	{
-		$manager = $this->object()->getSubManager( 'service' );
+    /**
+     * Retrieves the order statuses from the storage.
+     *
+     * @param string[] $ids List of order IDs
+     * @param array $ref List of referenced domains that should be fetched too
+     * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order status ID/item pairs as values
+     */
+    protected function getStatuses(array $ids, array $ref): \Aimeos\Map
+    {
+        $manager = $this->object()->getSubManager('status');
 
-		$filter = $manager->filter()
-			->add( 'order.service.parentid', '==', $ids )
-			->order( ['order.service.type', 'order.service.position', 'order.service.id'] )
-			->slice( 0, 0x7fffffff );
+        $filter = $manager->filter()
+            ->add('order.status.parentid', '==', $ids)
+            ->slice(0, 0x7fffffff);
 
-		return $manager->search( $filter, $ref )->groupBy( 'order.service.parentid' );
-	}
+        return $manager->search($filter, $ref)->groupBy('order.status.parentid');
+    }
 
+    /**
+     * Saves the addresses of the order to the storage.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $item Order containing address items
+     * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
+     */
+    protected function saveAddresses(\Aimeos\MShop\Order\Item\Iface $item): \Aimeos\MShop\Order\Manager\Iface
+    {
+        $addresses = $item->getAddresses();
 
-	/**
-	 * Retrieves the order statuses from the storage.
-	 *
-	 * @param string[] $ids List of order IDs
-	 * @param array $ref List of referenced domains that should be fetched too
-	 * @return \Aimeos\Map Multi-dimensional associative list of order IDs as keys and order status ID/item pairs as values
-	 */
-	protected function getStatuses( array $ids, array $ref ) : \Aimeos\Map
-	{
-		$manager = $this->object()->getSubManager( 'status' );
+        foreach ($addresses as $list) {
+            $pos = 0;
 
-		$filter = $manager->filter()
-			->add( 'order.status.parentid', '==', $ids )
-			->slice( 0, 0x7fffffff );
+            foreach ($list as $address) {
+                if ($address->getParentId() != $item->getId()) {
+                    $address->setId(null); // create new item if copied
+                }
 
-		return $manager->search( $filter, $ref )->groupBy( 'order.status.parentid' );
-	}
+                $address->setParentId($item->getId())->setPosition(++$pos);
+            }
+        }
 
+        $this->object()->getSubManager('address')->save($addresses->flat(1));
 
-	/**
-	 * Saves the addresses of the order to the storage.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Order containing address items
-	 * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
-	 */
-	protected function saveAddresses( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Manager\Iface
-	{
-		$addresses = $item->getAddresses();
+        return $this;
+    }
 
-		foreach( $addresses as $list )
-		{
-			$pos = 0;
+    /**
+     * Saves the coupons of the order to the storage.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $item Order containing coupon items
+     * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
+     */
+    protected function saveCoupons(\Aimeos\MShop\Order\Item\Iface $item): \Aimeos\MShop\Order\Manager\Iface
+    {
+        $list = [];
+        $manager = $this->object()->getSubManager('coupon');
+        $filter = $manager->filter()->add('order.coupon.parentid', '==', $item->getId())->slice(0, 0x7fffffff);
+        $items = $manager->search($filter)->groupBy('order.coupon.code');
 
-			foreach( $list as $address )
-			{
-				if( $address->getParentId() != $item->getId() ) {
-					$address->setId( null ); // create new item if copied
-				}
+        foreach ($item->getCoupons() as $code => $products) {
+            if (empty($products)) {
+                $list[] = current($items[$code]) ?: $manager->create()->setParentId($item->getId())->setCode($code);
+                continue;
+            }
 
-				$address->setParentId( $item->getId() )->setPosition( ++$pos );
-			}
-		}
+            foreach ($products as $product) {
+                foreach ($items[$code] ?? [] as $prodItem) {
+                    if ($product->getId() === $prodItem->getId()) {
+                        continue 2;
+                    }
+                }
 
-		$this->object()->getSubManager( 'address' )->save( $addresses->flat( 1 ) );
+                $list[] = $manager->create()->setParentId($item->getId())->setCode($code)->setProductId($product->getId());
+            }
+        }
 
-		return $this;
-	}
+        $manager->save($list);
+        return $this;
+    }
 
+    /**
+     * Saves the ordered products to the storage.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $item Order containing ordered products or bundles
+     * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
+     */
+    protected function saveProducts(\Aimeos\MShop\Order\Item\Iface $item): \Aimeos\MShop\Order\Manager\Iface
+    {
+        $products = $item->getProducts();
+        $pos = (int) $products->merge($products->getProducts()->flat(1))->max('order.product.position');
 
-	/**
-	 * Saves the coupons of the order to the storage.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Order containing coupon items
-	 * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
-	 */
-	protected function saveCoupons( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Manager\Iface
-	{
-		$list = [];
-		$manager = $this->object()->getSubManager( 'coupon' );
-		$filter = $manager->filter()->add( 'order.coupon.parentid', '==', $item->getId() )->slice( 0, 0x7fffffff );
-		$items = $manager->search( $filter )->groupBy( 'order.coupon.code' );
+        foreach ($products as $product) {
+            if ($product->getParentId() != $item->getId()) {
+                $product->setId(null); // create new item if copied
+            }
 
-		foreach( $item->getCoupons() as $code => $products )
-		{
-			if( empty( $products ) )
-			{
-				$list[] = current( $items[$code] ) ?: $manager->create()->setParentId( $item->getId() )->setCode( $code );
-				continue;
-			}
+            if (!$product->getPosition()) {
+                $product->setPosition(++$pos);
+            }
 
-			foreach( $products as $product )
-			{
-				foreach( $items[$code] ?? [] as $prodItem )
-				{
-					if( $product->getId() === $prodItem->getId() ) {
-						continue 2;
-					}
-				}
+            $product->setParentId($item->getId());
 
-				$list[] = $manager->create()->setParentId( $item->getId() )->setCode( $code )->setProductId( $product->getId() );
-			}
-		}
+            foreach ($product->getProducts() as $subProduct) {
+                if ($subProduct->getParentId() != $item->getId()) {
+                    $subProduct->setId(null); // create new item if copied
+                }
 
-		$manager->save( $list );
-		return $this;
-	}
+                if (!$subProduct->getPosition()) {
+                    $subProduct->setPosition(++$pos);
+                }
 
+                $subProduct->setParentId($item->getId());
+            }
+        }
 
-	/**
-	 * Saves the ordered products to the storage.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Order containing ordered products or bundles
-	 * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
-	 */
-	protected function saveProducts( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Manager\Iface
-	{
-		$products = $item->getProducts();
-		$pos = (int) $products->merge( $products->getProducts()->flat( 1 ) )->max( 'order.product.position' );
+        $this->object()->getSubManager('product')->save($products);
 
-		foreach( $products as $product )
-		{
-			if( $product->getParentId() != $item->getId() ) {
-				$product->setId( null ); // create new item if copied
-			}
+        return $this;
+    }
 
-			if( !$product->getPosition() ) {
-				$product->setPosition( ++$pos );
-			}
+    /**
+     * Saves the services of the order to the storage.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $item Order containing service items
+     * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
+     */
+    protected function saveServices(\Aimeos\MShop\Order\Item\Iface $item): \Aimeos\MShop\Order\Manager\Iface
+    {
+        $services = $item->getServices();
 
-			$product->setParentId( $item->getId() );
+        foreach ($services as $list) {
+            $pos = 0;
 
-			foreach( $product->getProducts() as $subProduct )
-			{
-				if( $subProduct->getParentId() != $item->getId() ) {
-					$subProduct->setId( null ); // create new item if copied
-				}
+            foreach ($list as $service) {
+                if ($service->getParentId() != $item->getId()) {
+                    $service->setId(null); // create new item if copied
+                }
 
-				if( !$subProduct->getPosition() ) {
-					$subProduct->setPosition( ++$pos );
-				}
+                $service->setParentId($item->getId())->setPosition(++$pos);
+            }
+        }
 
-				$subProduct->setParentId( $item->getId() );
-			}
-		}
+        $this->object()->getSubManager('service')->save($services->flat(1));
 
-		$this->object()->getSubManager( 'product' )->save( $products );
+        return $this;
+    }
 
-		return $this;
-	}
+    /**
+     * Saves the statuses of the order to the storage.
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $item Order containing status items
+     * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
+     */
+    protected function saveStatuses(\Aimeos\MShop\Order\Item\Iface $item): \Aimeos\MShop\Order\Manager\Iface
+    {
+        $statuses = $item->getStatuses();
 
+        foreach ($statuses as $list) {
+            foreach ($list as $status) {
+                if ($status->getParentId() != $item->getId()) {
+                    $status->setId(null); // create new item if copied
+                }
 
-	/**
-	 * Saves the services of the order to the storage.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Order containing service items
-	 * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
-	 */
-	protected function saveServices( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Manager\Iface
-	{
-		$services = $item->getServices();
+                $status->setParentId($item->getId());
+            }
+        }
 
-		foreach( $services as $list )
-		{
-			$pos = 0;
+        $this->object()->getSubManager('status')->save($statuses->flat(1));
 
-			foreach( $list as $service )
-			{
-				if( $service->getParentId() != $item->getId() ) {
-					$service->setId( null ); // create new item if copied
-				}
-
-				$service->setParentId( $item->getId() )->setPosition( ++$pos );
-			}
-		}
-
-		$this->object()->getSubManager( 'service' )->save( $services->flat( 1 ) );
-
-		return $this;
-	}
-
-
-	/**
-	 * Saves the statuses of the order to the storage.
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $item Order containing status items
-	 * @return \Aimeos\MShop\Order\Manager\Iface Manager object for chaining method calls
-	 */
-	protected function saveStatuses( \Aimeos\MShop\Order\Item\Iface $item ) : \Aimeos\MShop\Order\Manager\Iface
-	{
-		$statuses = $item->getStatuses();
-
-		foreach( $statuses as $list )
-		{
-			foreach( $list as $status )
-			{
-				if( $status->getParentId() != $item->getId() ) {
-					$status->setId( null ); // create new item if copied
-				}
-
-				$status->setParentId( $item->getId() );
-			}
-		}
-
-		$this->object()->getSubManager( 'status' )->save( $statuses->flat( 1 ) );
-
-		return $this;
-	}
+        return $this;
+    }
 }

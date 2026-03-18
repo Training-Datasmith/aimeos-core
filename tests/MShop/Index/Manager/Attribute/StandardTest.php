@@ -1,235 +1,215 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Attribute;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
+
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->object = new \Aimeos\MShop\Index\Manager\Attribute\Standard($this->context);
+    }
+
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
+
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear([ -1 ]));
+    }
+
+    public function testAggregate()
+    {
+        $item = \Aimeos\MShop::create($this->context, 'attribute')->find('white', [], 'product', 'color');
+
+        $search = $this->object->filter(true);
+        $result = $this->object->aggregate($search, 'index.attribute.id');
+
+        $this->assertEquals(15, $result->count());
+        $this->assertEquals(5, $result->get($item->getId()));
+    }
+
+    public function testAggregateMultiple()
+    {
+        $item = \Aimeos\MShop::create($this->context, 'attribute')->find('white', [], 'product', 'color');
+
+        $search = $this->object->filter(true);
+        $result = $this->object->aggregate($search, ['product.status', 'index.attribute.id']);
 
+        $this->assertEquals(15, count($result[1]));
+        $this->assertEquals(5, $result[1][$item->getId()]);
+    }
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->object = new \Aimeos\MShop\Index\Manager\Attribute\Standard( $this->context );
-	}
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
+
+    public function testSaveDeleteItem()
+    {
+        $productManager = \Aimeos\MShop::create($this->context, 'product');
+        $product = $productManager->find('CNC', ['attribute']);
+        $attrItem = $product->getRefItems('attribute')->first();
+
+        $product = $this->object->save($product->setId(null)->setCode('ModifiedCNC'));
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.attribute.id', $attrItem->getId()));
+        $result = $this->object->search($search)->toArray();
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+        $this->object->delete($product->getId());
+        $productManager->delete($product->getId());
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.attribute.id', $attrItem->getId()));
+        $result2 = $this->object->search($search)->toArray();
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear( array( -1 ) ) );
-	}
+        $this->assertTrue(in_array($product->getId(), array_keys($result)));
+        $this->assertFalse(in_array($product->getId(), array_keys($result2)));
+    }
 
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-	public function testAggregate()
-	{
-		$item = \Aimeos\MShop::create( $this->context, 'attribute' )->find( 'white', [], 'product', 'color' );
+    public function testIterate()
+    {
+        $attributeManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $id = $attributeManager->find('30', [], 'product', 'length')->getId();
 
-		$search = $this->object->filter( true );
-		$result = $this->object->aggregate( $search, 'index.attribute.id' );
+        $filter = $this->object->filter()->add('index.attribute.id', '==', $id);
 
-		$this->assertEquals( 15, $result->count() );
-		$this->assertEquals( 5, $result->get( $item->getId() ) );
-	}
+        $cursor = $this->object->cursor($filter);
+        $products = $this->object->iterate($cursor);
 
+        $this->assertEquals(4, count($products));
 
-	public function testAggregateMultiple()
-	{
-		$item = \Aimeos\MShop::create( $this->context, 'attribute' )->find( 'white', [], 'product', 'color' );
+        foreach ($products as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-		$search = $this->object->filter( true );
-		$result = $this->object->aggregate( $search, ['product.status', 'index.attribute.id'] );
+    public function testRemove()
+    {
+        $this->assertEquals($this->object, $this->object->remove([-1]));
+    }
 
-		$this->assertEquals( 15, count( $result[1] ) );
-		$this->assertEquals( 5, $result[1][$item->getId()] );
-	}
+    public function testSearch()
+    {
+        $attributeManager = \Aimeos\MShop::create($this->context, 'attribute');
+        $id = $attributeManager->find('30', [], 'product', 'length')->getId();
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.attribute.id', $id));
+        $result = $this->object->search($search, []);
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+        $this->assertEquals(4, count($result));
+    }
 
+    public function testSearchNoId()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('!=', 'index.attribute.id', null));
+        $result = $this->object->search($search, []);
 
-	public function testSaveDeleteItem()
-	{
-		$productManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$product = $productManager->find( 'CNC', ['attribute'] );
-		$attrItem = $product->getRefItems( 'attribute' )->first();
+        $this->assertGreaterThanOrEqual(2, count($result));
+    }
 
-		$product = $this->object->save( $product->setId( null )->setCode( 'ModifiedCNC' ) );
+    public function testSearchAllof()
+    {
+        $manager = \Aimeos\MShop::create($this->context, 'attribute');
 
+        $attrIds = [
+            $manager->find('30', [], 'product', 'length')->getId(),
+            $manager->find('29', [], 'product', 'width')->getId(),
+        ];
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.attribute.id', $attrItem->getId() ) );
-		$result = $this->object->search( $search )->toArray();
+        $search = $this->object->filter()->order('product.code');
 
+        $func = $search->make('index.attribute:allof', [$attrIds]);
+        $search->setConditions($search->compare('!=', $func, null));
 
-		$this->object->delete( $product->getId() );
-		$productManager->delete( $product->getId() );
+        $result = $this->object->search($search, []);
 
+        $this->assertEquals(2, count($result));
+        $this->assertEquals('CNE', $result->first()->getCode());
+    }
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.attribute.id', $attrItem->getId() ) );
-		$result2 = $this->object->search( $search )->toArray();
+    public function testSearchAllofArticle()
+    {
+        $manager = \Aimeos\MShop::create($this->context, 'attribute');
 
-		$this->assertTrue( in_array( $product->getId(), array_keys( $result ) ) );
-		$this->assertFalse( in_array( $product->getId(), array_keys( $result2 ) ) );
-	}
+        $attrIds = [
+            $manager->find('30', [], 'product', 'length')->getId(),
+            $manager->find('30', [], 'product', 'width')->getId(),
+        ];
 
+        $search = $this->object->filter()->order('product.code');
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+        $func = $search->make('index.attribute:allof', [$attrIds]);
+        $search->add($func, '!=', null);
 
+        $result = $this->object->search($search, []);
 
-	public function testIterate()
-	{
-		$attributeManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$id = $attributeManager->find( '30', [], 'product', 'length' )->getId();
+        $this->assertEquals(2, count($result));
+        $this->assertEquals('U:TEST', $result->first()->getCode());
+    }
 
-		$filter = $this->object->filter()->add( 'index.attribute.id', '==', $id );
+    public function testSearchOneof()
+    {
+        $manager = \Aimeos\MShop::create($this->context, 'attribute');
 
-		$cursor = $this->object->cursor( $filter );
-		$products = $this->object->iterate( $cursor );
+        $length = $manager->find('30', [], 'product', 'length')->getId();
+        $width = $manager->find('29', [], 'product', 'width')->getId();
 
-		$this->assertEquals( 4, count( $products ) );
+        $search = $this->object->filter()->order('product.code');
+        $search->add([$search->make('index.attribute:oneof', [$length, $width]) => null], '!=');
 
-		foreach( $products as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
+        $result = $this->object->search($search);
 
+        $this->assertEquals(4, count($result));
+        $this->assertEquals('CNE', $result->first()->getCode());
+    }
 
-	public function testRemove()
-	{
-		$this->assertEquals( $this->object, $this->object->remove( [-1] ) );
-	}
+    public function testSearchOneofArticle()
+    {
+        $manager = \Aimeos\MShop::create($this->context, 'attribute');
 
+        $color = $manager->find('white', [], 'product', 'color')->getId();
+        $size = $manager->find('m', [], 'product', 'size')->getId();
 
-	public function testSearch()
-	{
-		$attributeManager = \Aimeos\MShop::create( $this->context, 'attribute' );
-		$id = $attributeManager->find( '30', [], 'product', 'length' )->getId();
+        $search = $this->object->filter()->order('product.code');
+        $search->add([
+            $search->make('index.attribute:oneof', [$color]) => null,
+            $search->make('index.attribute:oneof', [$size]) => null,
+        ], '!=');
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.attribute.id', $id ) );
-		$result = $this->object->search( $search, [] );
+        $result = $this->object->search($search, []);
 
-		$this->assertEquals( 4, count( $result ) );
-	}
+        $this->assertEquals(2, count($result));
+        $this->assertEquals('U:TEST', $result->first()->getCode());
+    }
 
-
-	public function testSearchNoId()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '!=', 'index.attribute.id', null ) );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertGreaterThanOrEqual( 2, count( $result ) );
-	}
-
-
-	public function testSearchAllof()
-	{
-		$manager = \Aimeos\MShop::create( $this->context, 'attribute' );
-
-		$attrIds = [
-			$manager->find( '30', [], 'product', 'length' )->getId(),
-			$manager->find( '29', [], 'product', 'width' )->getId()
-		];
-
-		$search = $this->object->filter()->order( 'product.code' );
-
-		$func = $search->make( 'index.attribute:allof', [$attrIds] );
-		$search->setConditions( $search->compare( '!=', $func, null ) );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertEquals( 'CNE', $result->first()->getCode() );
-	}
-
-
-	public function testSearchAllofArticle()
-	{
-		$manager = \Aimeos\MShop::create( $this->context, 'attribute' );
-
-		$attrIds = [
-			$manager->find( '30', [], 'product', 'length' )->getId(),
-			$manager->find( '30', [], 'product', 'width' )->getId()
-		];
-
-		$search = $this->object->filter()->order( 'product.code' );
-
-		$func = $search->make( 'index.attribute:allof', [$attrIds] );
-		$search->add( $func, '!=', null );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertEquals( 'U:TEST', $result->first()->getCode() );
-	}
-
-
-	public function testSearchOneof()
-	{
-		$manager = \Aimeos\MShop::create( $this->context, 'attribute' );
-
-		$length = $manager->find( '30', [], 'product', 'length' )->getId();
-		$width = $manager->find( '29', [], 'product', 'width' )->getId();
-
-		$search = $this->object->filter()->order( 'product.code' );
-		$search->add( [$search->make( 'index.attribute:oneof', [$length, $width] ) => null], '!=' );
-
-		$result = $this->object->search( $search );
-
-		$this->assertEquals( 4, count( $result ) );
-		$this->assertEquals( 'CNE', $result->first()->getCode() );
-	}
-
-
-	public function testSearchOneofArticle()
-	{
-		$manager = \Aimeos\MShop::create( $this->context, 'attribute' );
-
-		$color = $manager->find( 'white', [], 'product', 'color' )->getId();
-		$size = $manager->find( 'm', [], 'product', 'size' )->getId();
-
-		$search = $this->object->filter()->order( 'product.code' );
-		$search->add( [
-			$search->make( 'index.attribute:oneof', [$color] ) => null,
-			$search->make( 'index.attribute:oneof', [$size] ) => null
-		], '!=' );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertEquals( 'U:TEST', $result->first()->getCode() );
-	}
-
-
-	public function testCleanup()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup( '1970-01-01 00:00:00' ) );
-	}
+    public function testCleanup()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup('1970-01-01 00:00:00'));
+    }
 
 }

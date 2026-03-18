@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
@@ -7,9 +9,7 @@
  * @subpackage Price
  */
 
-
 namespace Aimeos\MShop\Price\Manager\Property\Type;
-
 
 /**
  * Interface for price property type manager
@@ -17,7 +17,6 @@ namespace Aimeos\MShop\Price\Manager\Property\Type;
  * @package MShop
  * @subpackage Price
  */
-interface Iface
-	extends \Aimeos\MShop\Type\Manager\Iface
+interface Iface extends \Aimeos\MShop\Type\Manager\Iface
 {
 }

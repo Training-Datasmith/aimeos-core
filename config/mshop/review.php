@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  */
 
-
-return array(
-	'manager' => array(
-		'aggregate' => array(
-			'ansi' => '
+return [
+    'manager' => [
+        'aggregate' => [
+            'ansi' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :val AS "val"
@@ -21,7 +22,7 @@ return array(
 				) AS list
 				GROUP BY :keys
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :val AS "val"
@@ -32,10 +33,10 @@ return array(
 					LIMIT :size OFFSET :start
 				) AS list
 				GROUP BY :keys
-			'
-		),
-		'aggregaterate' => array(
-			'ansi' => '
+			',
+        ],
+        'aggregaterate' => [
+            'ansi' => '
 				SELECT :keys, SUM("val") AS "sum", COUNT(*) AS "count"
 				FROM (
 					SELECT :acols, mrev.rating AS "val"
@@ -47,7 +48,7 @@ return array(
 				) AS list
 				GROUP BY :keys
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :keys, SUM("val") AS "sum", COUNT(*) AS "count"
 				FROM (
 					SELECT :acols, mrev.rating AS "val"
@@ -58,7 +59,7 @@ return array(
 					LIMIT :size OFFSET :start
 				) AS list
 				GROUP BY :keys
-			'
-		),
-	),
-);
+			',
+        ],
+    ],
+];

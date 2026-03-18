@@ -1,138 +1,131 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2017-2026
  */
 
-
 namespace Aimeos\MShop\Coupon\Provider\Decorator;
-
 
 class BasketTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $order;
-	private $couponItem;
+    private $object;
+    private $order;
+    private $couponItem;
 
+    protected function setUp(): void
+    {
+        $orderProducts = [];
+        $context = \TestHelper::context();
 
-	protected function setUp() : void
-	{
-		$orderProducts = [];
-		$context = \TestHelper::context();
+        $couponManager = \Aimeos\MShop::create($context, 'coupon');
+        $this->couponItem = $couponManager->create();
 
-		$couponManager = \Aimeos\MShop::create( $context, 'coupon' );
-		$this->couponItem = $couponManager->create();
+        $provider = new \Aimeos\MShop\Coupon\Provider\None($context, $this->couponItem, 'abcd');
+        $this->object = new \Aimeos\MShop\Coupon\Provider\Decorator\Basket($provider, $context, $this->couponItem, 'abcd');
+        $this->object->setObject($this->object);
 
-		$provider = new \Aimeos\MShop\Coupon\Provider\None( $context, $this->couponItem, 'abcd' );
-		$this->object = new \Aimeos\MShop\Coupon\Provider\Decorator\Basket( $provider, $context, $this->couponItem, 'abcd' );
-		$this->object->setObject( $this->object );
+        $orderProductManager = \Aimeos\MShop::create($context, 'order/product');
 
-		$orderProductManager = \Aimeos\MShop::create( $context, 'order/product' );
+        $productManager = \Aimeos\MShop::create($context, 'product');
+        $search = $productManager->filter();
+        $search->setConditions($search->compare('==', 'product.code', [ 'CNC' ]));
+        $products = $productManager->search($search)->toArray();
 
-		$productManager = \Aimeos\MShop::create( $context, 'product' );
-		$search = $productManager->filter();
-		$search->setConditions( $search->compare( '==', 'product.code', array( 'CNC' ) ) );
-		$products = $productManager->search( $search )->toArray();
+        $priceManager = \Aimeos\MShop::create($context, 'price');
+        $price = $priceManager->create()->setValue(321);
 
-		$priceManager = \Aimeos\MShop::create( $context, 'price' );
-		$price = $priceManager->create()->setValue( 321 );
+        foreach ($products as $product) {
+            $orderProduct = $orderProductManager->create();
+            $orderProduct->copyFrom($product);
+            $orderProducts[$product->getCode()] = $orderProduct;
+        }
 
-		foreach( $products as $product )
-		{
-			$orderProduct = $orderProductManager->create();
-			$orderProduct->copyFrom( $product );
-			$orderProducts[$product->getCode()] = $orderProduct;
-		}
+        $orderProducts['CNC']->setPrice($price);
 
-		$orderProducts['CNC']->setPrice( $price );
+        $this->order = \Aimeos\MShop::create($context, 'order')->create()->off();
+        $this->order->addProduct($orderProducts['CNC']);
+    }
 
-		$this->order = \Aimeos\MShop::create( $context, 'order' )->create()->off();
-		$this->order->addProduct( $orderProducts['CNC'] );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+        unset($this->order);
+        unset($this->couponItem);
+    }
 
+    public function testGetConfigBE()
+    {
+        $result = $this->object->getConfigBE();
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-		unset( $this->order );
-		unset( $this->couponItem );
-	}
+        $this->assertArrayHasKey('basket.total-value-min', $result);
+        $this->assertArrayHasKey('basket.total-value-max', $result);
+    }
 
+    public function testCheckConfigBE()
+    {
+        $attributes = [
+            'basket.total-value-min' => ['EUR' => '10.5'],
+            'basket.total-value-max' => ['EUR' => '100'],
+        ];
+        $result = $this->object->checkConfigBE($attributes);
 
-	public function testGetConfigBE()
-	{
-		$result = $this->object->getConfigBE();
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['basket.total-value-min']);
+        $this->assertNull($result['basket.total-value-max']);
+    }
 
-		$this->assertArrayHasKey( 'basket.total-value-min', $result );
-		$this->assertArrayHasKey( 'basket.total-value-max', $result );
-	}
+    public function testCheckConfigBEFailure()
+    {
+        $result = $this->object->checkConfigBE(['basket.total-value-min' => '10.5']);
 
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['basket.total-value-min']);
+        $this->assertNull($result['basket.total-value-max']);
+    }
 
-	public function testCheckConfigBE()
-	{
-		$attributes = [
-			'basket.total-value-min' => ['EUR' => '10.5'],
-			'basket.total-value-max' => ['EUR' => '100'],
-		];
-		$result = $this->object->checkConfigBE( $attributes );
+    public function testIsAvailable()
+    {
+        $config = [
+            'basket.total-value-min' => [ 'EUR' =>  320 ],
+            'basket.total-value-max' => [ 'EUR' => 1000 ],
+        ];
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['basket.total-value-min'] );
-		$this->assertNull( $result['basket.total-value-max'] );
-	}
+        $this->couponItem->setConfig($config);
+        $result = $this->object->isAvailable($this->order);
 
+        $this->assertTrue($result);
+    }
 
-	public function testCheckConfigBEFailure()
-	{
-		$result = $this->object->checkConfigBE( ['basket.total-value-min' => '10.5'] );
+    // min value higher than order price
+    public function testIsAvailableTestMinValue()
+    {
+        $config = [
+            'basket.total-value-min' => [ 'EUR' =>  700 ],
+            'basket.total-value-max' => [ 'EUR' => 1000 ],
+        ];
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['basket.total-value-min'] );
-		$this->assertNull( $result['basket.total-value-max'] );
-	}
+        $this->couponItem->setConfig($config);
+        $result = $this->object->isAvailable($this->order);
 
+        $this->assertFalse($result);
+    }
 
-	public function testIsAvailable()
-	{
-		$config = array(
-			'basket.total-value-min' => array( 'EUR' =>  320 ),
-			'basket.total-value-max' => array( 'EUR' => 1000 ),
-		);
+    // order price higher than max price
+    public function testIsAvailableTestMaxValue()
+    {
+        $config = [
+            'basket.total-value-min' => [ 'EUR' =>  50 ],
+            'basket.total-value-max' => [ 'EUR' => 320 ],
+        ];
 
-		$this->couponItem->setConfig( $config );
-		$result = $this->object->isAvailable( $this->order );
+        $this->couponItem->setConfig($config);
+        $result = $this->object->isAvailable($this->order);
 
-		$this->assertTrue( $result );
-	}
-
-	// min value higher than order price
-	public function testIsAvailableTestMinValue()
-	{
-		$config = array(
-			'basket.total-value-min' => array( 'EUR' =>  700 ),
-			'basket.total-value-max' => array( 'EUR' => 1000 ),
-		);
-
-		$this->couponItem->setConfig( $config );
-		$result = $this->object->isAvailable( $this->order );
-
-		$this->assertFalse( $result );
-	}
-
-	// order price higher than max price
-	public function testIsAvailableTestMaxValue()
-	{
-		$config = array(
-			'basket.total-value-min' => array( 'EUR' =>  50 ),
-			'basket.total-value-max' => array( 'EUR' => 320 ),
-		);
-
-		$this->couponItem->setConfig( $config );
-		$result = $this->object->isAvailable( $this->order );
-
-		$this->assertFalse( $result );
-	}
+        $this->assertFalse($result);
+    }
 
 }

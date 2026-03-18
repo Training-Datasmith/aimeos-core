@@ -1,170 +1,158 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2016-2026
  */
 
-
 namespace Aimeos\MShop\Service\Provider\Decorator;
-
 
 class CurrencyTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $basket;
-	private $context;
-	private $servItem;
-	private $mockProvider;
+    private $object;
+    private $basket;
+    private $context;
+    private $servItem;
+    private $mockProvider;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
+        $servManager = \Aimeos\MShop::create($this->context, 'service');
+        $this->servItem = $servManager->create();
 
-		$servManager = \Aimeos\MShop::create( $this->context, 'service' );
-		$this->servItem = $servManager->create();
+        $this->mockProvider = $this->getMockBuilder(\Aimeos\MShop\Service\Provider\Decorator\Currency::class)
+            ->disableOriginalConstructor()->getMock();
 
-		$this->mockProvider = $this->getMockBuilder( \Aimeos\MShop\Service\Provider\Decorator\Currency::class )
-			->disableOriginalConstructor()->getMock();
+        $this->basket = \Aimeos\MShop::create($this->context, 'order')->create();
 
-		$this->basket = \Aimeos\MShop::create( $this->context, 'order' )->create();
+        $this->object = new \Aimeos\MShop\Service\Provider\Decorator\Currency($this->mockProvider, $this->context, $this->servItem);
+    }
 
-		$this->object = new \Aimeos\MShop\Service\Provider\Decorator\Currency( $this->mockProvider, $this->context, $this->servItem );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context);
+    }
 
+    public function testGetConfigBE()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('getConfigBE')
+            ->willReturn([]);
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->basket, $this->mockProvider, $this->servItem, $this->context );
-	}
+        $result = $this->object->getConfigBE();
 
+        $this->assertArrayHasKey('currency.include', $result);
+        $this->assertArrayHasKey('currency.exclude', $result);
+    }
 
-	public function testGetConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'getConfigBE' )
-			->willReturn( [] );
+    public function testCheckConfigBE()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-		$result = $this->object->getConfigBE();
+        $attributes = [
+            'currency.include' => ' EUR , USD ',
+            'currency.exclude' => ' EUR , USD ',
+        ];
+        $result = $this->object->checkConfigBE($attributes);
 
-		$this->assertArrayHasKey( 'currency.include', $result );
-		$this->assertArrayHasKey( 'currency.exclude', $result );
-	}
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['currency.include']);
+        $this->assertNull($result['currency.exclude']);
+    }
 
+    public function testCheckConfigBENoConfig()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
-	public function testCheckConfigBE()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $result = $this->object->checkConfigBE([]);
 
-		$attributes = array(
-			'currency.include' => ' EUR , USD ',
-			'currency.exclude' => ' EUR , USD ',
-		);
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->assertEquals(2, count($result));
+        $this->assertNull($result['currency.include']);
+        $this->assertNull($result['currency.exclude']);
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['currency.include'] );
-		$this->assertNull( $result['currency.exclude'] );
-	}
+    public function testCheckConfigBEFailure()
+    {
+        $this->mockProvider->expects($this->once())
+            ->method('checkConfigBE')
+            ->willReturn([]);
 
+        $attributes = [
+            'currency.include' => [],
+            'currency.exclude' => [],
+        ];
+        $result = $this->object->checkConfigBE($attributes);
 
-	public function testCheckConfigBENoConfig()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+        $this->assertEquals(2, count($result));
+        $this->assertIsString($result['currency.include']);
+        $this->assertIsString($result['currency.exclude']);
+    }
 
-		$result = $this->object->checkConfigBE( [] );
+    public function testIsAvailableNoConfig()
+    {
+        $this->servItem->setConfig([]);
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertNull( $result['currency.include'] );
-		$this->assertNull( $result['currency.exclude'] );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testCheckConfigBEFailure()
-	{
-		$this->mockProvider->expects( $this->once() )
-			->method( 'checkConfigBE' )
-			->willReturn( [] );
+    public function testIsAvailableNoInclude()
+    {
+        $this->servItem->setConfig([ 'currency.include' => '' ]);
 
-		$attributes = array(
-			'currency.include' => [],
-			'currency.exclude' => [],
-		);
-		$result = $this->object->checkConfigBE( $attributes );
+        $this->mockProvider->expects($this->never())->method('isAvailable');
 
-		$this->assertEquals( 2, count( $result ) );
-		$this->assertIsString( $result['currency.include'] );
-		$this->assertIsString( $result['currency.exclude'] );
-	}
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
+    public function testIsAvailableNoExclude()
+    {
+        $this->servItem->setConfig([ 'currency.exclude' => '' ]);
 
-	public function testIsAvailableNoConfig()
-	{
-		$this->servItem->setConfig( [] );
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
+    public function testIsAvailableExclude()
+    {
+        $this->servItem->setConfig([ 'currency.exclude' => 'EUR' ]);
 
+        $this->mockProvider->expects($this->never())->method('isAvailable');
 
-	public function testIsAvailableNoInclude()
-	{
-		$this->servItem->setConfig( array( 'currency.include' => '' ) );
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
+    public function testIsAvailableInclude()
+    {
+        $this->servItem->setConfig([ 'currency.include' => 'EUR' ]);
 
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->mockProvider->expects($this->once())
+            ->method('isAvailable')
+            ->willReturn(true);
 
+        $this->assertTrue($this->object->isAvailable($this->basket));
+    }
 
-	public function testIsAvailableNoExclude()
-	{
-		$this->servItem->setConfig( array( 'currency.exclude' => '' ) );
+    public function testIsAvailableIncludeFailure()
+    {
+        $this->servItem->setConfig([ 'currency.include' => 'USD' ]);
 
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
+        $this->mockProvider->expects($this->never())->method('isAvailable');
 
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableExclude()
-	{
-		$this->servItem->setConfig( array( 'currency.exclude' => 'EUR' ) );
-
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
-
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableInclude()
-	{
-		$this->servItem->setConfig( array( 'currency.include' => 'EUR' ) );
-
-		$this->mockProvider->expects( $this->once() )
-			->method( 'isAvailable' )
-			->willReturn( true );
-
-		$this->assertTrue( $this->object->isAvailable( $this->basket ) );
-	}
-
-
-	public function testIsAvailableIncludeFailure()
-	{
-		$this->servItem->setConfig( array( 'currency.include' => 'USD' ) );
-
-		$this->mockProvider->expects( $this->never() )->method( 'isAvailable' );
-
-		$this->assertFalse( $this->object->isAvailable( $this->basket ) );
-	}
+        $this->assertFalse($this->object->isAvailable($this->basket));
+    }
 }

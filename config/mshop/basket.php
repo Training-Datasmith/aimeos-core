@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
-return array(
-	'manager' => array(
-		'delete' => array(
-			'ansi' => '
+return [
+    'manager' => [
+        'delete' => [
+            'ansi' => '
 				DELETE FROM "mshop_basket"
 				WHERE :cond AND "siteid" LIKE ?
-			'
-		),
-		'insert' => array(
-			'mysql' => '
+			',
+        ],
+        'insert' => [
+            'mysql' => '
 				INSERT INTO "mshop_basket" ( :names
 					"customerid", "content", "name", "mtime", "editor", "siteid", "ctime", "id"
 				) VALUES ( :values
@@ -23,7 +24,7 @@ return array(
 				) ON DUPLICATE KEY UPDATE
 					"customerid" = ?, "content" = ?, "name" = ?, "mtime" = ?, "editor" = ?
 			',
-			'pgsql' => '
+            'pgsql' => '
 				INSERT INTO "mshop_basket" ( :names
 					"customerid", "content", "name", "mtime", "editor", "siteid", "ctime", "id"
 				) VALUES ( :values
@@ -31,7 +32,7 @@ return array(
 				) ON CONFLICT ("id") DO UPDATE SET
 					"customerid" = ?, "content" = ?, "name" = ?, "mtime" = ?, "editor" = ?
 			',
-			'sqlsrv' => '
+            'sqlsrv' => '
 				MERGE "mshop_basket" AS tgt
 				USING ( SELECT ?, ?, ?, ?, ?, ?, ?, ? ) AS src (
 					"customerid", "content", "name", "mtime", "editor", "siteid", "ctime", "id"
@@ -44,10 +45,10 @@ return array(
 					) VALUES ( :values
 						src."customerid", src."content", src."name", src."mtime", src."editor", src."siteid", src."ctime", src."id"
 					);
-			'
-		),
-		'search' => array(
-			'ansi' => '
+			',
+        ],
+        'search' => [
+            'ansi' => '
 				SELECT :columns
 				FROM "mshop_basket" mbas
 				:joins
@@ -55,31 +56,31 @@ return array(
 				ORDER BY :order
 				OFFSET :start ROWS FETCH NEXT :size ROWS ONLY
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :columns
 				FROM "mshop_basket" mbas
 				:joins
 				WHERE :cond
 				ORDER BY :order
 				LIMIT :size OFFSET :start
-			'
-		),
-		'count' => array(
-			'ansi' => '
+			',
+        ],
+        'count' => [
+            'ansi' => '
 				SELECT COUNT( DISTINCT mbas."id" ) AS "count"
 				FROM "mshop_basket" mbas
 				:joins
 				WHERE :cond
-			'
-		),
-		'newid' => array(
-			'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
-			'mysql' => 'SELECT LAST_INSERT_ID()',
-			'oracle' => 'SELECT mshop_basket_seq.CURRVAL FROM DUAL',
-			'pgsql' => 'SELECT lastval()',
-			'sqlite' => 'SELECT last_insert_rowid()',
-			'sqlsrv' => 'SELECT @@IDENTITY',
-			'sqlanywhere' => 'SELECT @@IDENTITY',
-		),
-	),
-);
+			',
+        ],
+        'newid' => [
+            'db2' => 'SELECT IDENTITY_VAL_LOCAL()',
+            'mysql' => 'SELECT LAST_INSERT_ID()',
+            'oracle' => 'SELECT mshop_basket_seq.CURRVAL FROM DUAL',
+            'pgsql' => 'SELECT lastval()',
+            'sqlite' => 'SELECT last_insert_rowid()',
+            'sqlsrv' => 'SELECT @@IDENTITY',
+            'sqlanywhere' => 'SELECT @@IDENTITY',
+        ],
+    ],
+];

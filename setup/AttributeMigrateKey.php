@@ -1,51 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 class AttributeMigrateKey extends Base
 {
-	public function before() : array
-	{
-		return ['Attribute'];
-	}
+    public function before(): array
+    {
+        return ['Attribute'];
+    }
 
+    public function after(): array
+    {
+        return [];
+    }
 
-	public function after() : array
-	{
-		return [];
-	}
+    public function up()
+    {
+        $db = $this->db('db-attribute');
 
+        if (!$db->hasColumn('mshop_attribute', 'key')
+            || $db->table('mshop_attribute')->col('key')->length() === 255
+        ) {
+            return;
+        }
 
-	public function up()
-	{
-		$db = $this->db( 'db-attribute' );
+        $this->info('Update attribute "key" columns', 'vv');
 
-		if( !$db->hasColumn( 'mshop_attribute', 'key' )
-			|| $db->table( 'mshop_attribute' )->col( 'key' )->length() === 255
-		) {
-			return;
-		}
+        $db->table('mshop_attribute')->string('key', 255)->default('')->up();
 
-		$this->info( 'Update attribute "key" columns', 'vv' );
+        $result = $db->stmt()->select('id', 'domain', 'type', 'code')->from('mshop_attribute')->executeQuery();
+        $db2 = $this->db('db-attribute', true);
 
-		$db->table( 'mshop_attribute' )->string( 'key', 255 )->default( '' )->up();
+        while ($row = $result->fetchAssociative()) {
+            $key = substr($row['domain'] . '|' . $row['type'] . '|' . $row['code'], 0, 255);
+            $db2->update('mshop_attribute', ['key' => $key], ['id' => $row['id']]);
+        }
 
-		$result = $db->stmt()->select( 'id', 'domain', 'type', 'code' )->from( 'mshop_attribute' )->executeQuery();
-		$db2 = $this->db( 'db-attribute', true );
-
-		while( $row = $result->fetchAssociative() )
-		{
-			$key = substr( $row['domain'] . '|' . $row['type'] . '|' . $row['code'], 0, 255 );
-			$db2->update( 'mshop_attribute', ['key' => $key], ['id' => $row['id']] );
-		}
-
-		$db2->close();
-	}
+        $db2->close();
+    }
 }

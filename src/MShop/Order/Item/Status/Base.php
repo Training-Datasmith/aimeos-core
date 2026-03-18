@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -6,9 +8,7 @@
  * @subpackage Order
  */
 
-
 namespace Aimeos\MShop\Order\Item\Status;
-
 
 /**
  * Abstract class for all order status objects.
@@ -16,44 +16,40 @@ namespace Aimeos\MShop\Order\Item\Status;
  * @package MShop
  * @subpackage Order
  */
-abstract class Base
-	extends \Aimeos\MShop\Common\Item\Base
+abstract class Base extends \Aimeos\MShop\Common\Item\Base
 {
-	/**
-	 * Payment status.
-	 */
-	const STATUS_PAYMENT = 'status-payment';
+    /**
+     * Payment status.
+     */
+    public const STATUS_PAYMENT = 'status-payment';
 
-	/**
-	 * Delivery status.
-	 */
-	const STATUS_DELIVERY = 'status-delivery';
+    /**
+     * Delivery status.
+     */
+    public const STATUS_DELIVERY = 'status-delivery';
 
+    /**
+     * Already sent payment e-mails.
+     */
+    public const EMAIL_PAYMENT = 'email-payment';
 
-	/**
-	 * Already sent payment e-mails.
-	 */
-	const EMAIL_PAYMENT = 'email-payment';
+    /**
+     * Already sent delivery e-mails.
+     */
+    public const EMAIL_DELIVERY = 'email-delivery';
 
-	/**
-	 * Already sent delivery e-mails.
-	 */
-	const EMAIL_DELIVERY = 'email-delivery';
+    /**
+     * Already sent voucher e-mails.
+     */
+    public const EMAIL_VOUCHER = 'email-voucher';
 
-	/**
-	 * Already sent voucher e-mails.
-	 */
-	const EMAIL_VOUCHER = 'email-voucher';
+    /**
+     * Stock level is already updated.
+     */
+    public const STOCK_UPDATE = 'stock-update';
 
-
-	/**
-	 * Stock level is already updated.
-	 */
-	const STOCK_UPDATE = 'stock-update';
-
-
-	/**
-	 * Stock level is already updated.
-	 */
-	const COUPON_UPDATE = 'coupon-update';
+    /**
+     * Stock level is already updated.
+     */
+    public const COUPON_UPDATE = 'coupon-update';
 }

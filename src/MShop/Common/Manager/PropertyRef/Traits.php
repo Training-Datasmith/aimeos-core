@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
@@ -7,9 +9,7 @@
  * @subpackage Common
  */
 
-
 namespace Aimeos\MShop\Common\Manager\PropertyRef;
-
 
 /**
  * Common trait for managers retrieving/storing property items
@@ -19,101 +19,99 @@ namespace Aimeos\MShop\Common\Manager\PropertyRef;
  */
 trait Traits
 {
-	/**
-	 * Returns the context object.
-	 *
-	 * @return \Aimeos\MShop\ContextIface Context object
-	 */
-	abstract protected function context() : \Aimeos\MShop\ContextIface;
+    /**
+     * Returns the context object.
+     *
+     * @return \Aimeos\MShop\ContextIface Context object
+     */
+    abstract protected function context(): \Aimeos\MShop\ContextIface;
 
-	/**
-	 * Returns the domain of the manager
-	 *
-	 * @return string Domain of the manager
-	 */
-	abstract protected function domain() : string;
+    /**
+     * Returns the domain of the manager
+     *
+     * @return string Domain of the manager
+     */
+    abstract protected function domain(): string;
 
-	/**
-	 * Returns the outmost decorator of the decorator stack
-	 *
-	 * @return \Aimeos\MShop\Common\Manager\Iface Outmost decorator object
-	 */
-	abstract protected function object() : \Aimeos\MShop\Common\Manager\Iface;
+    /**
+     * Returns the outmost decorator of the decorator stack
+     *
+     * @return \Aimeos\MShop\Common\Manager\Iface Outmost decorator object
+     */
+    abstract protected function object(): \Aimeos\MShop\Common\Manager\Iface;
 
+    /**
+     * Creates a new property item object
+     *
+     * @param array $values Values the item should be initialized with
+     * @return \Aimeos\MShop\Common\Item\Property\Iface New property item object
+     */
+    public function createPropertyItem(array $values = []): \Aimeos\MShop\Common\Item\Property\Iface
+    {
+        $domain = $this->domain();
+        $context = $this->context();
 
-	/**
-	 * Creates a new property item object
-	 *
-	 * @param array $values Values the item should be initialized with
-	 * @return \Aimeos\MShop\Common\Item\Property\Iface New property item object
-	 */
-	public function createPropertyItem( array $values = [] ) : \Aimeos\MShop\Common\Item\Property\Iface
-	{
-		$domain = $this->domain();
-		$context = $this->context();
+        $values['.languageid'] = $context->locale()->getLanguageId();
+        $values[$domain . '.property.siteid'] ??= $context->locale()->getSiteId();
 
-		$values['.languageid'] = $context->locale()->getLanguageId();
-		$values[$domain . '.property.siteid'] ??= $context->locale()->getSiteId();
+        return new \Aimeos\MShop\Common\Item\Property\Standard($domain . '.property.', $values);
+    }
 
-		return new \Aimeos\MShop\Common\Item\Property\Standard( $domain . '.property.', $values );
-	}
+    /**
+     * Returns the property items for the given parent IDs
+     *
+     * @param string[] $parentIds List of parent IDs
+     * @param string $domain Domain of the calling manager
+     * @param array|null $ref Referenced items that should be fetched too
+     * @return array Associative list of parent IDs / property IDs as keys and items implementing
+     * 	\Aimeos\MShop\Common\Item\Property\Iface as values
+     */
+    protected function getPropertyItems(array $parentIds, string $domain, ?array $ref = []): array
+    {
+        if (empty($parentIds)) {
+            return [];
+        }
 
+        $manager = $this->object()->getSubManager('property');
+        $filter = $manager->filter()->slice(0, 0x7fffffff)->add($domain . '.property.parentid', '==', $parentIds);
 
-	/**
-	 * Returns the property items for the given parent IDs
-	 *
-	 * @param string[] $parentIds List of parent IDs
-	 * @param string $domain Domain of the calling manager
-	 * @param array|null $ref Referenced items that should be fetched too
-	 * @return array Associative list of parent IDs / property IDs as keys and items implementing
-	 * 	\Aimeos\MShop\Common\Item\Property\Iface as values
-	 */
-	protected function getPropertyItems( array $parentIds, string $domain, ?array $ref = [] ) : array
-	{
-		if( empty( $parentIds ) ) {
-			return [];
-		}
+        $name = $domain . '/property';
+        $types = $ref && isset($ref[$name]) && is_array($ref[$name]) ? $ref[$name] : null;
 
-		$manager = $this->object()->getSubManager( 'property' );
-		$filter = $manager->filter()->slice( 0, 0x7fffffff )->add( $domain . '.property.parentid', '==', $parentIds );
+        if (!empty($types)) {
+            $filter->add($domain . '.property.type', '==', $types);
+        }
 
-		$name = $domain . '/property';
-		$types = $ref && isset( $ref[$name] ) && is_array( $ref[$name] ) ? $ref[$name] : null;
+        return $manager->search($filter, $ref ?? [])->groupBy($domain . '.property.parentid')->all();
+    }
 
-		if( !empty( $types ) ) {
-			$filter->add( $domain . '.property.type', '==', $types );
-		}
+    /**
+     * Adds new, updates existing and deletes removed property items
+     *
+     * @param \Aimeos\MShop\Common\Item\PropertyRef\Iface $item Item with referenced items
+     * @param string $domain Domain of the calling manager
+     * @param bool $fetch True if the new ID should be returned in the item
+     * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Item with saved referenced items
+     */
+    protected function savePropertyItems(
+        \Aimeos\MShop\Common\Item\PropertyRef\Iface $item,
+        string $domain,
+        bool $fetch = true
+    ): \Aimeos\MShop\Common\Item\PropertyRef\Iface {
+        $propManager = $this->object()->getSubManager('property');
+        $propManager->delete($item->getPropertyItemsDeleted());
 
-		return $manager->search( $filter, $ref ?? [] )->groupBy( $domain . '.property.parentid' )->all();
-	}
+        $propItems = $item->getPropertyItems(null, false);
 
+        foreach ($propItems as $propItem) {
+            if ($propItem->getParentId() != $item->getId()) {
+                $propItem->setId(null); // create new property item if copied
+            }
 
-	/**
-	 * Adds new, updates existing and deletes removed property items
-	 *
-	 * @param \Aimeos\MShop\Common\Item\PropertyRef\Iface $item Item with referenced items
-	 * @param string $domain Domain of the calling manager
-	 * @param bool $fetch True if the new ID should be returned in the item
-	 * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Item with saved referenced items
-	 */
-	protected function savePropertyItems( \Aimeos\MShop\Common\Item\PropertyRef\Iface $item, string $domain,
-		bool $fetch = true ) : \Aimeos\MShop\Common\Item\PropertyRef\Iface
-	{
-		$propManager = $this->object()->getSubManager( 'property' );
-		$propManager->delete( $item->getPropertyItemsDeleted() );
+            $propItem->setParentId($item->getId());
+        }
 
-		$propItems = $item->getPropertyItems( null, false );
-
-		foreach( $propItems as $propItem )
-		{
-			if( $propItem->getParentId() != $item->getId() ) {
-				$propItem->setId( null ); // create new property item if copied
-			}
-
-			$propItem->setParentId( $item->getId() );
-		}
-
-		$propManager->save( $propItems, $fetch );
-		return $item;
-	}
+        $propManager->save($propItems, $fetch);
+        return $item;
+    }
 }

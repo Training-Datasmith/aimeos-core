@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -8,9 +10,7 @@
  * @subpackage Order
  */
 
-
 namespace Aimeos\MShop\Order\Manager\Product\Attribute;
-
 
 /**
  * Generic interface for order base product attribute managers.
@@ -18,7 +18,6 @@ namespace Aimeos\MShop\Order\Manager\Product\Attribute;
  * @package MShop
  * @subpackage Order
  */
-interface Iface
-	extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\MShop\Common\Manager\Iface
 {
 }

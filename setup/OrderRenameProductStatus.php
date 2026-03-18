@@ -1,32 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 class OrderRenameProductStatus extends Base
 {
-	public function before() : array
-	{
-		return ['Order'];
-	}
+    public function before(): array
+    {
+        return ['Order'];
+    }
 
+    public function up()
+    {
+        $db = $this->db('db-order');
 
-	public function up()
-	{
-		$db = $this->db( 'db-order' );
+        if ($db->hasTable('mshop_order_product')
+            && !$db->hasColumn('mshop_order_product', 'statusdelivery')
+        ) {
+            $this->info('Rename "status" to "statusdelivery" in "mshop_order_product" table', 'vv');
 
-		if( $db->hasTable( 'mshop_order_product' )
-			&& !$db->hasColumn( 'mshop_order_product', 'statusdelivery' )
-		) {
-			$this->info( 'Rename "status" to "statusdelivery" in "mshop_order_product" table', 'vv' );
-
-			$db->renameColumn( 'mshop_order_product', 'status', 'statusdelivery' );
-		}
-	}
+            $db->renameColumn('mshop_order_product', 'status', 'statusdelivery');
+        }
+    }
 }

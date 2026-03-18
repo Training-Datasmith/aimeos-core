@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
@@ -7,9 +9,7 @@
  * @subpackage Order
  */
 
-
 namespace Aimeos\MShop\Order\Item\Address;
-
 
 /**
  * Abstract class with constants for all order address items.
@@ -19,13 +19,13 @@ namespace Aimeos\MShop\Order\Item\Address;
  */
 abstract class Base extends \Aimeos\MShop\Common\Item\Address\Base
 {
-	/**
-	 * Delivery address.
-	 */
-	const TYPE_DELIVERY = 'delivery';
+    /**
+     * Delivery address.
+     */
+    public const TYPE_DELIVERY = 'delivery';
 
-	/**
-	 * Billing address.
-	 */
-	const TYPE_PAYMENT = 'payment';
+    /**
+     * Billing address.
+     */
+    public const TYPE_PAYMENT = 'payment';
 }

@@ -1,31 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 class Locale extends Base
 {
-	public function up()
-	{
-		$this->info( 'Creating locale schema', 'vv' );
-		$db = $this->db( 'db-locale' );
+    public function up()
+    {
+        $this->info('Creating locale schema', 'vv');
+        $db = $this->db('db-locale');
 
-		foreach( $this->paths( 'default/schema/locale.php' ) as $filepath )
-		{
-			if( ( $list = include( $filepath ) ) === false ) {
-				throw new \RuntimeException( sprintf( 'Unable to get schema from file "%1$s"', $filepath ) );
-			}
+        foreach ($this->paths('default/schema/locale.php') as $filepath) {
+            if (($list = include($filepath)) === false) {
+                throw new \RuntimeException(sprintf('Unable to get schema from file "%1$s"', $filepath));
+            }
 
-			foreach( $list['table'] ?? [] as $name => $fcn ) {
-				$db->table( $name, $fcn );
-				$db->up();
-			}
-		}
-	}
+            foreach ($list['table'] ?? [] as $name => $fcn) {
+                $db->table($name, $fcn);
+                $db->up();
+            }
+        }
+    }
 }

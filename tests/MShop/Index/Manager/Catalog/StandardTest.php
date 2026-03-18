@@ -1,202 +1,182 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Catalog;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $context;
-	private $object;
+    private $context;
+    private $object;
 
+    protected function setUp(): void
+    {
+        $this->context = \TestHelper::context();
+        $this->object = new \Aimeos\MShop\Index\Manager\Catalog\Standard($this->context);
+    }
 
-	protected function setUp() : void
-	{
-		$this->context = \TestHelper::context();
-		$this->object = new \Aimeos\MShop\Index\Manager\Catalog\Standard( $this->context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object, $this->context);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear([ -1 ]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object, $this->context );
-	}
+    public function testAggregate()
+    {
+        $item = \Aimeos\MShop::create($this->context, 'catalog')->find('cafe');
 
+        $search = $this->object->filter(true);
+        $result = $this->object->aggregate($search, 'index.catalog.id')->toArray();
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->clear( array( -1 ) ) );
-	}
+        $this->assertEquals(4, count($result));
+        $this->assertArrayHasKey($item->getId(), $result);
+        $this->assertEquals(2, $result[$item->getId()]);
+    }
 
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-	public function testAggregate()
-	{
-		$item = \Aimeos\MShop::create( $this->context, 'catalog' )->find( 'cafe' );
+    public function testIterate()
+    {
+        $filter = $this->object->filter()->add('index.catalog.id', '!=', null);
 
-		$search = $this->object->filter( true );
-		$result = $this->object->aggregate( $search, 'index.catalog.id' )->toArray();
+        $cursor = $this->object->cursor($filter);
+        $products = $this->object->iterate($cursor);
 
-		$this->assertEquals( 4, count( $result ) );
-		$this->assertArrayHasKey( $item->getId(), $result );
-		$this->assertEquals( 2, $result[$item->getId()] );
-	}
+        $this->assertEquals(8, count($products));
 
+        foreach ($products as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+    public function testRemove()
+    {
+        $this->assertEquals($this->object, $this->object->remove([-1]));
+    }
 
+    public function testSaveDeleteItem()
+    {
+        $catalogManager = \Aimeos\MShop::create($this->context, 'catalog');
+        $catItem = $catalogManager->find('cafe');
 
-	public function testIterate()
-	{
-		$filter = $this->object->filter()->add( 'index.catalog.id', '!=', null );
+        $productManager = \Aimeos\MShop::create($this->context, 'product');
+        $product = $productManager->find('CNC')->setId(null)->setCode('ModifiedCNC')
+            ->addListItem('catalog', $productManager->createListItem(), $catItem);
 
-		$cursor = $this->object->cursor( $filter );
-		$products = $this->object->iterate( $cursor );
+        $product = $productManager->save($product);
 
-		$this->assertEquals( 8, count( $products ) );
+        $this->object->save($product);
 
-		foreach( $products as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.catalog.id', $catItem->getId()));
+        $result = $this->object->search($search);
 
+        $this->object->delete($product->getId());
+        $productManager->delete($product);
 
-	public function testRemove()
-	{
-		$this->assertEquals( $this->object, $this->object->remove( [-1] ) );
-	}
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('==', 'index.catalog.id', $catItem->getId()));
+        $result2 = $this->object->search($search);
 
+        $this->assertTrue($result->has($product->getId()));
+        $this->assertFalse($result2->has($product->getId()));
+    }
 
-	public function testSaveDeleteItem()
-	{
-		$catalogManager = \Aimeos\MShop::create( $this->context, 'catalog' );
-		$catItem = $catalogManager->find( 'cafe' );
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
-		$productManager = \Aimeos\MShop::create( $this->context, 'product' );
-		$product = $productManager->find( 'CNC' )->setId( null )->setCode( 'ModifiedCNC' )
-			->addListItem( 'catalog', $productManager->createListItem(), $catItem );
+    public function testSearchId()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'catalog')->find('cafe')->getId();
 
-		$product = $productManager->save( $product );
+        $search = $this->object->filter()->add(['index.catalog.id' => $id]);
+        $result = $this->object->search($search, []);
 
-		$this->object->save( $product );
+        $this->assertEquals(2, count($result));
+    }
 
+    public function testSearchNoId()
+    {
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('!=', 'index.catalog.id', null));
+        $result = $this->object->search($search, []);
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.catalog.id', $catItem->getId() ) );
-		$result = $this->object->search( $search );
+        $this->assertEquals(8, count($result));
+    }
 
+    public function testSearchPosition()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'catalog')->find('cafe')->getId();
 
-		$this->object->delete( $product->getId() );
-		$productManager->delete( $product );
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.catalog:position', ['promotion', $id]), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.catalog:position', ['promotion', $id]))]);
 
+        $result = $this->object->search($search, []);
 
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '==', 'index.catalog.id', $catItem->getId() ) );
-		$result2 = $this->object->search( $search );
+        $this->assertEquals(2, count($result));
+    }
 
+    public function testSearchPositionList()
+    {
+        $id = \Aimeos\MShop::create($this->context, 'catalog')->find('cafe')->getId();
 
-		$this->assertTrue( $result->has( $product->getId() ) );
-		$this->assertFalse( $result2->has( $product->getId() ) );
-	}
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.catalog:position', ['promotion', [$id]]), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.catalog:position', ['promotion', [$id]]))]);
 
+        $result = $this->object->search($search, []);
 
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+        $this->assertEquals(2, count($result));
+    }
 
+    public function testSearchPositionNoCatid()
+    {
+        $catalogManager = \Aimeos\MShop::create($this->context, 'catalog');
+        $id = $catalogManager->find('cafe')->getId();
 
-	public function testSearchId()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'catalog' )->find( 'cafe' )->getId();
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.catalog:position', ['promotion']), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.catalog:position', ['promotion']))]);
+        $result = $this->object->search($search, []);
 
-		$search = $this->object->filter()->add( ['index.catalog.id' => $id] );
-		$result = $this->object->search( $search, [] );
+        $this->assertEquals(3, count($result));
+    }
 
-		$this->assertEquals( 2, count( $result ) );
-	}
+    public function testSearchPositionNoParams()
+    {
+        $catalogManager = \Aimeos\MShop::create($this->context, 'catalog');
+        $id = $catalogManager->find('cafe')->getId();
 
+        $search = $this->object->filter();
+        $search->setConditions($search->compare('>=', $search->make('index.catalog:position', []), 0));
+        $search->setSortations([$search->sort('+', $search->make('sort:index.catalog:position', []))]);
+        $result = $this->object->search($search, []);
 
-	public function testSearchNoId()
-	{
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '!=', 'index.catalog.id', null ) );
-		$result = $this->object->search( $search, [] );
+        $this->assertEquals(8, count($result));
+    }
 
-		$this->assertEquals( 8, count( $result ) );
-	}
-
-
-	public function testSearchPosition()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'catalog' )->find( 'cafe' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.catalog:position', ['promotion', $id] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.catalog:position', ['promotion', $id] ) )] );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchPositionList()
-	{
-		$id = \Aimeos\MShop::create( $this->context, 'catalog' )->find( 'cafe' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.catalog:position', ['promotion', [$id]] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.catalog:position', ['promotion', [$id]] ) )] );
-
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 2, count( $result ) );
-	}
-
-
-	public function testSearchPositionNoCatid()
-	{
-		$catalogManager = \Aimeos\MShop::create( $this->context, 'catalog' );
-		$id = $catalogManager->find( 'cafe' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.catalog:position', ['promotion'] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.catalog:position', ['promotion'] ) )] );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 3, count( $result ) );
-	}
-
-
-	public function testSearchPositionNoParams()
-	{
-		$catalogManager = \Aimeos\MShop::create( $this->context, 'catalog' );
-		$id = $catalogManager->find( 'cafe' )->getId();
-
-		$search = $this->object->filter();
-		$search->setConditions( $search->compare( '>=', $search->make( 'index.catalog:position', [] ), 0 ) );
-		$search->setSortations( [$search->sort( '+', $search->make( 'sort:index.catalog:position', [] ) )] );
-		$result = $this->object->search( $search, [] );
-
-		$this->assertEquals( 8, count( $result ) );
-	}
-
-
-	public function testCleanup()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup( '1970-01-01 00:00:00' ) );
-	}
+    public function testCleanup()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Index\Manager\Iface::class, $this->object->cleanup('1970-01-01 00:00:00'));
+    }
 
 }

@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  */
 
-
-return array(
-	'manager' => array(
-		'aggregate' => array(
-			'ansi' => '
+return [
+    'manager' => [
+        'aggregate' => [
+            'ansi' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :val AS "val"
@@ -22,7 +23,7 @@ return array(
 				) AS list
 				GROUP BY :keys
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :keys, :type("val") AS "value"
 				FROM (
 					SELECT :acols, :val AS "val"
@@ -34,10 +35,10 @@ return array(
 					LIMIT :size OFFSET :start
 				) AS list
 				GROUP BY :keys
-			'
-		),
-		'search' => array(
-			'ansi' => '
+			',
+        ],
+        'search' => [
+            'ansi' => '
 				SELECT :columns
 				FROM "mshop_subscription" msub
 				JOIN "mshop_order" mord ON msub."orderid" = mord."id"
@@ -47,7 +48,7 @@ return array(
 				ORDER BY :order
 				OFFSET :start ROWS FETCH NEXT :size ROWS ONLY
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT :columns
 				FROM "mshop_subscription" msub
 				JOIN "mshop_order" mord ON msub."orderid" = mord."id"
@@ -56,10 +57,10 @@ return array(
 				GROUP BY :group
 				ORDER BY :order
 				LIMIT :size OFFSET :start
-			'
-		),
-		'count' => array(
-			'ansi' => '
+			',
+        ],
+        'count' => [
+            'ansi' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT msub."id"
@@ -72,7 +73,7 @@ return array(
 					OFFSET 0 ROWS FETCH NEXT 10000 ROWS ONLY
 				) AS list
 			',
-			'mysql' => '
+            'mysql' => '
 				SELECT COUNT(*) AS "count"
 				FROM (
 					SELECT msub."id"
@@ -84,7 +85,7 @@ return array(
 					ORDER BY msub."id"
 					LIMIT 10000 OFFSET 0
 				) AS list
-			'
-		),
-	),
-);
+			',
+        ],
+    ],
+];

@@ -1,92 +1,90 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 /**
  * Adds default records plugin to table.
  */
 class MShopAddPluginData extends Base
 {
-	/**
-	 * Returns the list of task names which this task depends on.
-	 *
-	 * @return string[] List of task names
-	 */
-	public function after() : array
-	{
-		return ['Plugin'];
-	}
+    /**
+     * Returns the list of task names which this task depends on.
+     *
+     * @return string[] List of task names
+     */
+    public function after(): array
+    {
+        return ['Plugin'];
+    }
 
+    public function up()
+    {
+    }
 
-	public function up()
-	{
-	}
+    /**
+     * Adds locale data.
+     */
+    protected function process()
+    {
+        $this->info('Adding default plugin data', 'vv');
 
+        $ds = DIRECTORY_SEPARATOR;
+        $pluginManager = \Aimeos\MShop::create($this->context(), 'plugin', 'Standard');
 
-	/**
-	 * Adds locale data.
-	 */
-	protected function process()
-	{
-		$this->info( 'Adding default plugin data', 'vv' );
+        $filename = __DIR__ . $ds . 'default' . $ds . 'data' . $ds . 'plugin.php';
 
-		$ds = DIRECTORY_SEPARATOR;
-		$pluginManager = \Aimeos\MShop::create( $this->context(), 'plugin', 'Standard' );
+        if (($data = include($filename)) == false) {
+            throw new \RuntimeException(sprintf('No data file "%1$s" found', $filename));
+        }
 
-		$filename = __DIR__ . $ds . 'default' . $ds . 'data' . $ds . 'plugin.php';
+        if (isset($data['plugin'])) {
+            $this->addPluginData($pluginManager, $data['plugin']);
+        }
+    }
 
-		if( ( $data = include( $filename ) ) == false ) {
-			throw new \RuntimeException( sprintf( 'No data file "%1$s" found', $filename ) );
-		}
+    /**
+     * Adds plugin data.
+     *
+     * @param \Aimeos\MShop\Common\Manager\Iface $pluginManager Plugin manager
+     * @param array $data Associative list of plugin data
+     */
+    protected function addPluginData(\Aimeos\MShop\Common\Manager\Iface $pluginManager, array $data)
+    {
+        $this->info('Adding data for MShop plugins', 'vv');
 
-		if( isset( $data['plugin'] ) ) {
-			$this->addPluginData( $pluginManager, $data['plugin'] );
-		}
-	}
+        $types = [];
+        $manager = $pluginManager->getSubManager('type');
 
+        foreach ($manager->search($manager->filter()) as $item) {
+            $types['plugin/' . $item->getCode()] = $item;
+        }
 
-	/**
-	 * Adds plugin data.
-	 *
-	 * @param \Aimeos\MShop\Common\Manager\Iface $pluginManager Plugin manager
-	 * @param array $data Associative list of plugin data
-	 */
-	protected function addPluginData( \Aimeos\MShop\Common\Manager\Iface $pluginManager, array $data )
-	{
-		$this->info( 'Adding data for MShop plugins', 'vv' );
+        $item = $pluginManager->create();
 
-		$types = [];
-		$manager = $pluginManager->getSubManager( 'type' );
+        foreach ($data as $key => $dataset) {
+            $item->setId(null);
+            $item->setType($dataset['type']);
+            $item->setProvider($dataset['provider']);
+            $item->setLabel($dataset['label']);
+            $item->setConfig($dataset['config']);
+            $item->setStatus($dataset['status']);
 
-		foreach( $manager->search( $manager->filter() ) as $item ) {
-			$types['plugin/' . $item->getCode()] = $item;
-		}
+            if (isset($dataset['position'])) {
+                $item->setPosition($dataset['position']);
+            }
 
-		$item = $pluginManager->create();
-
-		foreach( $data as $key => $dataset )
-		{
-			$item->setId( null );
-			$item->setType( $dataset['type'] );
-			$item->setProvider( $dataset['provider'] );
-			$item->setLabel( $dataset['label'] );
-			$item->setConfig( $dataset['config'] );
-			$item->setStatus( $dataset['status'] );
-
-			if( isset( $dataset['position'] ) ) {
-				$item->setPosition( $dataset['position'] );
-			}
-
-			try {
-				$pluginManager->save( $item );
-			} catch( \Exception $e ) {; } // if plugin configuration was already available
-		}
-	}
+            try {
+                $pluginManager->save($item);
+            } catch (\Exception $e) {
+                ;
+            } // if plugin configuration was already available
+        }
+    }
 }

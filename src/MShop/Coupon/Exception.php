@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -7,9 +9,7 @@
  * @subpackage Coupon
  */
 
-
 namespace Aimeos\MShop\Coupon;
-
 
 /**
  * \Aimeos\MShop\Coupon\Exception.

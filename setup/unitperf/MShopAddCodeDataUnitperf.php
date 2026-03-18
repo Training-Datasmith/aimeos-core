@@ -1,45 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 /**
  * Adds default codes to tables
  */
 class MShopAddCodeDataUnitperf extends MShopAddCodeData
 {
-	/**
-	 * Returns the list of task names which this task depends on
-	 *
-	 * @return string[] List of task names
-	 */
-	public function after() : array
-	{
-		return ['MShopSetLocale'];
-	}
+    /**
+     * Returns the list of task names which this task depends on
+     *
+     * @return string[] List of task names
+     */
+    public function after(): array
+    {
+        return ['MShopSetLocale'];
+    }
 
+    /**
+     * Executes the task for databases
+     */
+    public function up()
+    {
+        $site = $this->context()->locale()->getSiteItem()->getCode();
+        $this->info(sprintf('Adding default code data for site "%1$s"', $site), 'vv');
 
-	/**
-	 * Executes the task for databases
-	 */
-	public function up()
-	{
-		$site = $this->context()->locale()->getSiteItem()->getCode();
-		$this->info( sprintf( 'Adding default code data for site "%1$s"', $site ), 'vv' );
+        $ds = DIRECTORY_SEPARATOR;
+        $path = __DIR__ . $ds . '..' . $ds . 'default' . $ds . 'data' . $ds . 'code.php';
 
-		$ds = DIRECTORY_SEPARATOR;
-		$path = __DIR__ . $ds . '..' . $ds . 'default' . $ds . 'data' . $ds . 'code.php';
+        if (($data = include($path)) == false) {
+            throw new \RuntimeException(sprintf('No file "%1$s" found for default codes', $path));
+        }
 
-		if( ( $data = include( $path ) ) == false ) {
-			throw new \RuntimeException( sprintf( 'No file "%1$s" found for default codes', $path ) );
-		}
-
-		$this->process( $data );
-	}
+        $this->process($data);
+    }
 }

@@ -1,142 +1,130 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Group\Manager;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object = null;
-	private $editor = '';
+    private $object = null;
+    private $editor = '';
 
+    protected function setUp(): void
+    {
+        $context = \TestHelper::context();
+        $this->editor = $context->editor();
 
-	protected function setUp() : void
-	{
-		$context = \TestHelper::context();
-		$this->editor = $context->editor();
+        $this->object = new \Aimeos\MShop\Group\Manager\Standard($context);
+    }
 
-		$this->object = new \Aimeos\MShop\Group\Manager\Standard( $context );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testDelete()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->delete([-1]));
+    }
 
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+    public function testCreate()
+    {
+        $item = $this->object->create();
+        $this->assertInstanceOf(\Aimeos\MShop\Group\Item\Iface::class, $item);
+    }
 
+    public function testFind()
+    {
+        $item = $this->object->find('unitgroup');
 
-	public function testDelete()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->delete( [-1] ) );
-	}
+        $this->assertEquals('unitgroup', $item->getCode());
+    }
 
+    public function testGet()
+    {
+        $search = $this->object->filter()->slice(0, 1);
+        $search->setConditions($search->compare('==', 'group.label', 'Unitgroup'));
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
+        $items = $this->object->search($search)->toArray();
 
+        if (($item = reset($items)) === false) {
+            throw new \RuntimeException('No group item with label "Unitgroup" found');
+        }
 
-	public function testCreate()
-	{
-		$item = $this->object->create();
-		$this->assertInstanceOf( \Aimeos\MShop\Group\Item\Iface::class, $item );
-	}
+        $this->assertEquals($item, $this->object->get($item->getId()));
+    }
 
+    public function testSaveUpdateDelete()
+    {
+        $item = $this->object->create();
+        $item->setCode('unittest-group');
+        $item->setLabel('unittest group');
 
-	public function testFind()
-	{
-		$item = $this->object->find( 'unitgroup' );
+        $resultSaved = $this->object->save($item);
+        $itemSaved = $this->object->get($item->getId());
 
-		$this->assertEquals( 'unitgroup', $item->getCode() );
-	}
+        $itemExp = clone $itemSaved;
+        $itemExp->setLabel('unittest 2. group');
 
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($itemExp->getId());
 
-	public function testGet()
-	{
-		$search = $this->object->filter()->slice( 0, 1 );
-		$search->setConditions( $search->compare( '==', 'group.label', 'Unitgroup' ) );
+        $this->object->delete($itemSaved->getId());
 
-		$items = $this->object->search( $search )->toArray();
+        $this->assertTrue($item->getId() !== null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getCode(), $itemSaved->getCode());
+        $this->assertEquals($item->getLabel(), $itemSaved->getLabel());
 
-		if( ( $item = reset( $items ) ) === false ) {
-			throw new \RuntimeException( 'No group item with label "Unitgroup" found' );
-		}
+        $this->assertEquals($this->editor, $itemSaved->editor());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified());
 
-		$this->assertEquals( $item, $this->object->get( $item->getId() ) );
-	}
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getCode(), $itemUpd->getCode());
+        $this->assertEquals($itemExp->getLabel(), $itemUpd->getLabel());
 
+        $this->assertEquals($this->editor, $itemUpd->editor());
+        $this->assertEquals($itemExp->getTimeCreated(), $itemUpd->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified());
 
-	public function testSaveUpdateDelete()
-	{
-		$item = $this->object->create();
-		$item->setCode( 'unittest-group' );
-		$item->setLabel( 'unittest group' );
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		$resultSaved = $this->object->save( $item );
-		$itemSaved = $this->object->get( $item->getId() );
+        $this->expectException(\Aimeos\MShop\Exception::class);
+        $this->object->get($itemSaved->getId());
+    }
 
-		$itemExp = clone $itemSaved;
-		$itemExp->setLabel( 'unittest 2. group' );
+    public function testFilter()
+    {
+        $this->assertInstanceOf(\Aimeos\Base\Criteria\Iface::class, $this->object->filter());
+    }
 
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $itemExp->getId() );
+    public function testSearchItem()
+    {
+        $total = 0;
+        $search = $this->object->filter()->add('group.code', '~=', 'unitgroup')->slice(0, 1);
+        $results = $this->object->search($search, [], $total)->toArray();
 
-		$this->object->delete( $itemSaved->getId() );
-
-
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getCode(), $itemSaved->getCode() );
-		$this->assertEquals( $item->getLabel(), $itemSaved->getLabel() );
-
-		$this->assertEquals( $this->editor, $itemSaved->editor() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified() );
-
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getCode(), $itemUpd->getCode() );
-		$this->assertEquals( $itemExp->getLabel(), $itemUpd->getLabel() );
-
-		$this->assertEquals( $this->editor, $itemUpd->editor() );
-		$this->assertEquals( $itemExp->getTimeCreated(), $itemUpd->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified() );
-
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
-
-		$this->expectException( \Aimeos\MShop\Exception::class );
-		$this->object->get( $itemSaved->getId() );
-	}
-
-
-	public function testFilter()
-	{
-		$this->assertInstanceOf( \Aimeos\Base\Criteria\Iface::class, $this->object->filter() );
-	}
-
-
-	public function testSearchItem()
-	{
-		$total = 0;
-		$search = $this->object->filter()->add( 'group.code', '~=', 'unitgroup' )->slice( 0, 1 );
-		$results = $this->object->search( $search, [], $total )->toArray();
-
-		$this->assertEquals( 1, count( $results ) );
-		$this->assertEquals( 2, $total );
-	}
+        $this->assertEquals(1, count($results));
+        $this->assertEquals(2, $total);
+    }
 
 }

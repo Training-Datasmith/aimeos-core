@@ -1,36 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  */
 
+return [
 
-return array(
+    'table' => [
 
-	'table' => array(
+        'mshop_subscription' => function (\Aimeos\Upscheme\Schema\Table $table) {
 
-		'mshop_subscription' => function( \Aimeos\Upscheme\Schema\Table $table ) {
+            $table->engine = 'InnoDB';
 
-			$table->engine = 'InnoDB';
+            $table->bigid()->primary('pk_mssub_id');
+            $table->string('siteid');
+            $table->bigint('orderid');
+            $table->bigint('ordprodid');
+            $table->datetime('next')->null(true);
+            $table->datetime('end')->null(true);
+            $table->refid('productid')->default('');
+            $table->string('interval', 32);
+            $table->smallint('reason')->null(true);
+            $table->smallint('period')->default(0);
+            $table->smallint('status')->default(0);
+            $table->meta();
 
-			$table->bigid()->primary( 'pk_mssub_id' );
-			$table->string( 'siteid' );
-			$table->bigint( 'orderid' );
-			$table->bigint( 'ordprodid' );
-			$table->datetime( 'next' )->null( true );
-			$table->datetime( 'end' )->null( true );
-			$table->refid( 'productid' )->default( '' );
-			$table->string( 'interval', 32 );
-			$table->smallint( 'reason' )->null( true );
-			$table->smallint( 'period' )->default( 0 );
-			$table->smallint( 'status' )->default( 0 );
-			$table->meta();
-
-			$table->index( ['productid', 'period', 'siteid'], 'idx_mssub_pid_period_sid' );
-			$table->index( ['next', 'status', 'siteid'], 'idx_mssub_next_stat_sid' );
-			$table->index( ['ordprodid'], 'idx_mssub_opid' );
-			$table->index( ['orderid'], 'idx_mssub_oid' );
-		},
-	),
-);
+            $table->index(['productid', 'period', 'siteid'], 'idx_mssub_pid_period_sid');
+            $table->index(['next', 'status', 'siteid'], 'idx_mssub_next_stat_sid');
+            $table->index(['ordprodid'], 'idx_mssub_opid');
+            $table->index(['orderid'], 'idx_mssub_oid');
+        },
+    ],
+];

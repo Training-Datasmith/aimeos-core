@@ -1,158 +1,147 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\MShop\Product\Manager\Type;
-
 
 class StandardTest extends \PHPUnit\Framework\TestCase
 {
-	private $object;
-	private $editor = '';
+    private $object;
+    private $editor = '';
 
+    protected function setUp(): void
+    {
+        $this->editor = \TestHelper::context()->editor();
+        $manager = \Aimeos\MShop::create(\TestHelper::context(), 'product');
+        $this->object = $manager->getSubManager('type');
+    }
 
-	protected function setUp() : void
-	{
-		$this->editor = \TestHelper::context()->editor();
-		$manager = \Aimeos\MShop::create( \TestHelper::context(), 'product' );
-		$this->object = $manager->getSubManager( 'type' );
-	}
+    protected function tearDown(): void
+    {
+        unset($this->object);
+    }
 
+    public function testClear()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear([-1]));
+    }
 
-	protected function tearDown() : void
-	{
-		unset( $this->object );
-	}
+    public function testCreate()
+    {
+        $this->assertInstanceOf(\Aimeos\MShop\Type\Item\Iface::class, $this->object->create());
+    }
 
+    public function testGet()
+    {
+        $search = $this->object->filter()->add('product.type.editor', '==', $this->editor);
+        $item = $this->object->search($search)->first(new \RuntimeException('No type item found'));
 
-	public function testClear()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Manager\Iface::class, $this->object->clear( [-1] ) );
-	}
+        $this->assertEquals($item, $this->object->get($item->getId()));
+    }
 
+    public function testSaveUpdateDelete()
+    {
+        $search = $this->object->filter()->add('product.type.editor', '==', $this->editor);
+        $item = $this->object->search($search)->first(new \RuntimeException('No type item found'));
 
-	public function testCreate()
-	{
-		$this->assertInstanceOf( \Aimeos\MShop\Type\Item\Iface::class, $this->object->create() );
-	}
+        $item->setId(null);
+        $item->setCode('unitTestSave');
+        $resultSaved = $this->object->save($item);
+        $itemSaved = $this->object->get($item->getId());
 
+        $itemExp = clone $itemSaved;
+        $itemExp->setCode('unitTestSave2');
+        $resultUpd = $this->object->save($itemExp);
+        $itemUpd = $this->object->get($itemExp->getId());
 
-	public function testGet()
-	{
-		$search = $this->object->filter()->add( 'product.type.editor', '==', $this->editor );
-		$item = $this->object->search( $search )->first( new \RuntimeException( 'No type item found' ) );
+        $this->object->delete($itemSaved->getId());
 
-		$this->assertEquals( $item, $this->object->get( $item->getId() ) );
-	}
+        $this->assertTrue($item->getId() !== null);
+        $this->assertEquals($item->getId(), $itemSaved->getId());
+        $this->assertEquals($item->getSiteId(), $itemSaved->getSiteId());
+        $this->assertEquals($item->getCode(), $itemSaved->getCode());
+        $this->assertEquals($item->getDomain(), $itemSaved->getDomain());
+        $this->assertEquals($item->getLabel(), $itemSaved->getLabel());
+        $this->assertEquals($item->getStatus(), $itemSaved->getStatus());
 
+        $this->assertEquals($this->editor, $itemSaved->editor());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified());
 
-	public function testSaveUpdateDelete()
-	{
-		$search = $this->object->filter()->add( 'product.type.editor', '==', $this->editor );
-		$item = $this->object->search( $search )->first( new \RuntimeException( 'No type item found' ) );
+        $this->assertEquals($itemExp->getId(), $itemUpd->getId());
+        $this->assertEquals($itemExp->getSiteId(), $itemUpd->getSiteId());
+        $this->assertEquals($itemExp->getCode(), $itemUpd->getCode());
+        $this->assertEquals($itemExp->getDomain(), $itemUpd->getDomain());
+        $this->assertEquals($itemExp->getLabel(), $itemUpd->getLabel());
+        $this->assertEquals($itemExp->getStatus(), $itemUpd->getStatus());
 
-		$item->setId( null );
-		$item->setCode( 'unitTestSave' );
-		$resultSaved = $this->object->save( $item );
-		$itemSaved = $this->object->get( $item->getId() );
+        $this->assertEquals($this->editor, $itemUpd->editor());
+        $this->assertEquals($itemExp->getTimeCreated(), $itemUpd->getTimeCreated());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified());
 
-		$itemExp = clone $itemSaved;
-		$itemExp->setCode( 'unitTestSave2' );
-		$resultUpd = $this->object->save( $itemExp );
-		$itemUpd = $this->object->get( $itemExp->getId() );
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultSaved);
+        $this->assertInstanceOf(\Aimeos\MShop\Common\Item\Iface::class, $resultUpd);
 
-		$this->object->delete( $itemSaved->getId() );
+        $this->expectException(\Aimeos\MShop\Exception::class);
+        $this->object->get($itemSaved->getId());
+    }
 
+    public function testGetSearchAttributes()
+    {
+        foreach ($this->object->getSearchAttributes() as $attribute) {
+            $this->assertInstanceOf(\Aimeos\Base\Criteria\Attribute\Iface::class, $attribute);
+        }
+    }
 
-		$this->assertTrue( $item->getId() !== null );
-		$this->assertEquals( $item->getId(), $itemSaved->getId() );
-		$this->assertEquals( $item->getSiteId(), $itemSaved->getSiteId() );
-		$this->assertEquals( $item->getCode(), $itemSaved->getCode() );
-		$this->assertEquals( $item->getDomain(), $itemSaved->getDomain() );
-		$this->assertEquals( $item->getLabel(), $itemSaved->getLabel() );
-		$this->assertEquals( $item->getStatus(), $itemSaved->getStatus() );
+    public function testSearch()
+    {
+        $total = 0;
+        $search = $this->object->filter();
 
-		$this->assertEquals( $this->editor, $itemSaved->editor() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemSaved->getTimeModified() );
+        $expr = [];
+        $expr[] = $search->compare('!=', 'product.type.id', null);
+        $expr[] = $search->compare('!=', 'product.type.siteid', null);
+        $expr[] = $search->compare('==', 'product.type.domain', 'product');
+        $expr[] = $search->compare('==', 'product.type.code', 'select');
+        $expr[] = $search->compare('==', 'product.type.label', 'Selection');
+        $expr[] = $search->compare('>=', 'product.type.position', 0);
+        $expr[] = $search->compare('==', 'product.type.status', 1);
+        $expr[] = $search->compare('>=', 'product.type.mtime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('>=', 'product.type.ctime', '1970-01-01 00:00:00');
+        $expr[] = $search->compare('==', 'product.type.editor', $this->editor);
 
-		$this->assertEquals( $itemExp->getId(), $itemUpd->getId() );
-		$this->assertEquals( $itemExp->getSiteId(), $itemUpd->getSiteId() );
-		$this->assertEquals( $itemExp->getCode(), $itemUpd->getCode() );
-		$this->assertEquals( $itemExp->getDomain(), $itemUpd->getDomain() );
-		$this->assertEquals( $itemExp->getLabel(), $itemUpd->getLabel() );
-		$this->assertEquals( $itemExp->getStatus(), $itemUpd->getStatus() );
+        $search->add($search->and($expr));
+        $results = $this->object->search($search, [], $total);
+        $this->assertEquals(1, count($results));
 
-		$this->assertEquals( $this->editor, $itemUpd->editor() );
-		$this->assertEquals( $itemExp->getTimeCreated(), $itemUpd->getTimeCreated() );
-		$this->assertMatchesRegularExpression( '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $itemUpd->getTimeModified() );
+        $search = $this->object->filter();
+        $conditions = [
+            $search->compare('~=', 'product.type.code', ''),
+            $search->compare('==', 'product.type.editor', $this->editor),
+        ];
+        $search->add($search->and($conditions))->slice(0, 2);
+        $search->setSortations([$search->sort('-', 'product.type.position')]);
 
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultSaved );
-		$this->assertInstanceOf( \Aimeos\MShop\Common\Item\Iface::class, $resultUpd );
+        $items = $this->object->search($search, [], $total);
 
-		$this->expectException( \Aimeos\MShop\Exception::class );
-		$this->object->get( $itemSaved->getId() );
-	}
+        $this->assertEquals(2, count($items));
+        $this->assertEquals(4, $total);
 
+        foreach ($items as $itemId => $item) {
+            $this->assertEquals($itemId, $item->getId());
+        }
+    }
 
-	public function testGetSearchAttributes()
-	{
-		foreach( $this->object->getSearchAttributes() as $attribute ) {
-			$this->assertInstanceOf( \Aimeos\Base\Criteria\Attribute\Iface::class, $attribute );
-		}
-	}
-
-
-	public function testSearch()
-	{
-		$total = 0;
-		$search = $this->object->filter();
-
-		$expr = [];
-		$expr[] = $search->compare( '!=', 'product.type.id', null );
-		$expr[] = $search->compare( '!=', 'product.type.siteid', null );
-		$expr[] = $search->compare( '==', 'product.type.domain', 'product' );
-		$expr[] = $search->compare( '==', 'product.type.code', 'select' );
-		$expr[] = $search->compare( '==', 'product.type.label', 'Selection' );
-		$expr[] = $search->compare( '>=', 'product.type.position', 0 );
-		$expr[] = $search->compare( '==', 'product.type.status', 1 );
-		$expr[] = $search->compare( '>=', 'product.type.mtime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '>=', 'product.type.ctime', '1970-01-01 00:00:00' );
-		$expr[] = $search->compare( '==', 'product.type.editor', $this->editor );
-
-		$search->add( $search->and( $expr ) );
-		$results = $this->object->search( $search, [], $total );
-		$this->assertEquals( 1, count( $results ) );
-
-
-		$search = $this->object->filter();
-		$conditions = array(
-			$search->compare( '~=', 'product.type.code', '' ),
-			$search->compare( '==', 'product.type.editor', $this->editor )
-		);
-		$search->add( $search->and( $conditions ) )->slice( 0, 2 );
-		$search->setSortations( [$search->sort( '-', 'product.type.position' )] );
-
-		$items = $this->object->search( $search, [], $total );
-
-		$this->assertEquals( 2, count( $items ) );
-		$this->assertEquals( 4, $total );
-
-		foreach( $items as $itemId => $item ) {
-			$this->assertEquals( $itemId, $item->getId() );
-		}
-	}
-
-
-	public function testGetSubManager()
-	{
-		$this->expectException( \LogicException::class );
-		$this->object->getSubManager( 'unknown' );
-	}
+    public function testGetSubManager()
+    {
+        $this->expectException(\LogicException::class);
+        $this->object->getSubManager('unknown');
+    }
 
 }

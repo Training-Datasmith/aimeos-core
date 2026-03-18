@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -8,9 +10,7 @@
  * @subpackage Index
  */
 
-
 namespace Aimeos\MShop\Index\Manager\Text;
-
 
 /**
  * MySQL based index text for searching in product tables.
@@ -18,92 +18,86 @@ namespace Aimeos\MShop\Index\Manager\Text;
  * @package MShop
  * @subpackage Index
  */
-class MySQL
-	extends \Aimeos\MShop\Index\Manager\Text\Standard
+class MySQL extends \Aimeos\MShop\Index\Manager\Text\Standard
 {
-	private array $searchConfig = [
-		'index.text:relevance' => [
-			'code' => 'index.text:relevance()',
-			'internalcode' => ':site AND mindte."langid" = $1 AND MATCH( mindte."content" ) AGAINST( $2 IN BOOLEAN MODE )',
-			'label' => 'Product texts, parameter(<language ID>,<search term>)',
-			'type' => 'float',
-		],
-		'sort:index.text:relevance' => [
-			'code' => 'sort:index.text:relevance()',
-			'internalcode' => 'MATCH( mindte."content" ) AGAINST( $2 IN BOOLEAN MODE ) * mpro."boost"',
-			'label' => 'Product text sorting, parameter(<language ID>,<search term>)',
-			'type' => 'float',
-			'public' => false,
-		],
-	];
+    private array $searchConfig = [
+        'index.text:relevance' => [
+            'code' => 'index.text:relevance()',
+            'internalcode' => ':site AND mindte."langid" = $1 AND MATCH( mindte."content" ) AGAINST( $2 IN BOOLEAN MODE )',
+            'label' => 'Product texts, parameter(<language ID>,<search term>)',
+            'type' => 'float',
+        ],
+        'sort:index.text:relevance' => [
+            'code' => 'sort:index.text:relevance()',
+            'internalcode' => 'MATCH( mindte."content" ) AGAINST( $2 IN BOOLEAN MODE ) * mpro."boost"',
+            'label' => 'Product text sorting, parameter(<language ID>,<search term>)',
+            'type' => 'float',
+            'public' => false,
+        ],
+    ];
 
+    /**
+     * Initializes the object
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object
+     */
+    public function __construct(\Aimeos\MShop\ContextIface $context)
+    {
+        parent::__construct($context);
 
-	/**
-	 * Initializes the object
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context )
-	{
-		parent::__construct( $context );
+        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = $context->config()->get('mshop/index/manager/sitemode', $level);
 
-		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
-		$level = $context->config()->get( 'mshop/index/manager/sitemode', $level );
+        $func = $this->getFunctionRelevance();
+        $expr = $this->siteString('mindte."siteid"', $level);
+        $sql = $this->searchConfig['index.text:relevance']['internalcode'];
 
-		$func = $this->getFunctionRelevance();
-		$expr = $this->siteString( 'mindte."siteid"', $level );
-		$sql = $this->searchConfig['index.text:relevance']['internalcode'];
+        $this->searchConfig['index.text:relevance']['internalcode'] = str_replace(':site', $expr, $sql);
+        $this->searchConfig['sort:index.text:relevance']['function'] = $func;
+        $this->searchConfig['index.text:relevance']['function'] = $func;
+    }
 
-		$this->searchConfig['index.text:relevance']['internalcode'] = str_replace( ':site', $expr, $sql );
-		$this->searchConfig['sort:index.text:relevance']['function'] = $func;
-		$this->searchConfig['index.text:relevance']['function'] = $func;
-	}
+    /**
+     * Returns a list of objects describing the available criterias for searching.
+     *
+     * @param bool $withsub Return also attributes of sub-managers if true
+     * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attriubte items
+     */
+    public function getSearchAttributes(bool $withsub = true): array
+    {
+        $list = parent::getSearchAttributes($withsub);
 
+        foreach ($this->searchConfig as $key => $fields) {
+            $list[$key] = new \Aimeos\Base\Criteria\Attribute\Standard($fields);
+        }
 
-	/**
-	 * Returns a list of objects describing the available criterias for searching.
-	 *
-	 * @param bool $withsub Return also attributes of sub-managers if true
-	 * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attriubte items
-	 */
-	public function getSearchAttributes( bool $withsub = true ) : array
-	{
-		$list = parent::getSearchAttributes( $withsub );
+        return $list;
+    }
 
-		foreach( $this->searchConfig as $key => $fields ) {
-			$list[$key] = new \Aimeos\Base\Criteria\Attribute\Standard( $fields );
-		}
+    /**
+     * Returns the search function for searching by relevance
+     *
+     * @return \Closure Relevance search function
+     */
+    protected function getFunctionRelevance()
+    {
+        return function ($source, array $params): array {
 
-		return $list;
-	}
+            if (isset($params[1])) {
+                $str = '';
+                $regex = '/(\&|\||\!|\-|\+|\>|\<|\(|\)|\~|\*|\:|\"|\'|\@|\\| )+/';
+                $search = trim(mb_strtolower(preg_replace($regex, ' ', $params[1])), "' \t\n\r\0\x0B");
 
+                foreach (explode(' ', $search) as $part) {
+                    if (strlen($part) > 2) {
+                        $str .= $part . '* ';
+                    }
+                }
 
-	/**
-	 * Returns the search function for searching by relevance
-	 *
-	 * @return \Closure Relevance search function
-	 */
-	protected function getFunctionRelevance()
-	{
-		return function( $source, array $params ): array {
+                $params[1] = '\'' . $str . '"' . $search . '"\'';
+            }
 
-			if( isset( $params[1] ) )
-			{
-				$str = '';
-				$regex = '/(\&|\||\!|\-|\+|\>|\<|\(|\)|\~|\*|\:|\"|\'|\@|\\| )+/';
-				$search = trim( mb_strtolower( preg_replace( $regex, ' ', $params[1] ) ), "' \t\n\r\0\x0B" );
-
-				foreach( explode( ' ', $search ) as $part )
-				{
-					if( strlen( $part ) > 2 ) {
-						$str .= $part . '* ';
-					}
-				}
-
-				$params[1] = '\'' . $str . '"' . $search . '"\'';
-			}
-
-			return $params;
-		};
-	}
+            return $params;
+        };
+    }
 }

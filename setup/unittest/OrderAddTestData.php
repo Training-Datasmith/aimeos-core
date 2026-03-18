@@ -1,219 +1,201 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 /**
  * Adds order test data.
  */
 class OrderAddTestData extends Base
 {
-	/**
-	 * Returns the list of task names which this task depends on.
-	 *
-	 * @return string[] List of task names
-	 */
-	public function after() : array
-	{
-		return ['Order', 'CustomerAddTestData', 'ProductAddTestData', 'PluginAddTestData', 'ServiceAddTestData', 'StockAddTestData'];
-	}
+    /**
+     * Returns the list of task names which this task depends on.
+     *
+     * @return string[] List of task names
+     */
+    public function after(): array
+    {
+        return ['Order', 'CustomerAddTestData', 'ProductAddTestData', 'PluginAddTestData', 'ServiceAddTestData', 'StockAddTestData'];
+    }
 
+    /**
+     * Adds order test data.
+     */
+    public function up()
+    {
+        $this->info('Adding order test data', 'vv');
 
-	/**
-	 * Adds order test data.
-	 */
-	public function up()
-	{
-		$this->info( 'Adding order test data', 'vv' );
+        $context = $this->context();
+        $context->setEditor('core');
+        $context->locale()->setCurrencyId('EUR');
 
-		$context = $this->context();
-		$context->setEditor( 'core' );
-		$context->locale()->setCurrencyId( 'EUR' );
+        $manager = $this->getOrderManager();
+        $filter = $manager->filter()->add(['order.sitecode' => 'unittest']);
+        $manager->delete($manager->search($filter));
 
-		$manager = $this->getOrderManager();
-		$filter = $manager->filter()->add( ['order.sitecode' => 'unittest'] );
-		$manager->delete( $manager->search( $filter ) );
+        $ds = DIRECTORY_SEPARATOR;
+        $path = __DIR__ . $ds . 'data' . $ds . 'order.php';
 
-		$ds = DIRECTORY_SEPARATOR;
-		$path = __DIR__ . $ds . 'data' . $ds . 'order.php';
+        if (($testdata = include($path)) == false) {
+            throw new \RuntimeException(sprintf('No file "%1$s" found for order domain', $path));
+        }
 
-		if( ( $testdata = include( $path ) ) == false ) {
-			throw new \RuntimeException( sprintf( 'No file "%1$s" found for order domain', $path ) );
-		}
+        $this->import($testdata, $this->getCustomer()->getId());
 
-		$this->import( $testdata, $this->getCustomer()->getId() );
+        $context->locale()->setCurrencyId(null);
+    }
 
-		$context->locale()->setCurrencyId( null );
-	}
+    protected function import(array $data, string $customerId)
+    {
+        $orderManager = $this->getOrderManager();
+        $orderStatusManager = $this->getOrderManager('order/status');
 
+        $attributes = $this->getAttributes();
+        $products = $this->getProducts();
+        $services = $this->getServices();
 
-	protected function import( array $data, string $customerId )
-	{
-		$orderManager = $this->getOrderManager();
-		$orderStatusManager = $this->getOrderManager( 'order/status' );
+        foreach ($data as $entry) {
+            $basket = $orderManager->create()->off()
+                ->fromArray($entry, true)->setCustomerId($customerId);
 
-		$attributes = $this->getAttributes();
-		$products = $this->getProducts();
-		$services = $this->getServices();
+            $basket->setAddresses($this->createAddresses($entry['address'] ?? []));
+            $basket->setProducts($this->createProducts($entry['product'] ?? [], $products, $attributes));
+            $basket->setServices($this->createServices($entry['service'] ?? [], $services));
 
-		foreach( $data as $entry )
-		{
-			$basket = $orderManager->create()->off()
-				->fromArray( $entry, true )->setCustomerId( $customerId );
+            foreach ($entry['coupon'] ?? [] as $map) {
+                $list = [];
 
-			$basket->setAddresses( $this->createAddresses( $entry['address'] ?? [] ) );
-			$basket->setProducts( $this->createProducts( $entry['product'] ?? [], $products, $attributes ) );
-			$basket->setServices( $this->createServices( $entry['service'] ?? [], $services ) );
+                if (($pos = $map['ordprodpos'] ?? null) !== null) {
+                    $list = [$basket->getProduct($pos)];
+                    $basket->deleteProduct($pos);
+                }
 
-			foreach( $entry['coupon'] ?? [] as $map )
-			{
-				$list = [];
+                $basket->setCoupon($map['code'], $list);
+            }
 
-				if( ( $pos = $map['ordprodpos'] ?? null ) !== null )
-				{
-					$list = [$basket->getProduct( $pos )];
-					$basket->deleteProduct( $pos );
-				}
+            $orderManager->save($basket);
 
-				$basket->setCoupon( $map['code'], $list );
-			}
+            foreach ($entry['status'] ?? [] as $map) {
+                $orderStatusManager->save($orderStatusManager->create()->fromArray($map)->setParentId($basket->getId()));
+            }
+        }
+    }
 
-			$orderManager->save( $basket );
+    protected function createAddresses(array $data): array
+    {
+        $list = [];
+        $manager = $this->getOrderManager('order/address');
 
-			foreach( $entry['status'] ?? [] as $map ) {
-				$orderStatusManager->save( $orderStatusManager->create()->fromArray( $map )->setParentId( $basket->getId() ) );
-			}
-		}
-	}
+        foreach ($data as $entry) {
+            $item = $manager->create()->fromArray($entry, true);
+            $list[$item->getType()][] = $item;
+        }
 
+        return $list;
+    }
 
-	protected function createAddresses( array $data ) : array
-	{
-		$list = [];
-		$manager = $this->getOrderManager( 'order/address' );
+    protected function createProducts(array $data, \Aimeos\Map $products, \Aimeos\Map $attributes): array
+    {
+        $list = [];
+        $priceManager = $this->getPriceManager();
+        $manager = $this->getOrderManager('order/product');
+        $attrManager = $this->getOrderManager('order/product/attribute');
 
-		foreach( $data as $entry )
-		{
-			$item = $manager->create()->fromArray( $entry, true );
-			$list[$item->getType()][] = $item;
-		}
+        foreach ($data as $entry) {
+            $attrs = [];
+            foreach ($entry['attribute'] ?? [] as $attr) {
+                $key = $attr['order.product.attribute.code'] . '/' . $attr['order.product.attribute.value'];
+                $attrs[] = $attrManager->create()->fromArray($attr, true)
+                    ->setAttributeId($attributes->get($key));
+            }
 
-		return $list;
-	}
+            $code = $entry['order.product.prodcode'] ?? null;
+            $price = $priceManager->create()->fromArray($entry, true);
 
+            $list[] = $manager->create()->fromArray($entry, true)
+                ->setProducts($this->createProducts($entry['product'] ?? [], $products, $attributes))
+                ->setAttributeItems($attrs)->setPrice($price)
+                ->setProductId($products->get($code));
+        }
 
-	protected function createProducts( array $data, \Aimeos\Map $products, \Aimeos\Map $attributes ) : array
-	{
-		$list = [];
-		$priceManager = $this->getPriceManager();
-		$manager = $this->getOrderManager( 'order/product' );
-		$attrManager = $this->getOrderManager( 'order/product/attribute' );
+        return $list;
+    }
 
-		foreach( $data as $entry )
-		{
-			$attrs = [];
-			foreach( $entry['attribute'] ?? [] as $attr )
-			{
-				$key = $attr['order.product.attribute.code'] . '/' . $attr['order.product.attribute.value'];
-				$attrs[] = $attrManager->create()->fromArray( $attr, true )
-					->setAttributeId( $attributes->get( $key ) );
-			}
+    protected function createServices(array $data, \Aimeos\Map $services): array
+    {
+        $list = [];
+        $priceManager = $this->getPriceManager();
+        $manager = $this->getOrderManager('order/service');
+        $txManager = $this->getOrderManager('order/service/transaction');
+        $attrManager = $this->getOrderManager('order/service/attribute');
 
-			$code = $entry['order.product.prodcode'] ?? null;
-			$price = $priceManager->create()->fromArray( $entry, true );
+        foreach ($data as $entry) {
+            $attrs = [];
+            foreach ($entry['attribute'] ?? [] as $attr) {
+                $attrs[] = $attrManager->create()->fromArray($attr, true);
+            }
 
-			$list[] = $manager->create()->fromArray( $entry, true )
-				->setProducts( $this->createProducts( $entry['product'] ?? [], $products, $attributes ) )
-				->setAttributeItems( $attrs )->setPrice( $price )
-				->setProductId( $products->get( $code ) );
-		}
+            $trans = [];
+            foreach ($entry['transaction'] ?? [] as $tx) {
+                $trans[] = $txManager->create()->fromArray($tx, true);
+            }
 
-		return $list;
-	}
+            $code = $entry['order.service.code'] ?? null;
+            $price = $priceManager->create()->fromArray($entry, true);
 
+            $item = $manager->create()->fromArray($entry, true)
+                ->setAttributeItems($attrs)->setPrice($price)
+                ->setServiceId($services->get($code) ?: '')
+                ->setTransactions($trans);
 
-	protected function createServices( array $data, \Aimeos\Map $services ) : array
-	{
-		$list = [];
-		$priceManager = $this->getPriceManager();
-		$manager = $this->getOrderManager( 'order/service' );
-		$txManager = $this->getOrderManager( 'order/service/transaction' );
-		$attrManager = $this->getOrderManager( 'order/service/attribute' );
+            $list[$item->getType()][] = $item;
+        }
 
-		foreach( $data as $entry )
-		{
-			$attrs = [];
-			foreach( $entry['attribute'] ?? [] as $attr ) {
-				$attrs[] = $attrManager->create()->fromArray( $attr, true );
-			}
+        return $list;
+    }
 
-			$trans = [];
-			foreach( $entry['transaction'] ?? [] as $tx ) {
-				$trans[] = $txManager->create()->fromArray( $tx, true );
-			}
+    protected function getAttributes(): \Aimeos\Map
+    {
+        $attributeManager = \Aimeos\MShop::create($this->context(), 'attribute', 'Standard');
 
-			$code = $entry['order.service.code'] ?? null;
-			$price = $priceManager->create()->fromArray( $entry, true );
+        return $attributeManager->search($attributeManager->filter())
+            ->groupBy('attribute.type')->map(function ($list) {
+                return map($list)->col('attribute.id', 'attribute.code');
+            });
+    }
 
-			$item = $manager->create()->fromArray( $entry, true )
-				->setAttributeItems( $attrs )->setPrice( $price )
-				->setServiceId( $services->get( $code ) ?: '' )
-				->setTransactions( $trans );
+    protected function getCustomer(): \Aimeos\MShop\Customer\Item\Iface
+    {
+        $customerManager = \Aimeos\MShop::create($this->context(), 'customer', 'Standard');
+        return $customerManager->find('test@example.com');
+    }
 
-			$list[$item->getType()][] = $item;
-		}
+    protected function getProducts(): \Aimeos\Map
+    {
+        $productManager = \Aimeos\MShop::create($this->context(), 'product', 'Standard');
+        return $productManager->search($productManager->filter())->col('product.id', 'product.code');
+    }
 
-		return $list;
-	}
+    protected function getServices(): \Aimeos\Map
+    {
+        $serviceManager = \Aimeos\MShop::create($this->context(), 'service', 'Standard');
+        return $serviceManager->search($serviceManager->filter())->col('service.id', 'service.code');
+    }
 
+    protected function getOrderManager($path = 'order'): \Aimeos\MShop\Common\Manager\Iface
+    {
+        return \Aimeos\MShop::create($this->context(), $path, 'Standard');
+    }
 
-	protected function getAttributes() : \Aimeos\Map
-	{
-		$attributeManager = \Aimeos\MShop::create( $this->context(), 'attribute', 'Standard' );
-
-		return $attributeManager->search( $attributeManager->filter() )
-			->groupBy( 'attribute.type' )->map( function( $list ) {
-				return map( $list )->col( 'attribute.id', 'attribute.code' );
-			} );
-	}
-
-
-	protected function getCustomer() : \Aimeos\MShop\Customer\Item\Iface
-	{
-		$customerManager = \Aimeos\MShop::create( $this->context(), 'customer', 'Standard' );
-		return $customerManager->find( 'test@example.com' );
-	}
-
-
-	protected function getProducts() : \Aimeos\Map
-	{
-		$productManager = \Aimeos\MShop::create( $this->context(), 'product', 'Standard' );
-		return $productManager->search( $productManager->filter() )->col( 'product.id', 'product.code' );
-	}
-
-
-	protected function getServices() : \Aimeos\Map
-	{
-		$serviceManager = \Aimeos\MShop::create( $this->context(), 'service', 'Standard' );
-		return $serviceManager->search( $serviceManager->filter() )->col( 'service.id', 'service.code' );
-	}
-
-
-	protected function getOrderManager( $path = 'order' ) : \Aimeos\MShop\Common\Manager\Iface
-	{
-		return \Aimeos\MShop::create( $this->context(), $path, 'Standard' );
-	}
-
-
-	protected function getPriceManager() : \Aimeos\MShop\Common\Manager\Iface
-	{
-		return \Aimeos\MShop::create( $this->context(), 'price', 'Standard' );
-	}
+    protected function getPriceManager(): \Aimeos\MShop\Common\Manager\Iface
+    {
+        return \Aimeos\MShop::create($this->context(), 'price', 'Standard');
+    }
 }

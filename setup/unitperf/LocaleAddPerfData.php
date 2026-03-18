@@ -1,82 +1,79 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
  * @copyright Aimeos (aimeos.org), 2015-2026
  */
 
-
 namespace Aimeos\Upscheme\Task;
-
 
 /**
  * Adds performance data records to tables.
  */
 class LocaleAddPerfData extends MShopAddLocaleData
 {
-	/**
-	 * Returns the list of task names which this task depends on.
-	 *
-	 * @return string[] List of task names
-	 */
-	public function after() : array
-	{
-		return ['MShopAddLocaleLangCurData'];
-	}
+    /**
+     * Returns the list of task names which this task depends on.
+     *
+     * @return string[] List of task names
+     */
+    public function after(): array
+    {
+        return ['MShopAddLocaleLangCurData'];
+    }
 
+    /**
+     * Returns the list of task names which depends on this task.
+     *
+     * @return string[] List of task names
+     */
+    public function before(): array
+    {
+        return ['MShopAddLocaleData'];
+    }
 
-	/**
-	 * Returns the list of task names which depends on this task.
-	 *
-	 * @return string[] List of task names
-	 */
-	public function before() : array
-	{
-		return ['MShopAddLocaleData'];
-	}
+    /**
+     * Insert records from file containing the SQL records.
+     *
+     */
+    public function up()
+    {
+        $this->info('Adding performance data for MShop locale domain', 'vv');
 
+        // Set editor for further tasks
+        $this->context()->setEditor('unitperf:core');
 
-	/**
-	 * Insert records from file containing the SQL records.
-	 *
-	 */
-	public function up()
-	{
-		$this->info( 'Adding performance data for MShop locale domain', 'vv' );
+        if ($this->context()->config()->get('setup/site') !== 'unitperf') {
+            return;
+        }
 
-		// Set editor for further tasks
-		$this->context()->setEditor( 'unitperf:core' );
+        $ds = DIRECTORY_SEPARATOR;
+        $filename = __DIR__ . $ds . 'data' . $ds . 'locale.php';
 
-		if( $this->context()->config()->get( 'setup/site' ) !== 'unitperf' ) {
-			return;
-		}
+        if (($testdata = include($filename)) == false) {
+            throw new \RuntimeException(sprintf('No data file "%1$s" found', $filename));
+        }
 
-		$ds = DIRECTORY_SEPARATOR;
-		$filename = __DIR__ . $ds . 'data' . $ds . 'locale.php';
+        $localeManager = \Aimeos\MShop::create($this->context(), 'locale', 'Standard');
+        $localeSiteManager = $localeManager->getSubManager('site');
 
-		if( ( $testdata = include( $filename ) ) == false ) {
-			throw new \RuntimeException( sprintf( 'No data file "%1$s" found', $filename ) );
-		}
+        $siteIds = [];
+        $search = $localeSiteManager->filter()->add(['locale.site.code' => 'unitperf']);
 
-		$localeManager = \Aimeos\MShop::create( $this->context(), 'locale', 'Standard' );
-		$localeSiteManager = $localeManager->getSubManager( 'site' );
+        foreach ($localeSiteManager->search($search) as $site) {
+            $this->context()->setLocale($localeManager->bootstrap($site->getCode(), '', '', false));
+            $localeSiteManager->delete($site->getId());
+        }
 
-		$siteIds = [];
-		$search = $localeSiteManager->filter()->add( ['locale.site.code' => 'unitperf'] );
+        if (isset($testdata['locale/site'])) {
+            $siteIds = $this->addLocaleSiteData($localeManager, $testdata['locale/site']);
+        }
 
-		foreach( $localeSiteManager->search( $search ) as $site )
-		{
-			$this->context()->setLocale( $localeManager->bootstrap( $site->getCode(), '', '', false ) );
-			$localeSiteManager->delete( $site->getId() );
-		}
-
-		if( isset( $testdata['locale/site'] ) ) {
-			$siteIds = $this->addLocaleSiteData( $localeManager, $testdata['locale/site'] );
-		}
-
-		if( isset( $testdata['locale'] ) ) {
-			$this->addLocaleData( $localeManager, $testdata['locale'], $siteIds );
-		}
-	}
+        if (isset($testdata['locale'])) {
+            $this->addLocaleData($localeManager, $testdata['locale'], $siteIds);
+        }
+    }
 }

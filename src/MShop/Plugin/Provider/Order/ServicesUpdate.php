@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -8,9 +10,7 @@
  * @subpackage Plugin
  */
 
-
 namespace Aimeos\MShop\Plugin\Provider\Order;
-
 
 /**
  * Updates service items on basket change
@@ -27,116 +27,106 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class ServicesUpdate
-	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
-	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class ServicesUpdate extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	/**
-	 * Subscribes itself to a publisher
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
-	 * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
-	 */
-	public function register( \Aimeos\MShop\Order\Item\Iface $p ) : \Aimeos\MShop\Plugin\Provider\Iface
-	{
-		$plugin = $this->object();
+    /**
+     * Subscribes itself to a publisher
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
+     * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
+     */
+    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    {
+        $plugin = $this->object();
 
-		$p->attach( $plugin, 'addAddress.after' );
-		$p->attach( $plugin, 'deleteAddress.after' );
-		$p->attach( $plugin, 'setAddresses.after' );
-		$p->attach( $plugin, 'addCoupon.after' );
-		$p->attach( $plugin, 'deleteCoupon.after' );
-		$p->attach( $plugin, 'addProduct.after' );
-		$p->attach( $plugin, 'deleteProduct.after' );
-		$p->attach( $plugin, 'setProducts.after' );
+        $p->attach($plugin, 'addAddress.after');
+        $p->attach($plugin, 'deleteAddress.after');
+        $p->attach($plugin, 'setAddresses.after');
+        $p->attach($plugin, 'addCoupon.after');
+        $p->attach($plugin, 'deleteCoupon.after');
+        $p->attach($plugin, 'addProduct.after');
+        $p->attach($plugin, 'deleteProduct.after');
+        $p->attach($plugin, 'setProducts.after');
 
-		return $this;
-	}
+        return $this;
+    }
 
+    /**
+     * Receives a notification from a publisher object
+     *
+     * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
+     * @param string $action Name of the action to listen for
+     * @param mixed $value Object or value changed in publisher
+     * @return mixed Modified value parameter
+     */
+    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    {
+        $services = $order->getServices();
 
-	/**
-	 * Receives a notification from a publisher object
-	 *
-	 * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket instance implementing publisher interface
-	 * @param string $action Name of the action to listen for
-	 * @param mixed $value Object or value changed in publisher
-	 * @return mixed Modified value parameter
-	 */
-	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null )
-	{
-		$services = $order->getServices();
+        if ($order->getProducts()->isEmpty()) {
+            $priceManager = \Aimeos\MShop::create($this->context(), 'price');
 
-		if( $order->getProducts()->isEmpty() )
-		{
-			$priceManager = \Aimeos\MShop::create( $this->context(), 'price' );
+            foreach ($services as $type => $list) {
+                $serviceItems = $list;
 
-			foreach( $services as $type => $list )
-			{
-				$serviceItems = $list;
+                foreach ($list as $key => $item) {
+                    $serviceItems[$key] = $item->setPrice($priceManager->create());
+                }
 
-				foreach( $list as $key => $item ) {
-					$serviceItems[$key] = $item->setPrice( $priceManager->create() );
-				}
+                $services[$type] = $serviceItems;
+            }
 
-				$services[$type] = $serviceItems;
-			}
+            $order->setServices($services->toArray());
+            return $value;
+        }
 
-			$order->setServices( $services->toArray() );
-			return $value;
-		}
+        $serviceItems = $this->getServiceItems($services);
+        $serviceManager = \Aimeos\MShop::create($this->context(), 'service');
 
-		$serviceItems = $this->getServiceItems( $services );
-		$serviceManager = \Aimeos\MShop::create( $this->context(), 'service' );
+        foreach ($services as $type => $list) {
+            $orderServices = $list;
 
-		foreach( $services as $type => $list )
-		{
-			$orderServices = $list;
+            foreach ($list as $key => $item) {
+                if (($serviceItem = $serviceItems->get($item->getServiceId())) !== null) {
+                    $provider = $serviceManager->getProvider($serviceItem, $serviceItem->getType());
 
-			foreach( $list as $key => $item )
-			{
-				if( ( $serviceItem = $serviceItems->get( $item->getServiceId() ) ) !== null )
-				{
-					$provider = $serviceManager->getProvider( $serviceItem, $serviceItem->getType() );
+                    if ($provider->isAvailable($order)) {
+                        $orderServices[$key] = $item->setPrice($provider->calcPrice($order));
+                        continue;
+                    }
+                }
 
-					if( $provider->isAvailable( $order ) )
-					{
-						$orderServices[$key] = $item->setPrice( $provider->calcPrice( $order ) );
-						continue;
-					}
-				}
+                unset($orderServices[$key]);
+            }
 
-				unset( $orderServices[$key] );
-			}
+            $services[$type] = $orderServices;
+        }
 
-			$services[$type] = $orderServices;
-		}
+        $order->setServices($services->toArray());
+        return $value;
+    }
 
-		$order->setServices( $services->toArray() );
-		return $value;
-	}
+    /**
+     * Returns the service items for the given order services
+     *
+     * @param \Aimeos\Map $services List of items implementing \Aimeos\MShop\Order\Item\Service\Iface with IDs as keys
+     * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Service\Item\Iface with IDs as keys
+     */
+    protected function getServiceItems(\Aimeos\Map $services): \Aimeos\Map
+    {
+        $list = map();
 
+        foreach ($services as $items) {
+            $list->concat(map($items)->getServiceId());
+        }
 
-	/**
-	 * Returns the service items for the given order services
-	 *
-	 * @param \Aimeos\Map $services List of items implementing \Aimeos\MShop\Order\Item\Service\Iface with IDs as keys
-	 * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Service\Item\Iface with IDs as keys
-	 */
-	protected function getServiceItems( \Aimeos\Map $services ) : \Aimeos\Map
-	{
-		$list = map();
+        if ($list->isEmpty()) {
+            return $list;
+        }
 
-		foreach( $services as $items ) {
-			$list->concat( map( $items )->getServiceId() );
-		}
+        $serviceManager = \Aimeos\MShop::create($this->context(), 'service');
+        $search = $serviceManager->filter(true)->add(['service.id' => $list]);
 
-		if( $list->isEmpty() ) {
-			return $list;
-		}
-
-		$serviceManager = \Aimeos\MShop::create( $this->context(), 'service' );
-		$search = $serviceManager->filter( true )->add( ['service.id' => $list] );
-
-		return $serviceManager->search( $search, ['media', 'price', 'text'] );
-	}
+        return $serviceManager->search($search, ['media', 'price', 'text']);
+    }
 }
