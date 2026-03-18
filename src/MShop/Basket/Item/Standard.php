@@ -20,19 +20,15 @@ class Standard
 	extends \Aimeos\MShop\Common\Item\Base
 	implements \Aimeos\MShop\Basket\Item\Iface
 {
-	private ?\Aimeos\MShop\Order\Item\Iface $item;
-
-
 	/**
 	 * Initializes the object
 	 *
 	 * @param array $values Associative list of key/value pairs with basket properties
 	 * @param \Aimeos\MShop\Order\Item\Iface|null $item Basket object
 	 */
-	public function __construct( array $values = [], ?\Aimeos\MShop\Order\Item\Iface $item = null )
+	public function __construct( array $values = [], private ?\Aimeos\MShop\Order\Item\Iface $item = null )
 	{
 		parent::__construct( 'basket.', $values );
-		$this->item = $item;
 	}
 
 

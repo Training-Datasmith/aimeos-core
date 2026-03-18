@@ -139,7 +139,6 @@ abstract class Base
 	protected function addGroups( \Aimeos\MShop\Customer\Item\Iface $item ): \Aimeos\MShop\Customer\Item\Iface
 	{
 		$pos = 0;
-		$groupIds = [];
 
 		$manager = $this->object()->getSubManager( 'lists' );
 		$listItems = $item->getListItems( 'group', 'default', null, false );
@@ -199,8 +198,8 @@ abstract class Base
 		$search = $this->object()->filter();
 		$search->setConditions( $search->compare( '==', $name, $items ) );
 
-		$types = array( $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR );
-		$translations = array( $name => '"' . $name . '"' );
+		$types = [ $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
+		$translations = [ $name => '"' . $name . '"' ];
 
 		$cond = $search->getConditionSource( $types, $translations );
 		$sql = str_replace( ':cond', $cond, $this->getSqlConfig( $cfgpath ) );

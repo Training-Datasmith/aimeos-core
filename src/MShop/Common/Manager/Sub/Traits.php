@@ -91,9 +91,8 @@ trait Traits
 		}
 
 		$classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-		$manager = $this->addDecorators( $this->context(), $manager, $decorators, $classprefix );
 
-		return $manager;
+		return $this->addDecorators( $this->context(), $manager, $decorators, $classprefix );
 	}
 
 

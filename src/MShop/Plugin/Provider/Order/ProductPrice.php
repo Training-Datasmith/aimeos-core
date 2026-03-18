@@ -39,24 +39,24 @@ class ProductPrice
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'warn' => array(
+	private array $beConfig = [
+		'warn' => [
 			'code' => 'warn',
 			'internalcode' => 'warn',
 			'label' => 'Warn customers if price has changed',
 			'type' => 'bool',
 			'default' => '0',
 			'required' => false,
-		),
-		'ignore-modified' => array(
+		],
+		'ignore-modified' => [
 			'code' => 'ignore-modified',
 			'internalcode' => 'ignore-modified',
 			'label' => 'Ignore order items with a modified price (e.g. by another plugin)',
 			'type' => 'bool',
 			'default' => '1',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

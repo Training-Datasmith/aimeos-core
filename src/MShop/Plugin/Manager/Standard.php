@@ -21,36 +21,36 @@ class Standard
 	extends \Aimeos\MShop\Plugin\Manager\Base
 	implements \Aimeos\MShop\Plugin\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'plugin.type' => array(
+	private array $searchConfig = [
+		'plugin.type' => [
 			'label' => 'Type ID',
 			'internalcode' => 'type',
-		),
-		'plugin.label' => array(
+		],
+		'plugin.label' => [
 			'label' => 'Label',
 			'internalcode' => 'label',
-		),
-		'plugin.provider' => array(
+		],
+		'plugin.provider' => [
 			'label' => 'Provider',
 			'internalcode' => 'provider',
-		),
-		'plugin.position' => array(
+		],
+		'plugin.position' => [
 			'label' => 'Position',
 			'internalcode' => 'pos',
 			'type' => 'int',
-		),
-		'plugin.status' => array(
+		],
+		'plugin.status' => [
 			'label' => 'Status',
 			'internalcode' => 'status',
 			'type' => 'int',
-		),
-		'plugin.config' => array(
+		],
+		'plugin.config' => [
 			'label' => 'Configuration',
 			'internalcode' => 'config',
 			'type' => 'json',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -61,7 +61,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['plugin.siteid'] = $values['plugin.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['plugin.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Plugin\Item\Standard( 'plugin.', $values );
 	}
 

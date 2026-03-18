@@ -26,24 +26,24 @@ class Quantity
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'quantity.packagesize' => array(
+	private array $beConfig = [
+		'quantity.packagesize' => [
 			'code' => 'quantity.packagesize',
 			'internalcode' => 'quantity.packagesize',
 			'label' => 'Number of products in the package',
 			'type' => 'number',
 			'default' => '1',
 			'required' => false,
-		),
-		'quantity.packagecosts' => array(
+		],
+		'quantity.packagecosts' => [
 			'code' => 'quantity.packagecosts',
 			'internalcode' => 'quantity.packagecosts',
 			'label' => 'Costs per the package',
 			'type' => 'number',
 			'default' => '',
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -56,9 +56,8 @@ class Quantity
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -104,8 +103,8 @@ class Quantity
 			}
 		}
 
-		$size = $this->getConfigValue( array( 'quantity.packagesize' ), 1 );
-		$costs = $this->getConfigValue( array( 'quantity.packagecosts' ), 0.00 );
+		$size = $this->getConfigValue( [ 'quantity.packagesize' ], 1 );
+		$costs = $this->getConfigValue( [ 'quantity.packagecosts' ], 0.00 );
 
 		$value = ceil( $sum / $size ) * $costs;
 

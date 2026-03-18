@@ -20,22 +20,22 @@ namespace Aimeos\MShop\Index\Manager\Text;
 class PgSQL
 	extends \Aimeos\MShop\Index\Manager\Text\Standard
 {
-	private array $searchConfig = array(
-		'index.text:relevance' => array(
+	private array $searchConfig = [
+		'index.text:relevance' => [
 			'code' => 'index.text:relevance()',
 			'internalcode' => ':site AND mindte."langid" = $1 AND CAST( to_tsvector(mindte."content") @@ to_tsquery( $2 ) AS integer )',
 			'label' => 'Product texts, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-		'sort:index.text:relevance' => array(
+		],
+		'sort:index.text:relevance' => [
 			'code' => 'sort:index.text:relevance()',
 			'internalcode' => 'ts_rank(to_tsvector(mindte."content"), to_tsquery( $2 )) * mpro."boost"',
 			'label' => 'Product text sorting, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -82,7 +82,7 @@ class PgSQL
 	 */
 	protected function getFunctionRelevance()
 	{
-		return function( $source, array $params ) {
+		return function( $source, array $params ): array {
 
 			if( isset( $params[1] ) )
 			{

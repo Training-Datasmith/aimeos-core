@@ -21,9 +21,6 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
 abstract class Base
 	extends \Aimeos\MShop\Service\Provider\Base
 {
-	private \Aimeos\MShop\Service\Provider\Iface $provider;
-
-
 	/**
 	 * Initializes a new service provider object using the given context object.
 	 *
@@ -31,12 +28,10 @@ abstract class Base
 	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
 	 * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
 	 */
-	public function __construct( \Aimeos\MShop\Service\Provider\Iface $provider,
+	public function __construct( private \Aimeos\MShop\Service\Provider\Iface $provider,
 		\Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Service\Item\Iface $serviceItem )
 	{
 		parent::__construct( $context, $serviceItem );
-
-		$this->provider = $provider;
 	}
 
 
@@ -318,6 +313,6 @@ abstract class Base
 	 */
 	public function __call( string $name, array $param )
 	{
-		return @call_user_func_array( array( $this->provider, $name ), $param );
+		return @call_user_func_array( [ $this->provider, $name ], $param );
 	}
 }

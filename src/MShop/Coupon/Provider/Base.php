@@ -24,9 +24,6 @@ abstract class Base
 	use \Aimeos\Macro\Macroable;
 
 	private ?\Aimeos\MShop\Coupon\Provider\Iface $object = null;
-	private \Aimeos\MShop\Coupon\Item\Iface $item;
-	private \Aimeos\MShop\ContextIface $context;
-	private string $code;
 
 	/**
 	 * Initializes the coupon model.
@@ -35,12 +32,9 @@ abstract class Base
 	 * @param \Aimeos\MShop\Coupon\Item\Iface $item Coupon item to set
 	 * @param string $code Coupon code entered by the customer
 	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Coupon\Item\Iface $item, string $code )
-	{
-		$this->context = $context;
-		$this->item = $item;
-		$this->code = $code;
-	}
+	public function __construct(private \Aimeos\MShop\ContextIface $context, private \Aimeos\MShop\Coupon\Item\Iface $item, private string $code)
+    {
+    }
 
 
 	/**
@@ -287,7 +281,7 @@ abstract class Base
 			$orderProducts[] = $orderProduct->setPrice( $price );
 		}
 
-		usort( $orderProducts, fn( $a, $b ) => $a->getPrice()->getValue() <=> $b->getPrice()->getValue() );
+		usort( $orderProducts, fn( $a, $b ): int => $a->getPrice()->getValue() <=> $b->getPrice()->getValue() );
 
 		return $orderProducts;
 	}
@@ -308,7 +302,7 @@ abstract class Base
 		$map = $basket->getCoupons();
 		$products = $map[$this->getCode()] ?? [];
 
-		foreach( $basket->getProducts() as $key => $item )
+		foreach( $basket->getProducts() as $item )
 		{
 			if( !in_array( $item, $products, true ) )
 			{

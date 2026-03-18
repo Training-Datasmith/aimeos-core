@@ -21,11 +21,10 @@ namespace Aimeos\MShop\Plugin\Provider\Factory;
 interface Iface
 {
 	/**
-	 * Initializes the plugin object.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
-	 * @return null
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item );
+     * Initializes the plugin object.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object with required objects
+     * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
+     */
+    public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item );
 }

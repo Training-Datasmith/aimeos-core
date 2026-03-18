@@ -45,7 +45,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['customer.siteid'] = $values['customer.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['customer.siteid'] ??= $this->context()->locale()->getSiteId();
 
 		$address = new \Aimeos\MShop\Common\Item\Address\Standard( 'customer.', $values );
 		return new \Aimeos\MShop\Customer\Item\Standard( $address, 'customer.', $values, $this->context()->password() );
@@ -213,7 +213,7 @@ class Standard
 				'label' => 'Customer has list item, parameter(<domain>[,<list type>[,<reference ID>)]]',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $level ) {
+				'function' => function( &$source, array $params ) use ( $level ): array {
 					$keys = [];
 
 					foreach( (array) ( $params[1] ?? '' ) as $type ) {
@@ -236,7 +236,7 @@ class Standard
 				'label' => 'Customer has property item, parameter(<property type>[,<language code>[,<property value>]])',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $level ) {
+				'function' => function( &$source, array $params ) use ( $level ): array {
 					$keys = [];
 					$langs = array_key_exists( 1, $params ) ? ( $params[1] ?? 'null' ) : '';
 

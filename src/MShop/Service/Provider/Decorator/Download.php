@@ -26,16 +26,16 @@ class Download
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'download.all' => array(
+	private array $beConfig = [
+		'download.all' => [
 			'code' => 'download.all',
 			'internalcode' => 'download.all',
 			'label' => 'Check products: "1" = all must be downloads, "0" = at least one is no download',
 			'type' => 'bool',
 			'default' => '',
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -48,9 +48,8 @@ class Download
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

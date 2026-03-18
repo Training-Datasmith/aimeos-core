@@ -22,8 +22,8 @@ class Basket
 	extends \Aimeos\MShop\Coupon\Provider\Decorator\Base
 	implements \Aimeos\MShop\Coupon\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'basket.total-value-min' => array(
+	private array $beConfig = [
+		'basket.total-value-min' => [
 			'code' => 'basket.total-value-min',
 			'internalcode' => 'basket.total-value-min',
 			'label' => 'Minimum total value of the basket',
@@ -31,8 +31,8 @@ class Basket
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'basket.total-value-max' => array(
+		],
+		'basket.total-value-max' => [
 			'code' => 'basket.total-value-max',
 			'internalcode' => 'basket.total-value-max',
 			'label' => 'Maximum total value of the basket',
@@ -40,8 +40,8 @@ class Basket
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

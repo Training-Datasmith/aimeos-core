@@ -32,7 +32,7 @@ class Standard
 		$context = $this->context();
 
 		$values['.date'] = $context->datetime();
-		$values['service.siteid'] = $values['service.siteid'] ?? $context->locale()->getSiteId();
+		$values['service.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Service\Item\Standard( 'service.', $values );
 	}

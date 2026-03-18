@@ -80,7 +80,7 @@ class Standard
 		$locale = $this->context()->locale();
 
 		$values['.languageid'] = $locale->getLanguageId();
-		$values['media.siteid'] = $values['media.siteid'] ?? $locale->getSiteId();
+		$values['media.siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Media\Item\Standard( 'media.', $values );
 	}
@@ -369,9 +369,8 @@ class Standard
 		 */
 		$sizes = $config->get( 'mshop/media/manager/previews/common', [] );
 		$sizes = $config->get( 'mshop/media/manager/previews/' . $domain, $sizes );
-		$sizes = $config->get( 'mshop/media/manager/previews/' . $domain . '/' . $type, $sizes );
 
-		return $sizes;
+		return $config->get( 'mshop/media/manager/previews/' . $domain . '/' . $type, $sizes );
 	}
 
 

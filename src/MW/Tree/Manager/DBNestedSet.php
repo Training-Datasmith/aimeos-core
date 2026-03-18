@@ -533,13 +533,13 @@ class DBNestedSet extends \Aimeos\MW\Tree\Manager\Base
 
 		$search = $this->createSearch();
 
-		$expr = array(
+		$expr = [
 			$search->compare( '<=', $this->searchConfig['left']['code'], $node->left ),
 			$search->compare( '>=', $this->searchConfig['right']['code'], $node->right ),
-		);
+		];
 
 		$search->setConditions( $search->and( $expr ) );
-		$search->setSortations( array( $search->sort( '+', $this->searchConfig['left']['code'] ) ) );
+		$search->setSortations( [ $search->sort( '+', $this->searchConfig['left']['code'] ) ] );
 
 		foreach( $this->searchNodes( $search ) as $item ) {
 			$result[$item->getId()] = $item;
@@ -557,7 +557,7 @@ class DBNestedSet extends \Aimeos\MW\Tree\Manager\Base
 	 */
 	protected function checkSearchConfig( array $config )
 	{
-		$required = array( 'id', 'label', 'status', 'level', 'left', 'right' );
+		$required = [ 'id', 'label', 'status', 'level', 'left', 'right' ];
 
 		foreach( $required as $key => $entry )
 		{
@@ -582,10 +582,10 @@ class DBNestedSet extends \Aimeos\MW\Tree\Manager\Base
 	 */
 	protected function checkSqlConfig( array $config )
 	{
-		$required = array(
+		$required = [
 			'delete', 'get', 'insert', 'move-left',
 			'move-right', 'search', 'update', 'newid'
-		);
+		];
 
 		foreach( $required as $key => $entry )
 		{
@@ -669,17 +669,12 @@ class DBNestedSet extends \Aimeos\MW\Tree\Manager\Base
 	 */
 	protected function getLevelFromConstant( int $level ) : int
 	{
-		switch( $level )
-		{
-			case \Aimeos\MW\Tree\Manager\Base::LEVEL_ONE:
-				return 0;
-			case \Aimeos\MW\Tree\Manager\Base::LEVEL_LIST:
-				return 1;
-			case \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE:
-				return 0x3FFF; // max. possible level / 2 to prevent smallint overflow
-			default:
-				throw new \Aimeos\MW\Tree\Exception( sprintf( 'Invalid level constant "%1$d"', $level ) );
-		}
+		return match ($level) {
+            \Aimeos\MW\Tree\Manager\Base::LEVEL_ONE => 0,
+            \Aimeos\MW\Tree\Manager\Base::LEVEL_LIST => 1,
+            \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE => 0x3FFF,
+            default => throw new \Aimeos\MW\Tree\Exception( sprintf( 'Invalid level constant "%1$d"', $level ) ),
+        };
 	}
 
 
@@ -716,7 +711,7 @@ class DBNestedSet extends \Aimeos\MW\Tree\Manager\Base
 	{
 		$search = $this->createSearch();
 		$search->setConditions( $search->compare( '==', $this->searchConfig['level']['code'], 0 ) );
-		$search->setSortations( array( $search->sort( $sort, $this->searchConfig['left']['code'] ) ) );
+		$search->setSortations( [ $search->sort( $sort, $this->searchConfig['left']['code'] ) ] );
 		$nodes = $this->searchNodes( $search );
 
 		if( ( $node = reset( $nodes ) ) !== false ) {

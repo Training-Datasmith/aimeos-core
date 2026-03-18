@@ -74,8 +74,7 @@ abstract class Base
 
 		$classprefix = '\Aimeos\MShop\\' . ucfirst( $domain ) . '\Manager\Decorator\\';
 		$decorators = $config->get( 'madmin/' . $domain . '/manager/decorators/local', [] );
-		$manager = self::addDecorators( $context, $manager, $decorators, $classprefix );
 
-		return $manager;
+		return self::addDecorators( $context, $manager, $decorators, $classprefix );
 	}
 }

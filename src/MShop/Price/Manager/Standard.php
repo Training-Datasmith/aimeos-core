@@ -74,10 +74,10 @@ class Standard
 		$locale = $this->context()->locale();
 
 		$values['.currencyid'] = $locale->getCurrencyId();
-		$values['price.taxflag'] = $values['price.taxflag'] ?? $this->taxflag;
-		$values['price.precision'] = $values['price.precision'] ?? $this->precision;
-		$values['price.currencyid'] = $values['price.currencyid'] ?? $locale->getCurrencyId();
-		$values['price.siteid'] = $values['price.siteid'] ?? $locale->getSiteId();
+		$values['price.taxflag'] ??= $this->taxflag;
+		$values['price.precision'] ??= $this->precision;
+		$values['price.currencyid'] ??= $locale->getCurrencyId();
+		$values['price.siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Price\Item\Standard( 'price.', $values );
 	}

@@ -17,21 +17,6 @@ namespace Aimeos\MShop\Rule\Provider\Factory;
  * @package MShop
  * @subpackage Rule
  */
-abstract class Base
-	extends \Aimeos\MShop\Rule\Provider\Base
+abstract class Base extends \Aimeos\MShop\Rule\Provider\Base
 {
-	/**
-	 * Initializes the object instance
-	 *
-	 * PHP 7 fails with a wierd fatal error that decorator constructors must be
-	 * compatible with the constructor of the factory interface if this
-	 * intermediate constructor isn't implemented!
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @param \Aimeos\MShop\Rule\Item\Iface $item Rule item object
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Rule\Item\Iface $item )
-	{
-		parent::__construct( $context, $item );
-	}
 }

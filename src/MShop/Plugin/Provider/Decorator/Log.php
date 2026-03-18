@@ -28,7 +28,7 @@ class Log
 	 */
 	public function register( \Aimeos\MShop\Order\Item\Iface $p ) : \Aimeos\MShop\Plugin\Provider\Iface
 	{
-		$this->context()->logger()->debug( 'Plugin::register: ' . get_class( $this->getProvider() ), 'core/plugin' );
+		$this->context()->logger()->debug( 'Plugin::register: ' . $this->getProvider()::class, 'core/plugin' );
 		$this->getProvider()->register( $p );
 
 		return $this;
@@ -45,8 +45,8 @@ class Log
 	 */
 	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null )
 	{
-		$class = get_class( $this->getProvider() );
-		$payload = ( is_object( $value ) ? get_class( $value ) : ( is_scalar( $value ) ? $value : '' ) );
+		$class = $this->getProvider()::class;
+		$payload = ( is_object( $value ) ? $value::class : ( is_scalar( $value ) ? $value : '' ) );
 
 		$msg = 'Plugin::update:before: ' . $class . ', action: ' . $action . ', value: ' . $payload;
 		$this->context()->logger()->debug( $msg, 'core/plugin' );

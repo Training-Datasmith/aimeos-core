@@ -135,7 +135,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['order.service.attribute.siteid'] = $values['order.service.attribute.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['order.service.attribute.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Order\Item\Service\Attribute\Standard( 'order.service.attribute.', $values );
 	}
 

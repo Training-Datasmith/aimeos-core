@@ -21,11 +21,10 @@ namespace Aimeos\MShop\Service\Provider\Factory;
 interface Iface
 {
 	/**
-	 * Initializes a new service provider object using the given context object.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
-	 * @return null
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Service\Item\Iface $serviceItem );
+     * Initializes a new service provider object using the given context object.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object with required objects
+     * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
+     */
+    public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Service\Item\Iface $serviceItem );
 }

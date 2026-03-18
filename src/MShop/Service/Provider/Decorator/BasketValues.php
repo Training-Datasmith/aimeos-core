@@ -21,8 +21,8 @@ class BasketValues
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'basketvalues.total-value-min' => array(
+	private array $beConfig = [
+		'basketvalues.total-value-min' => [
 			'code' => 'basketvalues.total-value-min',
 			'internalcode' => 'basketvalues.total-value-min',
 			'label' => 'Minimum total value of the basket',
@@ -30,8 +30,8 @@ class BasketValues
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'basketvalues.total-value-max' => array(
+		],
+		'basketvalues.total-value-max' => [
 			'code' => 'basketvalues.total-value-max',
 			'internalcode' => 'basketvalues.total-value-max',
 			'label' => 'Maximum total value of the basket',
@@ -39,8 +39,8 @@ class BasketValues
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

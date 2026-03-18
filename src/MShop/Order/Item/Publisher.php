@@ -59,7 +59,7 @@ trait Publisher
 	{
 		if( isset( $this->listeners[$action] ) )
 		{
-			foreach( $this->listeners[$action] as $key => $listener ) {
+			foreach( $this->listeners[$action] as $listener ) {
 				$value = $listener->update( $this, $action, $value );
 			}
 		}

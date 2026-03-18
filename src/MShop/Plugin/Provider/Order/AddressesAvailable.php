@@ -36,24 +36,24 @@ class AddressesAvailable
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'payment' => array(
+	private array $beConfig = [
+		'payment' => [
 			'code' => 'payment',
 			'internalcode' => 'payment',
 			'label' => 'Require billing address',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'delivery' => array(
+		],
+		'delivery' => [
 			'code' => 'delivery',
 			'internalcode' => 'delivery',
 			'label' => 'Require delivery address',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -127,7 +127,7 @@ class AddressesAvailable
 
 		if( count( $problems ) > 0 )
 		{
-			$code = array( 'address' => $problems );
+			$code = [ 'address' => $problems ];
 			$msg = $this->context()->translate( 'mshop', 'Checks for available addresses in basket failed' );
 			throw new \Aimeos\MShop\Plugin\Provider\Exception( $msg, -1, null, $code );
 		}

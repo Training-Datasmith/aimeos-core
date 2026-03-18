@@ -29,32 +29,27 @@ class Standard
 		ListsRef\Traits::__clone as __cloneList;
 		ListsRef\Traits::getName as getNameList;
 	}
-
-
-	private \Aimeos\MW\Tree\Node\Iface $node;
 	private array $deletedItems = [];
 	private array $children;
 
 
 	/**
-	 * Initializes the catalog item.
-	 *
-	 * @param \Aimeos\MW\Tree\Node\Iface $node Tree node
-	 * @param array $values Assoicative list of key/value pairs
-	 * @param \Aimeos\MShop\Catalog\Item\Iface[] $children List of children of the item
-	 * @param \Aimeos\MShop\Common\Item\Lists\Iface[] $listItems List of list items
-	 * @param \Aimeos\MShop\Common\Item\Iface[] $refItems List of referenced items
-	 */
-	public function __construct( \Aimeos\MW\Tree\Node\Iface $node, array $values = [], array $children = [],
-		array $listItems = [], array $refItems = [] )
+     * Initializes the catalog item.
+     *
+     * @param \Aimeos\MW\Tree\Node\Iface $node Tree node
+     * @param array $values Assoicative list of key/value pairs
+     * @param \Aimeos\MShop\Catalog\Item\Iface[] $children List of children of the item
+     * @param \Aimeos\MShop\Common\Item\Lists\Iface[] $listItems List of list items
+     */
+    public function __construct( private \Aimeos\MW\Tree\Node\Iface $node, array $values = [], array $children = [],
+		array $listItems = [] )
 	{
 		parent::__construct( '', $values );
 
 		map( $children )->implements( \Aimeos\MShop\Catalog\Item\Iface::class, true );
 
-		$this->initListItems( $listItems, $refItems );
+		$this->initListItems( $listItems );
 		$this->children = $children;
-		$this->node = $node;
 	}
 
 
@@ -481,10 +476,13 @@ class Standard
 	 *
 	 * @return bool True if the content of the node is modified, false if not
 	 */
-	public function isModified() : bool
-	{
-		return parent::isModified() || $this->node->isModified();
-	}
+	public function isModified(): bool
+    {
+        if (parent::isModified()) {
+            return true;
+        }
+        return $this->node->isModified();
+    }
 
 
 	/*

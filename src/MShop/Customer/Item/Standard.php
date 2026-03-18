@@ -20,7 +20,6 @@ namespace Aimeos\MShop\Customer\Item;
  */
 class Standard extends Base implements Iface
 {
-	private ?\Aimeos\Base\Password\Iface $passwd = null;
 	private ?array $groups = null;
 
 
@@ -33,10 +32,9 @@ class Standard extends Base implements Iface
 	 * @param \Aimeos\Base\Password\Iface|null $passwd Password encryption object
 	 */
 	public function __construct( \Aimeos\MShop\Common\Item\Address\Iface $address, string $prefix,
-		array $values = [], ?\Aimeos\Base\Password\Iface $passwd = null )
+		array $values = [], private ?\Aimeos\Base\Password\Iface $passwd = null )
 	{
 		parent::__construct( $address, $prefix, $values );
-		$this->passwd = $passwd;
 	}
 
 
@@ -131,11 +129,9 @@ class Standard extends Base implements Iface
 
 
 	/**
-	 * Returns the password of the customer item.
-	 *
-	 * @return string
-	 */
-	public function getPassword() : string
+     * Returns the password of the customer item.
+     */
+    public function getPassword() : string
 	{
 		return (string) $this->get( 'customer.password', '' );
 	}

@@ -20,14 +20,14 @@ namespace Aimeos\MShop\Index\Manager\Supplier;
 class MySQL
 	extends \Aimeos\MShop\Index\Manager\Supplier\Standard
 {
-	private array $searchConfig = array(
-		'index.supplier.id' => array(
+	private array $searchConfig = [
+		'index.supplier.id' => [
 			'code' => 'index.supplier.id',
 			'internalcode' => 'mindsu."supid"',
-			'internaldeps'=> array( 'LEFT JOIN "mshop_index_supplier" AS mindsu USE INDEX ("idx_msindsup_sid_supid_lt_po", "unq_msindsu_p_s_lt_si_po_la_lo") ON mindsu."prodid" = mpro."id"' ),
+			'internaldeps'=> [ 'LEFT JOIN "mshop_index_supplier" AS mindsu USE INDEX ("idx_msindsup_sid_supid_lt_po", "unq_msindsu_p_s_lt_si_po_la_lo") ON mindsu."prodid" = mpro."id"' ],
 			'label' => 'Product index supplier ID',
-		),
-	);
+		],
+	];
 
 
 	/**

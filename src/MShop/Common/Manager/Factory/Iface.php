@@ -21,10 +21,9 @@ namespace Aimeos\MShop\Common\Manager\Factory;
 interface Iface
 {
 	/**
-	 * Initializes the manager by using the given context object.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @return null
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context );
+     * Initializes the manager by using the given context object.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object with required objects
+     */
+    public function __construct( \Aimeos\MShop\ContextIface $context );
 }

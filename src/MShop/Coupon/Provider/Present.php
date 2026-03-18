@@ -22,23 +22,23 @@ class Present
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'present.productcode' => array(
+	private array $beConfig = [
+		'present.productcode' => [
 			'code' => 'present.productcode',
 			'internalcode' => 'present.productcode',
 			'label' => 'Product code of the rebate product',
 			'default' => '',
 			'required' => true,
-		),
-		'present.quantity' => array(
+		],
+		'present.quantity' => [
 			'code' => 'present.quantity',
 			'internalcode' => 'present.quantity',
 			'label' => 'Number of articles that will be added to the basket',
 			'type' => 'int',
 			'default' => 1,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

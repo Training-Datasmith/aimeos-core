@@ -21,14 +21,14 @@ namespace Aimeos\MShop\Index\Manager\Attribute;
 class MySQL
 	extends \Aimeos\MShop\Index\Manager\Attribute\Standard
 {
-	private array $searchConfig = array(
-		'index.attribute.id' => array(
+	private array $searchConfig = [
+		'index.attribute.id' => [
 			'code' => 'index.attribute.id',
 			'internalcode' => 'mindat."attrid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_attribute" AS mindat USE INDEX ("idx_msindat_s_at_lt", "unq_msindat_p_s_aid_lt") ON mindat."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_attribute" AS mindat USE INDEX ("idx_msindat_s_at_lt", "unq_msindat_p_s_aid_lt") ON mindat."prodid" = mpro."id"' ],
 			'label' => 'Product index attribute ID',
-		)
-	);
+		]
+	];
 
 
 	/**

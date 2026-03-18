@@ -19,18 +19,14 @@ namespace Aimeos\MShop\Common\Helper\Config;
  */
 class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
 {
-	private array $criteria;
-
-
 	/**
 	 * Initializes the object with the criteria objects to check against
 	 *
 	 * @param \Aimeos\Base\Criteria\Attribute\Iface $criteria Criteria attribute objects
 	 */
-	public function __construct( array $criteria )
-	{
-		$this->criteria = $criteria;
-	}
+	public function __construct(private array $criteria)
+    {
+    }
 
 
 	/**

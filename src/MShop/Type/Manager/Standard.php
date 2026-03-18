@@ -33,8 +33,8 @@ class Standard
 		$locale = $this->context()->locale();
 
 		$values['.language'] = $locale->getLanguageId();
-		$values[$prefix . 'domain'] = $values[$prefix . 'domain'] ?? $this->for();
-		$values[$prefix . 'siteid'] = $values[$prefix . 'siteid'] ?? $locale->getSiteId();
+		$values[$prefix . 'domain'] ??= $this->for();
+		$values[$prefix . 'siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Type\Item\Standard( $prefix, $values );
 	}

@@ -20,7 +20,6 @@ namespace Aimeos\MW\Tree\Node;
  */
 class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 {
-	private array $values;
 	private array $children;
 	private bool $modified = false;
 
@@ -32,12 +31,11 @@ class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 	 * @param \Aimeos\MW\Tree\Node\Iface[] $children Children of the node
 	 * @throws \RuntimeException if the children doesn't implement the interface
 	 */
-	public function __construct( array $values = [], array $children = [] )
+	public function __construct( private array $values = [], array $children = [] )
 	{
 		map( $children )->implements( \Aimeos\MW\Tree\Node\Iface::class, true );
 
 		$this->children = $children;
-		$this->values = $values;
 	}
 
 
@@ -141,9 +139,9 @@ class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 	 */
 	public function setLabel( string $name ) : Iface
 	{
-		if( (string) $name !== $this->getLabel() )
+		if( $name !== $this->getLabel() )
 		{
-			$this->values['label'] = (string) $name;
+			$this->values['label'] = $name;
 			$this->modified = true;
 		}
 
@@ -170,9 +168,9 @@ class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 	 */
 	public function setCode( string $name ) : Iface
 	{
-		if( (string) $name !== $this->getCode() )
+		if( $name !== $this->getCode() )
 		{
-			$this->values['code'] = (string) $name;
+			$this->values['code'] = $name;
 			$this->modified = true;
 		}
 
@@ -198,9 +196,9 @@ class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 	 */
 	public function setStatus( int $status ) : Iface
 	{
-		if( (int) $status !== $this->getStatus() )
+		if( $status !== $this->getStatus() )
 		{
-			$this->values['status'] = (int) $status;
+			$this->values['status'] = $status;
 			$this->modified = true;
 		}
 
@@ -267,12 +265,12 @@ class Standard implements \Aimeos\MW\Tree\Node\Iface, \Countable
 	 */
 	public function toArray() : array
 	{
-		return array(
+		return [
 			'id' => $this->getId(),
 			'code' => $this->getCode(),
 			'label' => $this->getLabel(),
 			'status' => $this->getStatus(),
-		);
+		];
 	}
 
 

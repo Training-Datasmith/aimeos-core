@@ -26,20 +26,16 @@ abstract class Base implements \Aimeos\Macro\Iface
 	use DB;
 
 
-	private \Aimeos\MShop\ContextIface $context;
-
-
 	/**
 	 * Initialization of class.
 	 *
 	 * @param \Aimeos\MShop\ContextIface $context Context object
 	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context )
+	public function __construct( private \Aimeos\MShop\ContextIface $context )
 	{
-		$this->context = $context;
 		$domain = $this->domain();
 
-		$this->setResourceName( $context->config()->get( 'mshop/' . $domain . '/manager/resource', 'db-' . $domain ) );
+		$this->setResourceName( $this->context->config()->get( 'mshop/' . $domain . '/manager/resource', 'db-' . $domain ) );
 	}
 
 
@@ -68,7 +64,7 @@ abstract class Base implements \Aimeos\Macro\Iface
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
 		$prefix = $this->prefix();
-		$values[$prefix . 'siteid'] = $values[$prefix . 'siteid'] ?? $this->context()->locale()->getSiteId();
+		$values[$prefix . 'siteid'] ??= $this->context()->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Common\Item\Base( $prefix, $values );
 	}
@@ -198,7 +194,7 @@ abstract class Base implements \Aimeos\Macro\Iface
 		}
 
 		if( ( $first = current( $this->object()->getSearchAttributes() ) ) === false ) {
-			throw new \Aimeos\MShop\Exception( sprintf( 'No search configuration available for "%1$s"', get_class( $this ) ) );
+			throw new \Aimeos\MShop\Exception( sprintf( 'No search configuration available for "%1$s"', static::class ) );
 		}
 
 		$filter = $cursor->filter()->add( $first->getCode(), '>', (int) $cursor->value() )->order( $first->getCode() );
@@ -354,7 +350,7 @@ abstract class Base implements \Aimeos\Macro\Iface
 		$required = [$this->getSearchKey()];
 		$conn = $this->context()->db( $this->getResourceName() );
 
-		$attrs = array_filter( $this->object()->getSearchAttributes( false ), fn( $attr ) => $attr->getType() === 'json' );
+		$attrs = array_filter( $this->object()->getSearchAttributes( false ), fn( \Aimeos\Base\Criteria\Attribute\Iface $attr ): bool => $attr->getType() === 'json' );
 		$attrs = array_column( $attrs, null, 'code' );
 
 		$results = $this->searchItemsBase( $conn, $filter, $cfgPathSearch, $cfgPathCount, $required, $total, $level, $plugins );

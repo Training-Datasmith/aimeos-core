@@ -336,7 +336,7 @@ abstract class Base
 	{
 		if( $position === null && isset( $this->addresses[$type] ) || isset( $this->addresses[$type][$position] ) )
 		{
-			$old = ( isset( $this->addresses[$type][$position] ) ? $this->addresses[$type][$position] : $this->addresses[$type] );
+			$old = ( $this->addresses[$type][$position] ?? $this->addresses[$type] );
 			$old = $this->notify( 'deleteAddress.before', $old );
 
 			if( $position !== null ) {
@@ -373,7 +373,7 @@ abstract class Base
 			throw new \Aimeos\MShop\Order\Exception( sprintf( 'Address not available' ) );
 		}
 
-		return ( isset( $this->addresses[$type] ) ? $this->addresses[$type] : [] );
+		return ( $this->addresses[$type] ?? [] );
 	}
 
 
@@ -545,7 +545,7 @@ abstract class Base
 			}
 		}
 
-		foreach( $map as $code => $products )
+		foreach( $map as $products )
 		{
 			foreach( $products as $product ) {
 				$this->products[] = $product;
@@ -716,7 +716,7 @@ abstract class Base
 	{
 		if( $position === null && isset( $this->services[$type] ) || isset( $this->services[$type][$position] ) )
 		{
-			$old = ( isset( $this->services[$type][$position] ) ? $this->services[$type][$position] : $this->services[$type] );
+			$old = ( $this->services[$type][$position] ?? $this->services[$type] );
 			$old = $this->notify( 'deleteService.before', $old );
 
 			if( $position !== null ) {
@@ -755,7 +755,7 @@ abstract class Base
 			throw new \Aimeos\MShop\Order\Exception( sprintf( 'Service not available' ) );
 		}
 
-		return ( isset( $this->services[$type] ) ? $this->services[$type] : [] );
+		return ( $this->services[$type] ?? [] );
 	}
 
 
@@ -1039,7 +1039,7 @@ abstract class Base
 	{
 		map( $items )->implements( \Aimeos\MShop\Order\Item\Product\Iface::class, true );
 
-		foreach( $items as $key => $item )
+		foreach( $items as $item )
 		{
 			if( $item->getProductCode() === '' ) {
 				throw new \Aimeos\MShop\Order\Exception( sprintf( 'Product does not contain the SKU code' ) );

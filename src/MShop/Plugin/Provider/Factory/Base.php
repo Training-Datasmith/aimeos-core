@@ -17,21 +17,6 @@ namespace Aimeos\MShop\Plugin\Provider\Factory;
  * @package MShop
  * @subpackage Plugin
  */
-abstract class Base
-	extends \Aimeos\MShop\Plugin\Provider\Base
+abstract class Base extends \Aimeos\MShop\Plugin\Provider\Base
 {
-	/**
-	 * Initializes the object instance
-	 *
-	 * PHP 7 fails with a wierd fatal error that decorator constructors must be
-	 * compatible with the constructor of the factory interface if this
-	 * intermediate constructor isn't implemented!
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item )
-	{
-		parent::__construct( $context, $item );
-	}
 }

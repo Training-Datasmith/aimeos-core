@@ -17,9 +17,9 @@ namespace Aimeos;
  */
 class MAdmin
 {
-	private static $context;
-	private static $cache = true;
-	private static $objects = [];
+	private static ?\Aimeos\MShop\ContextIface $context = null;
+	private static bool $cache = true;
+	private static array $objects = [];
 
 
 	/**
@@ -27,9 +27,9 @@ class MAdmin
 	 *
 	 * @param bool $value True to enable caching, false to disable it
 	 */
-	public static function cache( bool $value )
+	public static function cache( bool $value ): void
 	{
-		self::$cache = (bool) $value;
+		self::$cache = $value;
 		self::$context = null;
 		self::$objects = [];
 	}
@@ -103,7 +103,7 @@ class MAdmin
 	 * @param string $classname Full name of the class for which the object should be returned
 	 * @param \Aimeos\MShop\Common\Manager\Iface|null $object Manager object for the given manager path or null to clear
 	 */
-	public static function inject( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $object = null )
+	public static function inject( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $object = null ): void
 	{
 		self::$objects['\\' . ltrim( $classname, '\\' )] = $object;
 	}
@@ -194,9 +194,8 @@ class MAdmin
 		}
 
 		$classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-		$manager = self::addDecorators( $context, $manager, $decorators, $classprefix );
 
-		return $manager;
+		return self::addDecorators( $context, $manager, $decorators, $classprefix );
 	}
 
 
@@ -211,10 +210,6 @@ class MAdmin
 	protected static function createManager( \Aimeos\MShop\ContextIface $context,
 		string $classname, ?string $interface ) : \Aimeos\MShop\Common\Manager\Iface
 	{
-		if( isset( self::$objects[$classname] ) ) {
-			return self::$objects[$classname];
-		}
-
-		return \Aimeos\Utils::create( $classname, [$context], $interface );
+		return self::$objects[$classname] ?? \Aimeos\Utils::create( $classname, [$context], $interface );
 	}
 }

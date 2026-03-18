@@ -260,8 +260,8 @@ class Standard
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
 		try {
-			$values['locale.siteid'] = $values['locale.siteid'] ?? $this->context()->locale()->getSiteId();
-		} catch( \Exception $e ) {} // if no locale item is available
+			$values['locale.siteid'] ??= $this->context()->locale()->getSiteId();
+		} catch( \Exception ) {} // if no locale item is available
 
 		return $this->createItemBase( $values );
 	}
@@ -395,7 +395,7 @@ class Standard
 		// Try to find exact match
 		$search = $this->object()->filter( $active );
 
-		$expr = array( $search->compare( '==', 'locale.siteid', $sites[Base::SITE_PATH] ?? $sites[Base::SITE_ONE] ) );
+		$expr = [ $search->compare( '==', 'locale.siteid', $sites[Base::SITE_PATH] ?? $sites[Base::SITE_ONE] ) ];
 
 		if( !empty( $lang ) )
 		{
@@ -418,7 +418,7 @@ class Standard
 		}
 
 		$search->setConditions( $search->and( $expr ) );
-		$search->setSortations( array( $search->sort( '+', 'locale.position' ) ) );
+		$search->setSortations( [ $search->sort( '+', 'locale.position' ) ] );
 		$result = $this->searchEntries( $search );
 
 		// Try to find first item where site matches
@@ -459,10 +459,10 @@ class Standard
 		// Try to find the best matching locale
 		$search = $this->object()->filter( $active );
 
-		$expr = array(
+		$expr = [
 			$search->compare( '==', 'locale.siteid', $sites[Base::SITE_PATH] ?? $sites[Base::SITE_ONE] ),
 			$search->getConditions()
-		);
+		];
 
 		if( $active === true )
 		{
@@ -472,7 +472,7 @@ class Standard
 		}
 
 		$search->setConditions( $search->and( $expr ) );
-		$search->setSortations( array( $search->sort( '+', 'locale.position' ) ) );
+		$search->setSortations( [ $search->sort( '+', 'locale.position' ) ] );
 		$result = $this->searchEntries( $search );
 
 		// Try to find first item where site and language matches

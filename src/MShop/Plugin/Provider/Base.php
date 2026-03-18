@@ -22,9 +22,6 @@ abstract class Base
 	implements \Aimeos\Macro\Iface
 {
 	use \Aimeos\Macro\Macroable;
-
-	private \Aimeos\MShop\ContextIface $context;
-	private \Aimeos\MShop\Plugin\Item\Iface $item;
 	private ?\Aimeos\MShop\Plugin\Provider\Iface $object = null;
 
 
@@ -34,11 +31,9 @@ abstract class Base
 	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
 	 * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
 	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item )
-	{
-		$this->item = $item;
-		$this->context = $context;
-	}
+	public function __construct(private \Aimeos\MShop\ContextIface $context, private \Aimeos\MShop\Plugin\Item\Iface $item)
+    {
+    }
 
 
 	/**
@@ -148,11 +143,7 @@ abstract class Base
 	{
 		$config = $this->item->getConfig();
 
-		if( isset( $config[$key] ) ) {
-			return $config[$key];
-		}
-
-		return $default;
+		return $config[$key] ?? $default;
 	}
 
 

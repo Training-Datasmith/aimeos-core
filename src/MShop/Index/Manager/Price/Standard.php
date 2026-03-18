@@ -21,35 +21,35 @@ class Standard
 	extends \Aimeos\MShop\Index\Manager\DBBase
 	implements \Aimeos\MShop\Index\Manager\Price\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'index.price.id' => array(
+	private array $searchConfig = [
+		'index.price.id' => [
 			'code' => 'index.price.id',
 			'internalcode' => 'mindpr."prodid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_price" AS mindpr ON mindpr."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_price" AS mindpr ON mindpr."prodid" = mpro."id"' ],
 			'label' => 'Product index price ID',
-		),
-		'index.price:value' => array(
+		],
+		'index.price:value' => [
 			'code' => 'index.price:value()',
 			'internalcode' => ':site AND mindpr."currencyid" = $1 AND mindpr."value"',
 			'label' => 'Product price value, parameter(<currency ID>)',
 			'type' => 'float',
 			'public' => false,
-		),
-		'agg:index.price:value' => array(
+		],
+		'agg:index.price:value' => [
 			'code' => 'agg:index.price:value()',
 			'internalcode' => 'mindpr."value"',
 			'label' => 'Aggregate product price value, parameter(<currency ID>)',
 			'type' => 'float',
 			'public' => false,
-		),
-		'sort:index.price:value' => array(
+		],
+		'sort:index.price:value' => [
 			'code' => 'sort:index.price:value()',
 			'internalcode' => 'mindpr."value"',
 			'label' => 'Sort product price value, parameter(<currency ID>)',
 			'type' => 'float',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 	private ?array $subManagers = null;
 
@@ -656,7 +656,7 @@ class Standard
 
 			try {
 				$stmt->execute()->finish();
-			} catch( \Aimeos\Base\DB\Exception $e ) { ; } // Ignore duplicates
+			} catch( \Aimeos\Base\DB\Exception ) { ; } // Ignore duplicates
 		}
 	}
 }

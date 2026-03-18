@@ -21,13 +21,12 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
 interface Iface extends \Aimeos\MShop\Plugin\Provider\Iface
 {
 	/**
-	 * Initializes the plugin decorator object.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
-	 * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
-	 * @param \Aimeos\MShop\Plugin\Provider\Iface $provider Plugin provider object
-	 * @return null
-	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item,
+     * Initializes the plugin decorator object.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object with required objects
+     * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
+     * @param \Aimeos\MShop\Plugin\Provider\Iface $provider Plugin provider object
+     */
+    public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item,
 		\Aimeos\MShop\Plugin\Provider\Iface $provider );
 }

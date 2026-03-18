@@ -143,7 +143,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 		}
 
 		if( $fcn = self::macro( 'sanitize' ) ) {
-			$content = $fcn( $content, $mimetype );
+			return $fcn( $content, $mimetype );
 		}
 
 		return $content;

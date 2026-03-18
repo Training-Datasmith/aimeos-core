@@ -52,7 +52,7 @@ class Standard
 		$locale = $this->context()->locale();
 
 		$values['.languageid'] = $locale->getLanguageId();
-		$values['tag.siteid'] = $values['tag.siteid'] ?? $locale->getSiteId();
+		$values['tag.siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Tag\Item\Standard( 'tag.', $values );
 	}

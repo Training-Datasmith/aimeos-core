@@ -21,9 +21,6 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
 abstract class Base
 	extends \Aimeos\MShop\Plugin\Provider\Base
 {
-	private \Aimeos\MShop\Plugin\Provider\Iface $provider;
-
-
 	/**
 	 * Initializes the plugin instance
 	 *
@@ -32,11 +29,9 @@ abstract class Base
 	 * @param \Aimeos\MShop\Plugin\Provider\Iface $provider Plugin provider object
 	 */
 	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item,
-		\Aimeos\MShop\Plugin\Provider\Iface $provider )
+		private \Aimeos\MShop\Plugin\Provider\Iface $provider )
 	{
 		parent::__construct( $context, $item );
-
-		$this->provider = $provider;
 	}
 
 

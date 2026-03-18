@@ -33,7 +33,7 @@ abstract class Base
 		$context = $this->context();
 
 		$values['.date'] = $context->datetime();
-		$values[$prefix . 'siteid'] = $values[$prefix . 'siteid'] ?? $context->locale()->getSiteId();
+		$values[$prefix . 'siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Common\Item\Lists\Standard( $prefix, $values );
 	}

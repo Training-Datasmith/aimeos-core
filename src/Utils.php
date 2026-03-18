@@ -120,11 +120,11 @@ class Utils
 	{
 		if( $date )
 		{
-			if( preg_match( '/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', (string) $date ) !== 1 ) {
+			if( preg_match( '/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $date ) !== 1 ) {
 				throw new \RuntimeException( sprintf( 'Invalid characters in date, ISO format "YYYY-MM-DD" expected' ) );
 			}
 
-			return (string) $date;
+			return $date;
 		}
 
 		return null;
@@ -144,7 +144,7 @@ class Utils
 
 		if( $date )
 		{
-			if( preg_match( $regex, (string) $date ) !== 1 ) {
+			if( preg_match( $regex, $date ) !== 1 ) {
 				throw new \RuntimeException( sprintf( 'Invalid characters in date, ISO format "YYYY-MM-DD hh:mm:ss" expected' ) );
 			}
 
@@ -152,7 +152,7 @@ class Utils
 				$date .= ':00';
 			}
 
-			return str_replace( 'T', ' ', (string) $date );
+			return str_replace( 'T', ' ', $date );
 		}
 
 		return null;
@@ -176,7 +176,7 @@ class Utils
 			}
 		}
 
-		throw new \LogicException( sprintf( 'Class "%1$s" does not implement %2$s', get_class( $object ), json_encode( $iface ) ), 400 );
+		throw new \LogicException( sprintf( 'Class "%1$s" does not implement %2$s', $object::class, json_encode( $iface ) ), 400 );
 	}
 
 

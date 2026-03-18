@@ -69,11 +69,9 @@ abstract class Base
 
 
 	/**
-	 * Returns the payaddress of the customer item.
-	 *
-	 * @return \Aimeos\MShop\Common\Item\Address\Iface
-	 */
-	public function getPaymentAddress() : \Aimeos\MShop\Common\Item\Address\Iface
+     * Returns the payaddress of the customer item.
+     */
+    public function getPaymentAddress() : \Aimeos\MShop\Common\Item\Address\Iface
 	{
 		return $this->payaddress;
 	}
@@ -101,10 +99,13 @@ abstract class Base
 	 *
 	 * @return bool True if modified, false if not
 	 */
-	public function isModified() : bool
-	{
-		return parent::isModified() || $this->getPaymentAddress()->isModified();
-	}
+	public function isModified(): bool
+    {
+        if (parent::isModified()) {
+            return true;
+        }
+        return $this->getPaymentAddress()->isModified();
+    }
 
 
 	/*

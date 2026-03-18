@@ -173,9 +173,7 @@ trait DB
 			throw new \Aimeos\MShop\Exception( $msg );
 		}
 
-		$attrMap = array_column( array_filter( $this->object()->getSearchAttributes(), function( $item ) {
-			return $item->isPublic() || strncmp( $item->getCode(), 'agg:', 4 ) === 0;
-		} ), null, 'code' );
+		$attrMap = array_column( array_filter( $this->object()->getSearchAttributes(), fn($item) => $item->isPublic() || str_starts_with($item->getCode(), 'agg:') ), null, 'code' );
 
 		if( $value === null && ( $value = key( $attrMap ) ) === null )
 		{
@@ -205,7 +203,7 @@ trait DB
 				throw new \Aimeos\MShop\Exception( sprintf( $msg, $string ) );
 			}
 
-			if( strpos( $attrItem->getInternalCode(), '"' ) === false ) {
+			if( !str_contains( $attrItem->getInternalCode(), '"' ) ) {
 				$prefixed = $this->alias( $attrItem->getCode() ) . '."' . $attrItem->getInternalCode() . '"';
 			} else { // @todo: Remove in 2025.01
 				$prefixed = $attrItem->getInternalCode();
@@ -222,7 +220,7 @@ trait DB
 
 		$val = $attrMap[$value]->getInternalCode();
 
-		if( strpos( $val, '"' ) === false ) {
+		if( !str_contains( $val, '"' ) ) {
 			$val = $this->alias( $attrMap[$value]->getCode() ) . '."' . $val . '"';
 		}
 
@@ -261,7 +259,7 @@ trait DB
 			$last = array_pop( $row );
 
 			foreach( $row as $val ) {
-				$temp[$val] = $temp[$val] ?? [];
+				$temp[$val] ??= [];
 				$temp = &$temp[$val];
 			}
 			$temp = $last;
@@ -308,7 +306,7 @@ trait DB
 	{
 		foreach( $map as $key => $value )
 		{
-			if( strpos( $value, '"' ) === false ) {
+			if( !str_contains( $value, '"' ) ) {
 				$map[$key] = $this->alias( $key ) . '."' . $value . '"';
 			}
 		}
@@ -380,8 +378,8 @@ trait DB
 		$search = $this->object()->filter();
 		$search->setConditions( $search->compare( '==', $name, $items ) );
 
-		$types = array( $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR );
-		$translations = array( $name => '"' . $name . '"' );
+		$types = [ $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
+		$translations = [ $name => '"' . $name . '"' ];
 
 		$cond = $search->getConditionSource( $types, $translations );
 		$sql = str_replace( ':cond', $cond, $this->getSqlConfig( $cfgpath ) );
@@ -420,13 +418,10 @@ trait DB
 			$adapter = $config->get( 'resource/db/adapter' );
 		}
 
-		switch( $adapter )
-		{
-			case 'pgsql':
-				$filter = new \Aimeos\Base\Criteria\PgSQL( $conn ); break;
-			default:
-				$filter = new \Aimeos\Base\Criteria\SQL( $conn ); break;
-		}
+		$filter = match ($adapter) {
+            'pgsql' => new \Aimeos\Base\Criteria\PgSQL( $conn ),
+            default => new \Aimeos\Base\Criteria\SQL( $conn ),
+        };
 
 		if( $default !== false ) {
 			$filter->add( $domain . '.status', $default ? '==' : '>=', 1 );
@@ -576,14 +571,16 @@ trait DB
 	{
 		$iface = \Aimeos\Base\Criteria\Attribute\Iface::class;
 		$name = $prefix . '.id';
+        if (isset( $attributes[$prefix] ) && $attributes[$prefix] instanceof $iface) {
+            return $attributes[$prefix]->getInternalDeps();
+        }
+        if (isset( $attributes[$name] ) && $attributes[$name] instanceof $iface) {
+            return $attributes[$name]->getInternalDeps();
+        }
 
-		if( isset( $attributes[$prefix] ) && $attributes[$prefix] instanceof $iface ) {
-			return $attributes[$prefix]->getInternalDeps();
-		} elseif( isset( $attributes[$name] ) && $attributes[$name] instanceof $iface ) {
-			return $attributes[$name]->getInternalDeps();
-		} elseif( isset( $attributes['id'] ) && $attributes['id'] instanceof $iface ) {
-			return $attributes['id']->getInternalDeps();
-		}
+		if (isset( $attributes['id'] ) && $attributes['id'] instanceof $iface) {
+            return $attributes['id']->getInternalDeps();
+        }
 
 		return [];
 	}
@@ -685,7 +682,7 @@ trait DB
 		$level = \Aimeos\Base\Logger\Iface::DEBUG;
 		$time = ( microtime( true ) - $time ) * 1000;
 		$msg = 'Time: ' . $time . "ms\n"
-			. 'Class: ' . get_class( $this ) . "\n"
+			. 'Class: ' . $this::class . "\n"
 			. str_replace( ["\t", "\n\n"], ['', "\n"], trim( (string) $stmt ) );
 
 		if( $time > 1000.0 )
@@ -740,7 +737,7 @@ trait DB
 	 * @param array $replace Associative list of keys with strings to replace by their values
 	 * @return array|string ANSI or database specific SQL statement
 	 */
-	protected function getSqlConfig( string $sql, array $replace = [] )
+	protected function getSqlConfig( string $sql, array $replace = [] ): string|array
 	{
 		if( preg_match( '#^[a-z0-9\-]+(/[a-z0-9\-]+)*$#', $sql ) === 1 )
 		{
@@ -806,11 +803,13 @@ trait DB
 		$cols = $group = [];
 		foreach( $attronly as $name => $entry )
 		{
-			if( str_contains( $name, ':' ) || empty( $entry->getInternalCode() ) ) {
-				continue;
-			}
-
-			$icode = $entry->getInternalCode();
+			if (str_contains( $name, ':' )) {
+                continue;
+            }
+            if (empty( $entry->getInternalCode() )) {
+                continue;
+            }
+            $icode = $entry->getInternalCode();
 
 			if( !str_contains( $icode, '"' ) )
 			{
@@ -1220,7 +1219,7 @@ trait DB
 
 		foreach( $this->getCriteriaNames( $expr ) as $item )
 		{
-			if( strncmp( $item, 'sort:', 5 ) === 0 ) {
+			if( str_starts_with($item, 'sort:') ) {
 				$item = substr( $item, 5 );
 			}
 
@@ -1244,7 +1243,7 @@ trait DB
 	private function getCriteriaNames( \Aimeos\Base\Criteria\Expression\Iface $expr ) : array
 	{
 		if( $expr instanceof \Aimeos\Base\Criteria\Expression\Compare\Iface ) {
-			return array( $expr->getName() );
+			return [ $expr->getName() ];
 		}
 
 		if( $expr instanceof \Aimeos\Base\Criteria\Expression\Combine\Iface )
@@ -1257,7 +1256,7 @@ trait DB
 		}
 
 		if( $expr instanceof \Aimeos\Base\Criteria\Expression\Sort\Iface ) {
-			return array( $expr->getName() );
+			return [ $expr->getName() ];
 		}
 
 		return [];

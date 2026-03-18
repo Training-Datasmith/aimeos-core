@@ -27,23 +27,23 @@ class FreeProduct
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'productcode' => array(
+	private array $beConfig = [
+		'productcode' => [
 			'code' => 'productcode',
 			'internalcode' => 'productcode',
 			'label' => 'SKU of the free product',
 			'default' => '',
 			'required' => true,
-		),
-		'count' => array(
+		],
+		'count' => [
 			'code' => 'count',
 			'internalcode' => 'count',
 			'label' => 'Number of times the product is available for free',
 			'type' => 'int',
 			'default' => 1,
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**

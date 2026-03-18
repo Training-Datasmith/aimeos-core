@@ -26,24 +26,24 @@ class Weight
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'weight.min' => array(
+	private array $beConfig = [
+		'weight.min' => [
 			'code' => 'weight.min',
 			'internalcode' => 'weight.min',
 			'label' => 'Minimum weight of the package',
 			'type' => 'number',
 			'default' => '',
 			'required' => false,
-		),
-		'weight.max' => array(
+		],
+		'weight.max' => [
 			'code' => 'weight.max',
 			'internalcode' => 'weight.max',
 			'label' => 'Maximum weight of the package',
 			'type' => 'number',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -56,9 +56,8 @@ class Weight
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -100,8 +99,8 @@ class Weight
 	 */
 	protected function checkWeightScale( float $basketWeight ) : bool
 	{
-		$min = $this->getConfigValue( array( 'weight.min' ) );
-		$max = $this->getConfigValue( array( 'weight.max' ) );
+		$min = $this->getConfigValue( [ 'weight.min' ] );
+		$max = $this->getConfigValue( [ 'weight.max' ] );
 
 		if( $min !== null && ( (float) $min ) > $basketWeight ) {
 			return false;

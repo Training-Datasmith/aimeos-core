@@ -15,7 +15,7 @@ namespace Aimeos\MShop;
  *
  * @package MShop
  */
-class Context implements \Aimeos\MShop\ContextIface
+class Context implements \Aimeos\MShop\ContextIface, \Stringable
 {
 	private ?\Aimeos\Base\Cache\Iface $cache = null;
 	private ?\Aimeos\Base\Config\Iface $config = null;
@@ -34,8 +34,8 @@ class Context implements \Aimeos\MShop\ContextIface
 	private ?string $token = null;
 	private string $editor = '';
 	private array $i18n = [];
-	private $groups = null;
-	private $user = null;
+	private $groups;
+	private $user;
 
 
 	/**
@@ -89,10 +89,10 @@ class Context implements \Aimeos\MShop\ContextIface
 	 */
 	public function __sleep() : array
 	{
-		$objects = array(
+		$objects = [
 			$this->cache, $this->config, $this->db, $this->fs, $this->locale, $this->logger,
 			$this->mail, $this->queue, $this->password, $this->process, $this->session, $this->view
-		);
+		];
 
 		foreach( $objects as $object )
 		{
@@ -112,11 +112,11 @@ class Context implements \Aimeos\MShop\ContextIface
 	 */
 	public function __toString() : string
 	{
-		$objects = array(
+		$objects = [
 			$this, $this->cache, $this->config, $this->db, $this->fs, $this->locale,
 			$this->logger, $this->mail, $this->queue, $this->password, $this->process,
 			$this->session, $this->view
-		);
+		];
 
 		return md5( $this->hash( $objects ) );
 	}
@@ -232,7 +232,7 @@ class Context implements \Aimeos\MShop\ContextIface
 	{
 		$regex = '/^[0-9]{4}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/';
 
-		if( preg_match( $regex, (string) $datetime ) !== 1 ) {
+		if( preg_match( $regex, $datetime ) !== 1 ) {
 			throw new \Aimeos\MShop\Exception( sprintf( 'Invalid characters in date "%1$s". ISO format "YYYY-MM-DD hh:mm:ss" expected.', $datetime ) );
 		}
 

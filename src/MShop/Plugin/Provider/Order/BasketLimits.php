@@ -34,8 +34,8 @@ class BasketLimits
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'min-value' => array(
+	private array $beConfig = [
+		'min-value' => [
 			'code' => 'min-value',
 			'internalcode' => 'min-value',
 			'label' => 'Minimum basket value',
@@ -43,8 +43,8 @@ class BasketLimits
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'max-value' => array(
+		],
+		'max-value' => [
 			'code' => 'max-value',
 			'internalcode' => 'max-value',
 			'label' => 'Maximum basket value',
@@ -52,24 +52,24 @@ class BasketLimits
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'min-products' => array(
+		],
+		'min-products' => [
 			'code' => 'min-products',
 			'internalcode' => 'min-products',
 			'label' => 'Minimum total products',
 			'type' => 'int',
 			'default' => '1',
 			'required' => false,
-		),
-		'max-products' => array(
+		],
+		'max-products' => [
 			'code' => 'max-products',
 			'internalcode' => 'max-products',
 			'label' => 'Maximum total products',
 			'type' => 'int',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

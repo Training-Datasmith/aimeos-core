@@ -21,9 +21,6 @@ namespace Aimeos\MShop\Catalog\Manager;
 abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 {
 	use \Aimeos\MShop\Common\Manager\ListsRef\Traits;
-
-
-	private array $searchConfig;
 	private array $treeManagers = [];
 
 
@@ -32,11 +29,9 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 	 *
 	 * @param \Aimeos\MShop\ContextIface $context Context object
 	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, array $searchConfig )
+	public function __construct( \Aimeos\MShop\ContextIface $context, private array $searchConfig )
 	{
 		parent::__construct( $context );
-
-		$this->searchConfig = $searchConfig;
 	}
 
 
@@ -118,7 +113,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 	protected function createTree( \Aimeos\MW\Tree\Node\Iface $node, \Aimeos\MShop\Catalog\Item\Iface $item,
 			array $listItemMap, array $refItemMap )
 	{
-		foreach( $node->getChildren() as $idx => $child )
+		foreach( $node->getChildren() as $child )
 		{
 			$listItems = [];
 			if( array_key_exists( $child->getId(), $listItemMap ) ) {
@@ -150,14 +145,14 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 
 
 			$colstring = '';
-			foreach( $this->object()->getSaveAttributes() as $name => $entry ) {
+			foreach( $this->object()->getSaveAttributes() as $entry ) {
 				$colstring .= $entry->getInternalCode() . ', ';
 			}
 
-			$treeConfig = array(
+			$treeConfig = [
 				'search' => $this->searchConfig,
 				'dbname' => $this->getResourceName(),
-				'sql' => array(
+				'sql' => [
 
 					/** mshop/catalog/manager/delete/mysql
 					 * Deletes the items matched by the given IDs from the database
@@ -537,8 +532,8 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 					 * @see mshop/catalog/manager/update-usage/ansi
 					 */
 					'newid' => $this->getSqlConfig( 'mshop/catalog/manager/newid' ),
-				),
-			);
+				],
+			];
 
 			$this->treeManagers[$siteid] = \Aimeos\MW\Tree\Factory::create( 'DBNestedSet', $treeConfig, $conn );
 		}

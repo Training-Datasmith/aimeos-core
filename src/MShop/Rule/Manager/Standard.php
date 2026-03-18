@@ -71,7 +71,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['rule.siteid'] = $values['rule.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['rule.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Rule\Item\Standard( 'rule.', $values );
 	}
 

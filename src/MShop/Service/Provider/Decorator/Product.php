@@ -26,22 +26,22 @@ class Product
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'product.include' => array(
+	private array $beConfig = [
+		'product.include' => [
 			'code' => 'product.include',
 			'internalcode' => 'product.include',
 			'label' => 'Codes of allowed products for the service item',
 			'default' => '',
 			'required' => false,
-		),
-		'product.exclude' => array(
+		],
+		'product.exclude' => [
 			'code' => 'product.exclude',
 			'internalcode' => 'product.exclude',
 			'label' => 'Codes of the products not allowed for the service item',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -54,9 +54,8 @@ class Product
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -101,7 +100,7 @@ class Product
 	 */
 	protected function checkProducts( array $prodcodes, string $key ) : ?bool
 	{
-		if( ( $codes = $this->getConfigValue( array( $key ) ) ) == null ) {
+		if( ( $codes = $this->getConfigValue( [ $key ] ) ) == null ) {
 			return null;
 		}
 

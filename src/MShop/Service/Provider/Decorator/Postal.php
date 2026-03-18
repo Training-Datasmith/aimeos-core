@@ -27,36 +27,36 @@ class Postal
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'postal.billing-include' => array(
+	private array $beConfig = [
+		'postal.billing-include' => [
 			'code' => 'postal.billing-include',
 			'internalcode' => 'postal.billing-include',
 			'label' => 'List of postal codes allowed for the billing address',
 			'default' => '',
 			'required' => false,
-		),
-		'postal.billing-exclude' => array(
+		],
+		'postal.billing-exclude' => [
 			'code' => 'postal.billing-exclude',
 			'internalcode' => 'postal.billing-exclude',
 			'label' => 'List of postal codes not allowed for the billing address',
 			'default' => '',
 			'required' => false,
-		),
-		'postal.delivery-include' => array(
+		],
+		'postal.delivery-include' => [
 			'code' => 'postal.delivery-include',
 			'internalcode' => 'postal.delivery-include',
 			'label' => 'List of postal codes allowed for the delivery address',
 			'default' => '',
 			'required' => false,
-		),
-		'postal.delivery-exclude' => array(
+		],
+		'postal.delivery-exclude' => [
 			'code' => 'postal.delivery-exclude',
 			'internalcode' => 'postal.delivery-exclude',
 			'label' => 'List of postal codes not allowed for the delivery address',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -69,9 +69,8 @@ class Postal
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

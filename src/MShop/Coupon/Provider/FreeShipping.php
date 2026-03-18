@@ -22,15 +22,15 @@ class FreeShipping
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'freeshipping.productcode' => array(
+	private array $beConfig = [
+		'freeshipping.productcode' => [
 			'code' => 'freeshipping.productcode',
 			'internalcode' => 'freeshipping.productcode',
 			'label' => 'Product code of the free shipping product',
 			'default' => '',
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**

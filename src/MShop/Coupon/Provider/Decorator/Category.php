@@ -21,23 +21,23 @@ class Category
 	extends \Aimeos\MShop\Coupon\Provider\Decorator\Base
 	implements \Aimeos\MShop\Coupon\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'category.code' => array(
+	private array $beConfig = [
+		'category.code' => [
 			'code' => 'category.code',
 			'internalcode' => 'category.code',
 			'label' => 'Comma separated category codes',
 			'default' => '',
 			'required' => true,
-		),
-		'category.only' => array(
+		],
+		'category.only' => [
 			'code' => 'category.only',
 			'internalcode' => 'category.only',
 			'label' => 'Rebate is applied only to products of that category',
 			'type' => 'bool',
 			'default' => false,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

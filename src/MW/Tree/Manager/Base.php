@@ -135,7 +135,7 @@ abstract class Base implements \Aimeos\MW\Tree\Manager\Iface
 	 */
 	protected function setReadOnly( bool $flag = true ) : Iface
 	{
-		$this->readOnly = (bool) $flag;
+		$this->readOnly = $flag;
 		return $this;
 	}
 }

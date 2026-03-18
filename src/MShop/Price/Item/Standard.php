@@ -56,7 +56,6 @@ class Standard extends Base
 	 */
 	public function __clone()
 	{
-		parent::__clone();
 		$this->__cloneList();
 		$this->__cloneProperty();
 	}
@@ -445,7 +444,7 @@ class Standard extends Base
 	 *
 	 * @return \Aimeos\MShop\Price\Item\Iface Price item for chaining method calls
 	 */
-	public function clear()
+	public function clear(): \Aimeos\MShop\Common\Item\Iface
 	{
 		$this->setQuantity( 1 );
 		$this->setValue( '0.00' );

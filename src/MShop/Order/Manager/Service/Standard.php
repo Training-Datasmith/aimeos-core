@@ -168,8 +168,8 @@ class Standard
 	{
 		$context = $this->context();
 
-		$values['.price'] = $values['.price'] ?? \Aimeos\MShop::create( $context, 'price' )->create();
-		$values['order.service.siteid'] = $values['order.service.siteid'] ?? $context->locale()->getSiteId();
+		$values['.price'] ??= \Aimeos\MShop::create( $context, 'price' )->create();
+		$values['order.service.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Order\Item\Service\Standard( 'order.service.', $values );
 	}
@@ -413,10 +413,13 @@ class Standard
 	 * @param \Aimeos\MShop\Common\Item\Iface $item Item object
 	 * @return bool True if the item is modified, false if not
 	 */
-	protected function isModified( \Aimeos\MShop\Common\Item\Iface $item ) : bool
-	{
-		return $item->isModified() || $item->getPrice()->isModified();
-	}
+	protected function isModified(\Aimeos\MShop\Common\Item\Iface $item): bool
+    {
+        if ($item->isModified()) {
+            return true;
+        }
+        return (bool) $item->getPrice()->isModified();
+    }
 
 
 	/**
@@ -475,7 +478,7 @@ class Standard
 	{
 		$list = $item->getTransactions();
 
-		foreach( $list as $key => $txItem )
+		foreach( $list as $txItem )
 		{
 			if( $txItem->getParentId() != $item->getId() ) {
 				$txItem->setId( null ); // create new property item if copied

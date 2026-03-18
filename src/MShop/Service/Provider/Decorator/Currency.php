@@ -26,22 +26,22 @@ class Currency
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'currency.include' => array(
+	private array $beConfig = [
+		'currency.include' => [
 			'code' => 'currency.include',
 			'internalcode' => 'currency.include',
 			'label' => 'List of currencies allowed for the service item',
 			'default' => '',
 			'required' => false,
-		),
-		'currency.exclude' => array(
+		],
+		'currency.exclude' => [
 			'code' => 'currency.exclude',
 			'internalcode' => 'currency.exclude',
 			'label' => 'List of currencies not allowed for the service item',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -54,9 +54,8 @@ class Currency
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -103,7 +102,7 @@ class Currency
 	 */
 	protected function checkCurrencyCode( string $code, string $key ) : ?bool
 	{
-		if( ( $str = $this->getConfigValue( array( $key ) ) ) === null ) {
+		if( ( $str = $this->getConfigValue( [ $key ] ) ) === null ) {
 			return null;
 		}
 

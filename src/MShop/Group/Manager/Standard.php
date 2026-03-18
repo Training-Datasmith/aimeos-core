@@ -41,7 +41,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['group.siteid'] = $values['group.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['group.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Group\Item\Standard( 'group.', $values );
 	}
 

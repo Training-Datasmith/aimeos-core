@@ -22,16 +22,16 @@ class Costs
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'costs.percent' => array(
+	private array $beConfig = [
+		'costs.percent' => [
 			'code' => 'costs.percent',
 			'internalcode' => 'costs.percent',
 			'label' => 'Costs: Decimal percent value',
 			'type' => 'number',
 			'default' => 0,
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -44,9 +44,8 @@ class Costs
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

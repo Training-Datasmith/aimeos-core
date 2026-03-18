@@ -52,7 +52,7 @@ class ProductFreeOptions
 	 * @param mixed $value Object or value changed in publisher
 	 * @return mixed Modified value parameter
 	 */
-	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null )
+	public function update( \Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null ): \Aimeos\MShop\Order\Item\Product\Iface|array
 	{
 		if( is_array( $value ) )
 		{
@@ -89,7 +89,7 @@ class ProductFreeOptions
 
 			if( !$prices->isEmpty() )
 			{
-				$qty = ( isset( $quantities[$attrId] ) ? $quantities[$attrId] : 0 );
+				$qty = ( $quantities[$attrId] ?? 0 );
 
 				$quantity = ( $qty >= $free ? $qty - $free : 0 );
 				$free = ( $free >= $qty ? $free - $qty : 0 );
@@ -139,7 +139,7 @@ class ProductFreeOptions
 	{
 		$priceManager = \Aimeos\MShop::create( $this->context(), 'price' );
 
-		$sortFcn = function( $a, $b ) use( $priceManager, $attrQtys )
+		$sortFcn = function( $a, $b ) use( $priceManager, $attrQtys ): int
 		{
 			if( ( $pricesA = $a->getRefItems( 'price', 'default', 'default' )->toArray() ) === [] ) {
 				return 1;
@@ -149,17 +149,18 @@ class ProductFreeOptions
 				return -1;
 			}
 
-			$qty = ( isset( $attrQtys[$a->getId()] ) ? $attrQtys[$a->getId()] : 0 );
+			$qty = ( $attrQtys[$a->getId()] ?? 0 );
 			$p1 = $priceManager->getLowestPrice( $pricesA, $qty );
 
-			$qty = ( isset( $attrQtys[$b->getId()] ) ? $attrQtys[$b->getId()] : 0 );
+			$qty = ( $attrQtys[$b->getId()] ?? 0 );
 			$p2 = $priceManager->getLowestPrice( $pricesB, $qty );
+            if ($p1->getValue() < $p2->getValue()) {
+                return -1;
+            }
 
-			if( $p1->getValue() < $p2->getValue() ) {
-				return -1;
-			} elseif( $p1->getValue() > $p2->getValue() ) {
-				return 1;
-			}
+			if ($p1->getValue() > $p2->getValue()) {
+                return 1;
+            }
 
 			return 0;
 		};

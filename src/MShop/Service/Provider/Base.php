@@ -22,10 +22,7 @@ abstract class Base
 	implements Iface, \Aimeos\Macro\Iface
 {
 	use \Aimeos\Macro\Macroable;
-
-	private \Aimeos\MShop\ContextIface $context;
-	private \Aimeos\MShop\Service\Item\Iface $serviceItem;
-	private ?\Aimeos\MShop\Service\Provider\Iface $object;
+	private ?\Aimeos\MShop\Service\Provider\Iface $object = null;
 	private array $beGlobalConfig;
 
 
@@ -35,11 +32,9 @@ abstract class Base
 	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
 	 * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
 	 */
-	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Service\Item\Iface $serviceItem )
-	{
-		$this->context = $context;
-		$this->serviceItem = $serviceItem;
-	}
+	public function __construct(private \Aimeos\MShop\ContextIface $context, private \Aimeos\MShop\Service\Item\Iface $serviceItem)
+    {
+    }
 
 
 	/**
@@ -338,7 +333,7 @@ abstract class Base
 			$amount += $tmp->getTaxValue();
 		}
 
-		return number_format( $amount, $precision !== null ? $precision : $price->getPrecision(), '.', '' );
+		return number_format( $amount, $precision ?? $price->getPrecision(), '.', '' );
 	}
 
 
@@ -356,9 +351,7 @@ abstract class Base
 	{
 		$msg = $this->context->translate( 'mshop', 'Service not available' );
 
-		return map( $basket->getService( $type ) )->find( function( $service ) use ( $code ) {
-				return $service->getCode() === $code;
-		}, new \Aimeos\MShop\Service\Exception( $msg ) );
+		return map( $basket->getService( $type ) )->find( fn($service) => $service->getCode() === $code, new \Aimeos\MShop\Service\Exception( $msg ) );
 	}
 
 
@@ -373,7 +366,7 @@ abstract class Base
 
 		foreach( $configList as $key => $config )
 		{
-			$config['code'] = $config['code'] ?? $key;
+			$config['code'] ??= $key;
 			$list[$key] = new \Aimeos\Base\Criteria\Attribute\Standard( $config );
 		}
 
@@ -418,7 +411,7 @@ abstract class Base
 	 */
 	protected function log( $msg, int $level = \Aimeos\Base\Logger\Iface::ERR ) : self
 	{
-		$facility = basename( str_replace( '\\', '/', get_class( $this ) ) );
+		$facility = basename( str_replace( '\\', '/', static::class ) );
 		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 2 );
 		$trace = array_pop( $trace ) ?: [];
 		$name = ( $trace['class'] ?? '' ) . '::' . ( $trace['function'] ?? '' );

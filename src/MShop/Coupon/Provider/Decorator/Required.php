@@ -22,23 +22,23 @@ class Required
 	extends \Aimeos\MShop\Coupon\Provider\Decorator\Base
 	implements \Aimeos\MShop\Coupon\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'required.productcode' => array(
+	private array $beConfig = [
+		'required.productcode' => [
 			'code' => 'required.productcode',
 			'internalcode' => 'required.productcode',
 			'label' => 'Code of the product that must be in the basket',
 			'default' => '',
 			'required' => true,
-		),
-		'required.only' => array(
+		],
+		'required.only' => [
 			'code' => 'required.only',
 			'internalcode' => 'required.only',
 			'label' => 'Rebate is applied only to products',
 			'type' => 'bool',
 			'default' => false,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

@@ -60,7 +60,7 @@ trait Session
 
 			\Aimeos\MShop::create( $context, 'plugin' )->register( $order, 'order' );
 		}
-		catch( \Exception $e )
+		catch( \Exception )
 		{
 			return $this->object()->create();
 		}

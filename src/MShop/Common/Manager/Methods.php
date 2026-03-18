@@ -30,7 +30,7 @@ trait Methods
 	 * @param string $iface Interface name of the item to apply the filter to
 	 * @param \Closure $fcn Anonymous function receiving the item to check as first parameter
 	 */
-	public function addFilter( string $iface, \Closure $fcn )
+	public function addFilter( string $iface, \Closure $fcn ): void
 	{
 		if( !isset( $this->filterFcn[$iface] ) ) {
 			$this->filterFcn[$iface] = [];
@@ -47,7 +47,7 @@ trait Methods
 	 */
 	public function classes() : array
 	{
-		return [get_class( $this )];
+		return [$this::class];
 	}
 
 
@@ -273,7 +273,7 @@ trait Methods
 	{
 		if( !isset( $this->type ) )
 		{
-			$parts = array_slice( explode( '\\', strtolower( get_class( $this ) ) ), 2, -1 );
+			$parts = array_slice( explode( '\\', strtolower( $this::class ) ), 2, -1 );
 			unset( $parts[1] );
 			$this->type = array_values( $parts );
 		}
@@ -352,8 +352,8 @@ trait Methods
 
 		foreach( $list as $key => $fields )
 		{
-			$fields['code'] = $fields['code'] ?? $key;
-			$fields['internalcode'] = $fields['internalcode'] ?? $key;
+			$fields['code'] ??= $key;
+			$fields['internalcode'] ??= $key;
 			$attr[$key] = new \Aimeos\Base\Criteria\Attribute\Standard( $fields );
 		}
 
@@ -371,7 +371,7 @@ trait Methods
 	{
 		$list = [];
 
-		foreach( $attributes as $key => $item ) {
+		foreach( $attributes as $item ) {
 			$list[$item->getCode()] = $item->getFunction();
 		}
 
@@ -389,7 +389,7 @@ trait Methods
 	{
 		$list = [];
 
-		foreach( $attributes as $key => $item ) {
+		foreach( $attributes as $item ) {
 			$list[$item->getCode()] = $item->getInternalCode();
 		}
 
@@ -407,7 +407,7 @@ trait Methods
 	{
 		$list = [];
 
-		foreach( $attributes as $key => $item ) {
+		foreach( $attributes as $item ) {
 			$list[$item->getCode()] = $item->getInternalType();
 		}
 

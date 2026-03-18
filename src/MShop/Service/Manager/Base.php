@@ -103,14 +103,13 @@ abstract class Base
 
 
 	/**
-	 * Wraps the named service decorators around the service provider.
-	 *
-	 * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item object
-	 * @param \Aimeos\MShop\Service\Provider\Iface $provider Service provider object
-	 * @param array $names List of decorator names that should be wrapped around the provider object
-	 * @return \Aimeos\MShop\Service\Provider\Iface
-	 */
-	protected function addServiceDecorators( \Aimeos\MShop\Service\Item\Iface $serviceItem,
+     * Wraps the named service decorators around the service provider.
+     *
+     * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item object
+     * @param \Aimeos\MShop\Service\Provider\Iface $provider Service provider object
+     * @param array $names List of decorator names that should be wrapped around the provider object
+     */
+    protected function addServiceDecorators( \Aimeos\MShop\Service\Item\Iface $serviceItem,
 		\Aimeos\MShop\Service\Provider\Iface $provider, array $names ) : \Aimeos\MShop\Service\Provider\Iface
 	{
 		$context = $this->context();

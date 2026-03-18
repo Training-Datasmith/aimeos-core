@@ -29,7 +29,7 @@ class Factory
 	 * @return \Aimeos\MW\Tree\Manager\Iface Tree manager object of the requested type
 	 * @throws \LogicException If class isn't found
 	 */
-	public static function create( string $name, array $config, $resource )
+	public static function create( string $name, array $config, $resource ): object
 	{
 		if( ctype_alnum( $name ) === false ) {
 			throw new \LogicException( sprintf( 'Invalid characters in class name "%1$s"', $name ), 400 );

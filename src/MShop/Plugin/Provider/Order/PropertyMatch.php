@@ -34,8 +34,8 @@ class PropertyMatch
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'values' => array(
+	private array $beConfig = [
+		'values' => [
 			'code' => 'values',
 			'internalcode' => 'values',
 			'label' => 'Property type/value map',
@@ -43,8 +43,8 @@ class PropertyMatch
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -110,7 +110,7 @@ class PropertyMatch
 
 		if( $this->getProductItems( $list->getProductId()->unique(), $map )->count() !== count( $list ) )
 		{
-			$code = array( 'product' => $map );
+			$code = [ 'product' => $map ];
 			$msg = $this->context()->translate( 'mshop', 'Product matching given properties not found' );
 			throw new \Aimeos\MShop\Plugin\Provider\Exception( $msg, -1, null, $code );
 		}

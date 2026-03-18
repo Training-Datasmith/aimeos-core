@@ -24,125 +24,125 @@ class PayPalExpress
 {
 	private string $apiendpoint;
 
-	private array $beConfig = array(
-		'paypalexpress.ApiUsername' => array(
+	private array $beConfig = [
+		'paypalexpress.ApiUsername' => [
 			'code' => 'paypalexpress.ApiUsername',
 			'internalcode' => 'paypalexpress.ApiUsername',
 			'label' => 'NVP API Username',
 			'default' => '',
 			'required' => true,
-		),
-		'paypalexpress.AccountEmail' => array(
+		],
+		'paypalexpress.AccountEmail' => [
 			'code' => 'paypalexpress.AccountEmail',
 			'internalcode' => 'paypalexpress.AccountEmail',
 			'label' => 'Registered e-mail address of the shop owner in PayPal',
 			'default' => '',
 			'required' => true,
-		),
-		'paypalexpress.ApiPassword' => array(
+		],
+		'paypalexpress.ApiPassword' => [
 			'code' => 'paypalexpress.ApiPassword',
 			'internalcode' => 'paypalexpress.ApiPassword',
 			'label' => 'NVP API Password',
 			'default' => '',
 			'required' => true,
-		),
-		'paypalexpress.ApiSignature' => array(
+		],
+		'paypalexpress.ApiSignature' => [
 			'code' => 'paypalexpress.ApiSignature',
 			'internalcode' => 'paypalexpress.ApiSignature',
 			'label' => 'NVP API Signature',
 			'default' => '',
 			'required' => true,
-		),
-		'paypalexpress.ApiEndpoint' => array(
+		],
+		'paypalexpress.ApiEndpoint' => [
 			'code' => 'paypalexpress.ApiEndpoint',
 			'internalcode' => 'paypalexpress.ApiEndpoint',
 			'label' => 'NVP API API Endpoint',
 			'default' => 'https://api-3t.paypal.com/nvp',
 			'required' => true,
-		),
-		'paypalexpress.PaypalUrl' => array(
+		],
+		'paypalexpress.PaypalUrl' => [
 			'code' => 'paypalexpress.PaypalUrl',
 			'internalcode' => 'paypalexpress.PaypalUrl',
 			'label' => 'NVP Express Checkout Url',
 			'default' => 'https://www.paypal.com/webscr&cmd=_express-checkout&useraction=commit&token=%1$s',
 			'required' => true,
-		),
-		'paypalexpress.url-validate' => array(
+		],
+		'paypalexpress.url-validate' => [
 			'code' => 'paypalexpress.url-validate',
 			'internalcode' => 'paypalexpress.url-validate',
 			'label' => 'NVP Validation URL',
 			'default' => 'https://www.paypal.com/webscr&cmd=_notify-validate',
 			'required' => true,
-		),
-		'paypalexpress.PaymentAction' => array(
+		],
+		'paypalexpress.PaymentAction' => [
 			'code' => 'paypalexpress.PaymentAction',
 			'internalcode' => 'paypalexpress.PaymentAction',
 			'label' => 'How to obtain the payment: "Sale" (final sale), "Authorization" (basic authoriziation and capture) or "Order" (order authoriziation and capture)',
 			'default' => 'Sale',
 			'required' => true,
-		),
-		'paypalexpress.LandingPage' => array(
+		],
+		'paypalexpress.LandingPage' => [
 			'code' => 'paypalexpress.LandingPage',
 			'internalcode' => 'paypalexpress.LandingPage',
 			'label' => 'Type of displayed PayPal page: "Login" (PayPal login) or "Billing" (Non-PayPal account)',
 			'default' => 'Login',
 			'required' => false,
-		),
-		'paypalexpress.FundingSource' => array(
+		],
+		'paypalexpress.FundingSource' => [
 			'code' => 'paypalexpress.FundingSource',
 			'internalcode' => 'paypalexpress.FundingSource',
 			'label' => 'Preferred payment option: "CreditCard", "ELV", "ChinaUnionPay" or "QIWI" ("paypalexpress.LandingPage" must be set to "Billing")',
 			'default' => 'CreditCard',
 			'required' => false,
-		),
-		'paypalexpress.LocaleCode' => array(
+		],
+		'paypalexpress.LocaleCode' => [
 			'code' => 'paypalexpress.LocaleCode',
 			'internalcode' => 'paypalexpress.LocaleCode',
 			'label' => 'ISO language code used at the PayPal page',
 			'default' => '',
 			'required' => false,
-		),
-		'paypalexpress.AddrOverride' => array(
+		],
+		'paypalexpress.AddrOverride' => [
 			'code' => 'paypalexpress.AddrOverride',
 			'internalcode' => 'paypalexpress.AddrOverride',
 			'label' => 'Customer can change address',
 			'type' => 'bool',
 			'default' => 0,
 			'required' => false,
-		),
-		'paypalexpress.NoShipping' => array(
+		],
+		'paypalexpress.NoShipping' => [
 			'code' => 'paypalexpress.NoShipping',
 			'internalcode' => 'paypalexpress.NoShipping',
 			'label' => 'Don\'t display shipping address',
 			'type' => 'bool',
 			'default' => 1,
 			'required' => false,
-		),
-		'paypalexpress.address' => array(
+		],
+		'paypalexpress.address' => [
 			'code' => 'paypalexpress.address',
 			'internalcode' => 'paypalexpress.address',
 			'label' => 'Pass customer address to PayPal',
 			'type' => 'bool',
 			'default' => 1,
 			'required' => false,
-		),
-		'paypalexpress.product' => array(
+		],
+		'paypalexpress.product' => [
 			'code' => 'paypalexpress.product',
 			'internalcode' => 'paypalexpress.product',
 			'label' => 'Pass product details to PayPal',
 			'type' => 'bool',
 			'default' => 1,
 			'required' => false,
-		),
-		'paypalexpress.service' => array(
+		],
+		'paypalexpress.service' => [
 			'code' => 'paypalexpress.service',
 			'internalcode' => 'paypalexpress.service',
 			'label' => 'Pass delivery/payment details to PayPal',
 			'type' => 'bool',
 			'default' => 1,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -157,7 +157,7 @@ class PayPalExpress
 		parent::__construct( $context, $serviceItem );
 
 		$default = 'https://api-3t.paypal.com/nvp';
-		$this->apiendpoint = $this->getConfigValue( array( 'paypalexpress.ApiEndpoint' ), $default );
+		$this->apiendpoint = $this->getConfigValue( [ 'paypalexpress.ApiEndpoint' ], $default );
 	}
 
 
@@ -202,17 +202,17 @@ class PayPalExpress
 		$values = $this->getOrderDetails( $order );
 		$values['METHOD'] = 'SetExpressCheckout';
 		$values['PAYMENTREQUEST_0_INVNUM'] = $order->getId();
-		$values['RETURNURL'] = $this->getConfigValue( array( 'payment.url-success' ) );
-		$values['CANCELURL'] = $this->getConfigValue( array( 'payment.url-cancel', 'payment.url-success' ) );
-		$values['USERSELECTEDFUNDINGSOURCE'] = $this->getConfigValue( array( 'paypalexpress.FundingSource' ), 'CreditCard' );
-		$values['LANDINGPAGE'] = $this->getConfigValue( array( 'paypalexpress.LandingPage' ), 'Login' );
+		$values['RETURNURL'] = $this->getConfigValue( [ 'payment.url-success' ] );
+		$values['CANCELURL'] = $this->getConfigValue( [ 'payment.url-cancel', 'payment.url-success' ] );
+		$values['USERSELECTEDFUNDINGSOURCE'] = $this->getConfigValue( [ 'paypalexpress.FundingSource' ], 'CreditCard' );
+		$values['LANDINGPAGE'] = $this->getConfigValue( [ 'paypalexpress.LandingPage' ], 'Login' );
 
 		$urlQuery = http_build_query( $values, '', '&' );
 		$response = $this->send( $this->apiendpoint, 'POST', $urlQuery );
 		$rvals = $this->checkResponse( $order->getId(), $response, __METHOD__ );
 
 		$default = 'https://www.paypal.com/webscr&cmd=_express-checkout&useraction=commit&token=%1$s';
-		$paypalUrl = sprintf( $this->getConfigValue( array( 'paypalexpress.PaypalUrl' ), $default ), $rvals['TOKEN'] );
+		$paypalUrl = sprintf( $this->getConfigValue( [ 'paypalexpress.PaypalUrl' ], $default ), $rvals['TOKEN'] );
 
 		$type = \Aimeos\MShop\Order\Item\Service\Base::TYPE_PAYMENT;
 		$serviceItem = $this->getBasketService( $order, $type, $this->getServiceItem()->getCode() );
@@ -324,7 +324,7 @@ class PayPalExpress
 		$response = $this->send( $this->apiendpoint, 'POST', $urlQuery );
 		$rvals = $this->checkResponse( $order->getId(), $response, __METHOD__ );
 
-		$attributes = array( 'REFUNDTRANSACTIONID' => $rvals['REFUNDTRANSACTIONID'] );
+		$attributes = [ 'REFUNDTRANSACTIONID' => $rvals['REFUNDTRANSACTIONID'] ];
 		$serviceItem->addAttributeItems( $this->attributes( $attributes, 'tx' ) );
 
 		return $order->setStatusPayment( \Aimeos\MShop\Order\Item\Base::PAY_REFUND );
@@ -376,7 +376,7 @@ class PayPalExpress
 		$urlQuery = http_build_query( $params, '', '&' );
 
 		//validation
-		$result = $this->send( $this->getConfigValue( array( 'paypalexpress.url-validate' ) ), 'POST', $urlQuery );
+		$result = $this->send( $this->getConfigValue( [ 'paypalexpress.url-validate' ] ), 'POST', $urlQuery );
 
 		if( $result !== 'VERIFIED' ) {
 			return $response->withStatus( 400, sprintf( 'PayPal Express: Invalid request "%1$s"', $urlQuery ) );
@@ -391,7 +391,7 @@ class PayPalExpress
 
 		$this->checkIPN( $order, $params );
 
-		$status = array( 'PAYMENTSTATUS' => $params['payment_status'] );
+		$status = [ 'PAYMENTSTATUS' => $params['payment_status'] ];
 
 		if( isset( $params['pending_reason'] ) ) {
 			$status['PENDINGREASON'] = $params['pending_reason'];
@@ -439,7 +439,7 @@ class PayPalExpress
 		$values['METHOD'] = 'DoExpressCheckoutPayment';
 		$values['TOKEN'] = $params['token'];
 		$values['PAYERID'] = $params['PayerID'];
-		$values['PAYMENTACTION'] = $this->getConfigValue( array( 'paypalexpress.PaymentAction' ), 'Sale' );
+		$values['PAYMENTACTION'] = $this->getConfigValue( [ 'paypalexpress.PaymentAction' ], 'Sale' );
 		$values['CURRENCYCODE'] = $price->getCurrencyId();
 		$values['AMT'] = $this->getAmount( $price );
 
@@ -447,7 +447,7 @@ class PayPalExpress
 		$response = $this->send( $this->apiendpoint, 'POST', $urlQuery );
 		$rvals = $this->checkResponse( $orderItem->getId(), $response, __METHOD__ );
 
-		$attributes = array( 'PAYERID' => $params['PayerID'] );
+		$attributes = [ 'PAYERID' => $params['PayerID'] ];
 
 		if( isset( $rvals['TRANSACTIONID'] ) )
 		{
@@ -467,19 +467,13 @@ class PayPalExpress
 	 * @param int $what Constant from abstract class
 	 * @return bool True if feature is available in the payment provider, false if not
 	 */
-	public function isImplemented( int $what ) : bool
-	{
-		switch( $what )
-		{
-			case \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_CAPTURE:
-			case \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_QUERY:
-			case \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_CANCEL:
-			case \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_REFUND:
-				return true;
-		}
-
-		return false;
-	}
+	public function isImplemented(int $what): bool
+    {
+        return match ($what) {
+            \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_CAPTURE, \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_QUERY, \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_CANCEL, \Aimeos\MShop\Service\Provider\Payment\Base::FEAT_REFUND => true,
+            default => false,
+        };
+    }
 
 
 	/**
@@ -503,7 +497,7 @@ class PayPalExpress
 
 			if( $rvals['ACK'] !== 'SuccessWithWarning' )
 			{
-				$short = ( isset( $rvals['L_SHORTMESSAGE0'] ) ? $rvals['L_SHORTMESSAGE0'] : '<none>' );
+				$short = ( $rvals['L_SHORTMESSAGE0'] ?? '<none>' );
 				$msg = $this->context()->translate( 'mshop', 'PayPal Express: Request for order ID "%1$s" failed with "%2$s"' );
 				throw new \Aimeos\MShop\Service\Exception( sprintf( $msg, $orderid, $short ) );
 			}
@@ -525,7 +519,7 @@ class PayPalExpress
 	{
 		$attrManager = \Aimeos\MShop::create( $this->context(), 'order/service/attribute' );
 
-		if( $this->getConfigValue( array( 'paypalexpress.AccountEmail' ) ) !== $params['receiver_email'] )
+		if( $this->getConfigValue( [ 'paypalexpress.AccountEmail' ] ) !== $params['receiver_email'] )
 		{
 			$msg = $this->context()->translate( 'mshop', 'PayPal Express: Wrong receiver email "%1$s"' );
 			throw new \Aimeos\MShop\Service\Exception( sprintf( $msg, $params['receiver_email'] ) );
@@ -540,10 +534,10 @@ class PayPalExpress
 		}
 
 		$search = $attrManager->filter();
-		$expr = array(
+		$expr = [
 			$search->compare( '==', 'order.service.attribute.code', $params['txn_id'] ),
 			$search->compare( '==', 'order.service.attribute.value', $params['payment_status'] ),
-		);
+		];
 
 		$search->setConditions( $search->and( $expr ) );
 
@@ -646,8 +640,8 @@ class PayPalExpress
 			if( $address = current( $addresses ) )
 			{
 				/* setting up the address details */
-				$values['NOSHIPPING'] = $this->getConfigValue( array( 'paypalexpress.NoShipping' ), 1 );
-				$values['ADDROVERRIDE'] = $this->getConfigValue( array( 'paypalexpress.AddrOverride' ), 0 );
+				$values['NOSHIPPING'] = $this->getConfigValue( [ 'paypalexpress.NoShipping' ], 1 );
+				$values['ADDROVERRIDE'] = $this->getConfigValue( [ 'paypalexpress.AddrOverride' ], 0 );
 				$values['PAYMENTREQUEST_0_SHIPTONAME'] = $address->getFirstName() . ' ' . $address->getLastName();
 				$values['PAYMENTREQUEST_0_SHIPTOSTREET'] = $address->getAddress1() . ' ' . $address->getAddress2() . ' ' . $address->getAddress3();
 				$values['PAYMENTREQUEST_0_SHIPTOCITY'] = $address->getCity();
@@ -710,7 +704,7 @@ class PayPalExpress
 					$lastPos++;
 				}
 			}
-			catch( \Exception $e ) { ; } // If no delivery service is available
+			catch( \Exception ) { ; } // If no delivery service is available
 		}
 
 
@@ -722,7 +716,7 @@ class PayPalExpress
 			$deliveryCosts += $this->getAmount( $priceItem, true, true, $precision );
 		}
 
-		$values['MAXAMT'] = $amount + 1 / pow( 10, $precision ); // possible rounding error
+		$values['MAXAMT'] = $amount + 1 / 10 ** $precision; // possible rounding error
 		$values['PAYMENTREQUEST_0_AMT'] = $amount;
 		$values['PAYMENTREQUEST_0_ITEMAMT'] = number_format( $amount - $deliveryCosts, $precision, '.', '' );
 		$values['PAYMENTREQUEST_0_SHIPPINGAMT'] = number_format( $deliveryCosts, $precision, '.', '' );
@@ -730,9 +724,9 @@ class PayPalExpress
 		$values['PAYMENTREQUEST_0_INSURANCEOPTIONOFFERED'] = 'false';
 		$values['PAYMENTREQUEST_0_SHIPDISCAMT'] = '0.00';
 		$values['PAYMENTREQUEST_0_CURRENCYCODE'] = $orderBase->getPrice()->getCurrencyId();
-		$values['PAYMENTREQUEST_0_PAYMENTACTION'] = $this->getConfigValue( array( 'paypalexpress.PaymentAction' ), 'sale' );
+		$values['PAYMENTREQUEST_0_PAYMENTACTION'] = $this->getConfigValue( [ 'paypalexpress.PaymentAction' ], 'sale' );
 
-		if( $localecode = $this->getConfigValue( 'paypalexpress.LocaleCode', null ) ) {
+		if( $localecode = $this->getConfigValue( 'paypalexpress.LocaleCode' ) ) {
 			$values['LOCALECODE'] = $localecode;
 		}
 
@@ -747,12 +741,12 @@ class PayPalExpress
 	 */
 	protected function getAuthParameter() : array
 	{
-		return array(
+		return [
 			'VERSION' => '204.0',
-			'SIGNATURE' => $this->getConfigValue( array( 'paypalexpress.ApiSignature' ) ),
-			'USER' => $this->getConfigValue( array( 'paypalexpress.ApiUsername' ) ),
-			'PWD' => $this->getConfigValue( array( 'paypalexpress.ApiPassword' ) ),
-		);
+			'SIGNATURE' => $this->getConfigValue( [ 'paypalexpress.ApiSignature' ] ),
+			'USER' => $this->getConfigValue( [ 'paypalexpress.ApiUsername' ] ),
+			'PWD' => $this->getConfigValue( [ 'paypalexpress.ApiPassword' ] ),
+		];
 	}
 
 

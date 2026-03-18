@@ -21,15 +21,15 @@ class Voucher
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'voucher.productcode' => array(
+	private array $beConfig = [
+		'voucher.productcode' => [
 			'code' => 'voucher.productcode',
 			'internalcode' => 'voucher.productcode',
 			'label' => 'Product code of the rebate product',
 			'default' => '',
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**

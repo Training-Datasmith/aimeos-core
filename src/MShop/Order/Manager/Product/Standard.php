@@ -256,8 +256,8 @@ class Standard
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
 		$context = $this->context();
-		$values['.price'] = $values['.price'] ?? \Aimeos\MShop::create( $context, 'price' )->create();
-		$values['order.product.siteid'] = $values['order.product.siteid'] ?? $context->locale()->getSiteId();
+		$values['.price'] ??= \Aimeos\MShop::create( $context, 'price' )->create();
+		$values['order.product.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Order\Item\Product\Standard( 'order.product.', $values );
 	}
@@ -393,7 +393,7 @@ class Standard
 	 */
 	public function save( $items, bool $fetch = true )
 	{
-		foreach( map( $items ) as $id => $item )
+		foreach( map( $items ) as $item )
 		{
 			$this->saveBase( $item, $item->getProducts()->isEmpty() ? $fetch : true );
 
@@ -537,10 +537,13 @@ class Standard
 	 * @param \Aimeos\MShop\Common\Item\Iface $item Item object
 	 * @return bool True if the item is modified, false if not
 	 */
-	protected function isModified( \Aimeos\MShop\Common\Item\Iface $item ) : bool
-	{
-		return $item->isModified() || $item->getPrice()->isModified();
-	}
+	protected function isModified(\Aimeos\MShop\Common\Item\Iface $item): bool
+    {
+        if ($item->isModified()) {
+            return true;
+        }
+        return (bool) $item->getPrice()->isModified();
+    }
 
 
 	/**

@@ -126,7 +126,7 @@ class ServicesUpdate
 	{
 		$list = map();
 
-		foreach( $services as $type => $items ) {
+		foreach( $services as $items ) {
 			$list->concat( map( $items )->getServiceId() );
 		}
 

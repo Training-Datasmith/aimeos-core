@@ -46,7 +46,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['customer.address.siteid'] = $values['customer.address.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['customer.address.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Customer\Item\Address\Standard( 'customer.address.', $values );
 	}
 
@@ -90,8 +90,8 @@ class Standard
 		$search = $this->object()->filter();
 		$search->setConditions( $search->compare( '==', $name, $items ) );
 
-		$types = array( $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR );
-		$translations = array( $name => '"' . $name . '"' );
+		$types = [ $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
+		$translations = [ $name => '"' . $name . '"' ];
 
 		$cond = $search->getConditionSource( $types, $translations );
 		$sql = str_replace( ':cond', $cond, $this->getSqlConfig( $cfgpath ) );
@@ -169,7 +169,7 @@ class Standard
 		$values = $item->toArray( true );
 		$stmt = $this->getCachedStatement( $conn, $path, $sql );
 
-		foreach( $this->object()->getSaveAttributes() as $name => $entry )
+		foreach( $this->object()->getSaveAttributes() as $entry )
 		{
 			$value = $values[$entry->getCode()] ?? null;
 			$value = $entry->getType() === 'json' ? json_encode( $value, JSON_FORCE_OBJECT ) : $value;

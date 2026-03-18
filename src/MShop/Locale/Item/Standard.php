@@ -24,10 +24,6 @@ class Standard
 	extends \Aimeos\MShop\Common\Item\Base
 	implements \Aimeos\MShop\Locale\Item\Iface
 {
-	private ?\Aimeos\MShop\Locale\Item\Site\Iface $siteItem;
-	private array $sites;
-
-
 	/**
 	 * Initializes the object with the locale values.
 	 *
@@ -36,12 +32,9 @@ class Standard
 	 * @param string[] $sitePath List of site IDs up to the root site item
 	 * @param string[]|string Site ID prefix or list of site IDs
 	 */
-	public function __construct( array $values = [], ?\Aimeos\MShop\Locale\Item\Site\Iface $siteItem = null, array $sites = [] )
+	public function __construct( array $values = [], private ?\Aimeos\MShop\Locale\Item\Site\Iface $siteItem = null, private array $sites = [] )
 	{
 		parent::__construct( 'locale.', $values );
-
-		$this->siteItem = $siteItem;
-		$this->sites = $sites;
 	}
 
 
@@ -131,7 +124,7 @@ class Standard
 	 */
 	public function setSiteId( string $id ) : \Aimeos\MShop\Locale\Item\Iface
 	{
-		return $this->set( 'locale.siteid', (string) $id );
+		return $this->set( 'locale.siteid', $id );
 	}
 
 

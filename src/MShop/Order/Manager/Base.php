@@ -134,7 +134,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 	{
 		$addresses = $item->getAddresses();
 
-		foreach( $addresses as $type => $list )
+		foreach( $addresses as $list )
 		{
 			$pos = 0;
 
@@ -246,7 +246,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 	{
 		$services = $item->getServices();
 
-		foreach( $services as $type => $list )
+		foreach( $services as $list )
 		{
 			$pos = 0;
 
@@ -276,7 +276,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
 	{
 		$statuses = $item->getStatuses();
 
-		foreach( $statuses as $type => $list )
+		foreach( $statuses as $list )
 		{
 			foreach( $list as $status )
 			{

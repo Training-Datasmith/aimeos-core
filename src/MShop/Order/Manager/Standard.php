@@ -134,9 +134,9 @@ class Standard extends Base
 		$context = $this->context();
 		$locale = $context->locale();
 
-		$values['.locale'] = $values['.locale'] ?? $locale;
-		$values['.price'] = $values['.price'] ?? \Aimeos\MShop::create( $context, 'price' )->create();
-		$values['order.siteid'] = $values['order.siteid'] ?? $locale->getSiteId();
+		$values['.locale'] ??= $locale;
+		$values['.price'] ??= \Aimeos\MShop::create( $context, 'price' )->create();
+		$values['order.siteid'] ??= $locale->getSiteId();
 
 		$item = new \Aimeos\MShop\Order\Item\Standard( 'order.', $values );
 		\Aimeos\MShop::create( $context, 'plugin' )->register( $item, 'order' );
@@ -614,7 +614,7 @@ class Standard extends Base
 		{
 			try {
 				$item->setInvoiceNumber( $this->createInvoiceNumber( $item ) );
-			} catch( \Exception $e ) { // redo on transaction deadlock
+			} catch( \Exception ) { // redo on transaction deadlock
 				$item->setInvoiceNumber( $this->createInvoiceNumber( $item ) );
 			}
 		}

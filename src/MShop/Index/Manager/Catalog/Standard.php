@@ -21,28 +21,28 @@ class Standard
 	extends \Aimeos\MShop\Index\Manager\DBBase
 	implements \Aimeos\MShop\Index\Manager\Catalog\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'index.catalog.id' => array(
+	private array $searchConfig = [
+		'index.catalog.id' => [
 			'code' => 'index.catalog.id',
 			'internalcode' => 'mindca."catid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_catalog" AS mindca ON mindca."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_catalog" AS mindca ON mindca."prodid" = mpro."id"' ],
 			'label' => 'Product index category ID',
-		),
-		'index.catalog:position' => array(
+		],
+		'index.catalog:position' => [
 			'code' => 'index.catalog:position()',
 			'internalcode' => ':site :catid :listtype mindca."pos"',
 			'label' => 'Product position in category, parameter([<list type code>,[<category IDs>]])',
 			'type' => 'int',
 			'public' => false,
-		),
-		'sort:index.catalog:position' => array(
+		],
+		'sort:index.catalog:position' => [
 			'code' => 'sort:index.catalog:position()',
 			'internalcode' => 'mindca."pos"',
 			'label' => 'Sort product position in category, parameter([<list type code>,[<category IDs>]])',
 			'type' => 'int',
 			'public' => false,
-		)
-	);
+		]
+	];
 
 	private ?array $subManagers = null;
 
@@ -59,7 +59,7 @@ class Standard
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
 		$level = $context->config()->get( 'mshop/index/manager/sitemode', $level );
 
-		$this->searchConfig['index.catalog:position']['function'] = function( &$source, array $params ) use ( $level ) {
+		$this->searchConfig['index.catalog:position']['function'] = function( &$source, array $params ) use ( $level ): array {
 
 			$source = str_replace( ':listtype', isset( $params[0] ) ? 'mindca."listtype" = $1 AND' : '', $source );
 			$source = str_replace( ':catid', isset( $params[1] ) ? 'mindca."catid" IN ( $2 ) AND' : '', $source );
@@ -209,9 +209,7 @@ class Standard
 		 */
 		$path = 'mshop/index/manager/catalog/submanagers';
 
-		$list += $this->getSearchAttributesBase( $this->searchConfig, $path, [], $withsub );
-
-		return $list;
+		return $list + $this->getSearchAttributesBase( $this->searchConfig, $path, [], $withsub );
 	}
 
 
@@ -425,7 +423,7 @@ class Standard
 		 */
 		$stmt = $this->getCachedStatement( $conn, 'mshop/index/manager/catalog/insert' );
 
-		foreach( $items as $id => $item )
+		foreach( $items as $item )
 		{
 			foreach( $item->getListItems( 'catalog' ) as $listItem )
 			{
@@ -438,7 +436,7 @@ class Standard
 
 				try {
 					$stmt->execute()->finish();
-				} catch( \Aimeos\Base\DB\Exception $e ) { ; } // Ignore duplicates
+				} catch( \Aimeos\Base\DB\Exception ) { ; } // Ignore duplicates
 			}
 		}
 

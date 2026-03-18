@@ -30,8 +30,8 @@ class Taxrates
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'country-taxrates' => array(
+	private array $beConfig = [
+		'country-taxrates' => [
 			'code' => 'country-taxrates',
 			'internalcode' => 'country-taxrates',
 			'label' => 'Tax rate for each two letter ISO country code',
@@ -39,8 +39,8 @@ class Taxrates
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'state-taxrates' => array(
+		],
+		'state-taxrates' => [
 			'code' => 'state-taxrates',
 			'internalcode' => 'state-taxrates',
 			'label' => 'Tax rate for each two letter state code',
@@ -48,8 +48,8 @@ class Taxrates
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-		'services' => array(
+		],
+		'services' => [
 			'code' => 'services',
 			'internalcode' => 'services',
 			'label' => 'Apply to services as well',
@@ -57,8 +57,8 @@ class Taxrates
 			'internaltype' => 'bool',
 			'default' => true,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

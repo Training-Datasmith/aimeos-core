@@ -77,7 +77,7 @@ trait Site
 		}
 
 		if( $current && !( $inactive = $this->siteInactive( $current ) )->isEmpty() ) {
-			$cond = $filter->and( [$cond, $filter->is( $name, '!=', $inactive )] );
+			return $filter->and( [$cond, $filter->is( $name, '!=', $inactive )] );
 		}
 
 		return $cond;
@@ -112,9 +112,7 @@ trait Site
 
 			if( ( $siteId = (string) $context->user()?->getSiteId() ) || $context->access( 'super' ) )
 			{
-				$sites = $sites->filter( function( $item ) use ( $siteId ) {
-					return strncmp( $item, $siteId, strlen( $siteId ) );
-				} );
+				$sites = $sites->filter( fn($item) => strncmp( $item, $siteId, strlen( $siteId ) ) );
 			}
 
 			self::$siteInactive[$current] = $sites;

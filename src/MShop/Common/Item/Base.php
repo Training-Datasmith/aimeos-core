@@ -25,32 +25,18 @@ class Base implements \Aimeos\MShop\Common\Item\Iface, \Aimeos\Macro\Iface, \Arr
 	// protected due to PHP serialization
 	protected bool $available = true;
 	protected bool $modified = false;
-	protected string $bprefix;
-	protected ?string $type;
-	protected array $bdata;
 
 
 	/**
-	 * Initializes the class properties.
-	 *
-	 * @param string $prefix Prefix for the keys returned by toArray()
-	 * @param array $values Associative list of key/value pairs of the item properties
-	 * @param string|null $type Item resource type
-	 */
-	public function __construct( string $prefix, array $values = [], ?string $type = null )
-	{
-		$this->bprefix = $prefix;
-		$this->bdata = $values;
-		$this->type = $type;
-	}
-
-
-	/**
-	 * Creates a deep clone of all objects
-	 */
-	public function __clone()
-	{
-	}
+     * Initializes the class properties.
+     *
+     * @param string $bprefix Prefix for the keys returned by toArray()
+     * @param array $bdata Associative list of key/value pairs of the item properties
+     * @param string|null $type Item resource type
+     */
+    public function __construct(protected string $bprefix, protected array $bdata = [], protected ?string $type = null)
+    {
+    }
 
 
 	/**
@@ -368,7 +354,7 @@ class Base implements \Aimeos\MShop\Common\Item\Iface, \Aimeos\Macro\Iface, \Arr
 	{
 		if( !$this->type )
 		{
-			$parts = explode( '\\', strtolower( get_class( $this ) ) );
+			$parts = explode( '\\', strtolower( static::class ) );
 			array_shift( $parts ); array_shift( $parts ); // remove "Aimeos\MShop"
 			array_pop( $parts );
 
@@ -401,7 +387,7 @@ class Base implements \Aimeos\MShop\Common\Item\Iface, \Aimeos\Macro\Iface, \Arr
 		// Add custom columns
 		foreach( $list as $key => $value )
 		{
-			if( ( is_null( $value ) || is_scalar( $value ) || is_array( $value ) ) && strpos( $key, '.' ) === false ) {
+			if( ( is_null( $value ) || is_scalar( $value ) || is_array( $value ) ) && !str_contains( $key, '.' ) ) {
 				$this->set( $key, $value );
 			}
 		}
@@ -430,7 +416,7 @@ class Base implements \Aimeos\MShop\Common\Item\Iface, \Aimeos\Macro\Iface, \Arr
 
 		foreach( $this->bdata as $key => $value )
 		{
-			if( strpos( $key, '.' ) === false ) {
+			if( !str_contains( $key, '.' ) ) {
 				$list[$key] = $value;
 			}
 		}

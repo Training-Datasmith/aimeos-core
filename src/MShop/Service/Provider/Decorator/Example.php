@@ -22,15 +22,15 @@ class Example
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'country' => array(
+	private array $beConfig = [
+		'country' => [
 			'code' => 'country',
 			'internalcode' => 'country',
 			'label' => 'Country',
 			'default' => '',
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -43,9 +43,8 @@ class Example
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

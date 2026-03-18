@@ -29,36 +29,36 @@ class Country
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'country.billing-include' => array(
+	private array $beConfig = [
+		'country.billing-include' => [
 			'code' => 'country.billing-include',
 			'internalcode' => 'country.billing-include',
 			'label' => 'List of countries allowed for the billing address',
 			'default' => '',
 			'required' => false,
-		),
-		'country.billing-exclude' => array(
+		],
+		'country.billing-exclude' => [
 			'code' => 'country.billing-exclude',
 			'internalcode' => 'country.billing-exclude',
 			'label' => 'List of countries not allowed for the billing address',
 			'default' => '',
 			'required' => false,
-		),
-		'country.delivery-include' => array(
+		],
+		'country.delivery-include' => [
 			'code' => 'country.delivery-include',
 			'internalcode' => 'country.delivery-include',
 			'label' => 'List of countries allowed for the delivery address',
 			'default' => '',
 			'required' => false,
-		),
-		'country.delivery-exclude' => array(
+		],
+		'country.delivery-exclude' => [
 			'code' => 'country.delivery-exclude',
 			'internalcode' => 'country.delivery-exclude',
 			'label' => 'List of countries not allowed for the delivery address',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -71,9 +71,8 @@ class Country
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

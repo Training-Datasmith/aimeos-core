@@ -36,8 +36,8 @@ class Shipping
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'threshold' => array(
+	private array $beConfig = [
+		'threshold' => [
 			'code' => 'threshold',
 			'internalcode' => 'threshold',
 			'label' => 'Free shipping threshold per currency',
@@ -45,8 +45,8 @@ class Shipping
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

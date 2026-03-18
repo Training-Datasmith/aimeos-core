@@ -53,7 +53,7 @@ trait Traits
 		$context = $this->context();
 
 		$values['.date'] = $context->datetime();
-		$values[$domain . '.lists.siteid'] = $values[$domain . '.lists.siteid'] ?? $context->locale()->getSiteId();
+		$values[$domain . '.lists.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Common\Item\Lists\Standard( $domain . '.lists.', $values );
 	}
@@ -138,7 +138,7 @@ trait Traits
 		}
 
 		return $manager->search( $search->add( $search->and( $expr ) ), $ref )
-			->uasort( fn( $a, $b ) => $a->getPosition() <=> $b->getPosition() )
+			->uasort( fn( $a, $b ): int => $a->getPosition() <=> $b->getPosition() )
 			->all();
 	}
 

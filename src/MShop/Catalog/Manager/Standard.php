@@ -128,130 +128,130 @@ class Standard extends Base
 	 */
 
 
-	private array $searchConfig = array(
-		'id' => array(
+	private array $searchConfig = [
+		'id' => [
 			'code' => 'catalog.id',
 			'internalcode' => 'mcat."id"',
 			'label' => 'ID',
 			'type' => 'int',
 			'public' => false,
-		),
-		'catalog.siteid' => array(
+		],
+		'catalog.siteid' => [
 			'code' => 'catalog.siteid',
 			'internalcode' => 'mcat."siteid"',
 			'label' => 'Site ID',
 			'type' => 'string',
 			'public' => false,
-		),
-		'parentid' => array(
+		],
+		'parentid' => [
 			'code' => 'catalog.parentid',
 			'internalcode' => 'mcat."parentid"',
 			'label' => 'Parent ID',
 			'type' => 'int',
 			'public' => false,
-		),
-		'level' => array(
+		],
+		'level' => [
 			'code' => 'catalog.level',
 			'internalcode' => 'mcat."level"',
 			'label' => 'Tree level',
 			'type' => 'int',
 			'public' => false,
-		),
-		'left' => array(
+		],
+		'left' => [
 			'code' => 'catalog.left',
 			'internalcode' => 'mcat."nleft"',
 			'label' => 'Left value',
 			'type' => 'int',
 			'public' => false,
-		),
-		'right' => array(
+		],
+		'right' => [
 			'code' => 'catalog.right',
 			'internalcode' => 'mcat."nright"',
 			'label' => 'Right value',
 			'type' => 'int',
 			'public' => false,
-		),
-		'label' => array(
+		],
+		'label' => [
 			'code' => 'catalog.label',
 			'internalcode' => 'mcat."label"',
 			'label' => 'Label',
 			'type' => 'string',
-		),
-		'code' => array(
+		],
+		'code' => [
 			'code' => 'catalog.code',
 			'internalcode' => 'mcat."code"',
 			'label' => 'Code',
 			'type' => 'string',
-		),
-		'status' => array(
+		],
+		'status' => [
 			'code' => 'catalog.status',
 			'internalcode' => 'mcat."status"',
 			'label' => 'Status',
 			'type' => 'int',
-		),
-		'catalog.url' => array(
+		],
+		'catalog.url' => [
 			'code' => 'catalog.url',
 			'internalcode' => 'mcat."url"',
 			'label' => 'URL segment',
 			'type' => 'string',
-		),
-		'catalog.pathid' => array(
+		],
+		'catalog.pathid' => [
 			'code' => 'catalog.pathid',
 			'internalcode' => 'mcat."pathid"',
 			'label' => 'Materialized path',
 			'type' => 'string',
 			'public' => false,
-		),
-		'catalog.target' => array(
+		],
+		'catalog.target' => [
 			'code' => 'catalog.target',
 			'internalcode' => 'mcat."target"',
 			'label' => 'URL target',
 			'type' => 'string',
-		),
-		'catalog.config' => array(
+		],
+		'catalog.config' => [
 			'code' => 'catalog.config',
 			'internalcode' => 'mcat."config"',
 			'label' => 'Config',
 			'type' => 'json',
 			'public' => false,
-		),
-		'catalog.ctime' => array(
+		],
+		'catalog.ctime' => [
 			'label' => 'Create date/time',
 			'code' => 'catalog.ctime',
 			'internalcode' => 'mcat."ctime"',
 			'type' => 'datetime',
 			'public' => false,
-		),
-		'catalog.mtime' => array(
+		],
+		'catalog.mtime' => [
 			'label' => 'Modify date/time',
 			'code' => 'catalog.mtime',
 			'internalcode' => 'mcat."mtime"',
 			'type' => 'datetime',
 			'public' => false,
-		),
-		'catalog.editor' => array(
+		],
+		'catalog.editor' => [
 			'code' => 'catalog.editor',
 			'internalcode' => 'mcat."editor"',
 			'label' => 'Editor',
 			'type' => 'string',
 			'public' => false,
-		),
-		'catalog:has' => array(
+		],
+		'catalog:has' => [
 			'code' => 'catalog:has()',
 			'internalcode' => ':site AND :key AND mcatli."id"',
 			'internaldeps' => ['LEFT JOIN "mshop_catalog_list" AS mcatli ON ( mcatli."parentid" = mcat."id" )'],
 			'label' => 'Catalog has list item, parameter(<domain>[,<list type>[,<reference ID>)]]',
 			'type' => 'null',
 			'public' => false,
-		),
-		'sort:catalog:position' => array(
+		],
+		'sort:catalog:position' => [
 			'code' => 'sort:catalog:position',
 			'internalcode' => 'mcat."nleft"',
 			'label' => 'Category position',
 			'type' => 'int',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 	private array $cacheTags = [];
 
@@ -267,7 +267,7 @@ class Standard extends Base
 		$level = $context->config()->get( 'mshop/catalog/manager/sitemode', $level );
 
 
-		$this->searchConfig['catalog:has']['function'] = function( &$source, array $params ) use ( $level ) {
+		$this->searchConfig['catalog:has']['function'] = function( &$source, array $params ) use ( $level ): array {
 
 			$keys = [];
 
@@ -351,8 +351,8 @@ class Standard extends Base
 		$path = 'mshop/catalog/manager/cleanup';
 		$sql = $this->getSqlConfig( $path );
 
-		$types = array( 'siteid' => \Aimeos\Base\DB\Statement\Base::PARAM_STR );
-		$translations = array( 'siteid' => '"siteid"' );
+		$types = [ 'siteid' => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
+		$translations = [ 'siteid' => '"siteid"' ];
 
 		$search->setConditions( $search->compare( '==', 'siteid', $siteids ) );
 		$sql = str_replace( ':siteid', $search->getConditionSource( $types, $translations ), $sql );
@@ -390,7 +390,7 @@ class Standard extends Base
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['siteid'] = $values['siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['siteid'] ??= $this->context()->locale()->getSiteId();
 		return $this->createItemBase( $values );
 	}
 
@@ -460,7 +460,7 @@ class Standard extends Base
 	public function find( string $code, array $ref = [], ?string $domain = null, ?string $type = null,
 		?bool $default = false ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		return $this->findBase( array( 'catalog.code' => $code ), $ref, $default );
+		return $this->findBase( [ 'catalog.code' => $code ], $ref, $default );
 	}
 
 
@@ -827,7 +827,7 @@ class Standard extends Base
 		$mode = $this->context()->config()->get( 'mshop/catalog/manager/sitemode', $mode );
 
 		if( $mode !== \Aimeos\MShop\Locale\Manager\Base::SITE_ONE ) {
-			$sitePath = array_reverse( (array) $this->context()->locale()->getSitePath() );
+			$sitePath = array_reverse( $this->context()->locale()->getSitePath() );
 		} else {
 			$sitePath = [$this->context()->locale()->getSiteId()];
 		}
@@ -836,7 +836,7 @@ class Standard extends Base
 		{
 			try {
 				$path = $this->createTreeManager( $siteId )->getPath( $id );
-			} catch( \Exception $e ) {
+			} catch( \Exception ) {
 				continue;
 			}
 
@@ -873,7 +873,7 @@ class Standard extends Base
 		$mode = $this->context()->config()->get( 'mshop/catalog/manager/sitemode', $mode );
 
 		if( $mode === \Aimeos\MShop\Locale\Manager\Base::SITE_PATH ) {
-			$sitePath = array_reverse( (array) $this->context()->locale()->getSitePath() );
+			$sitePath = array_reverse( $this->context()->locale()->getSitePath() );
 		} else {
 			$sitePath = [$this->context()->locale()->getSiteId()];
 		}
@@ -882,7 +882,7 @@ class Standard extends Base
 		{
 			try {
 				$node = $this->createTreeManager( $siteId )->getNode( $id, $level, $criteria );
-			} catch( \Aimeos\MW\Tree\Exception $e ) {
+			} catch( \Aimeos\MW\Tree\Exception ) {
 				continue;
 			}
 

@@ -81,7 +81,7 @@ class Property
 				'label' => 'Has property item, parameter(<property type>[,<language code>[,<property value>]])',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $alias, $level ) {
+				'function' => function( &$source, array $params ) use ( $alias, $level ): array {
 					$keys = [];
 					$langs = array_key_exists( 1, $params ) ? ( $params[1] ?? 'null' ) : '';
 

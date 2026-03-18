@@ -43,70 +43,70 @@ class Autofill
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'address' => array(
+	private array $beConfig = [
+		'address' => [
 			'code' => 'address',
 			'internalcode' => 'address',
 			'label' => 'Add customer address automatically',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'delivery' => array(
+		],
+		'delivery' => [
 			'code' => 'delivery',
 			'internalcode' => 'delivery',
 			'label' => 'Add delivery option automatically',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'deliverycode' => array(
+		],
+		'deliverycode' => [
 			'code' => 'deliverycode',
 			'internalcode' => 'deliverycode',
 			'label' => 'Add delivery by code',
 			'default' => '',
 			'required' => false,
-		),
-		'payment' => array(
+		],
+		'payment' => [
 			'code' => 'payment',
 			'internalcode' => 'payment',
 			'label' => 'Add payment option automatically',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'paymentcode' => array(
+		],
+		'paymentcode' => [
 			'code' => 'paymentcode',
 			'internalcode' => 'paymentcode',
 			'label' => 'Add payment by code',
 			'default' => '',
 			'required' => false,
-		),
-		'useorder' => array(
+		],
+		'useorder' => [
 			'code' => 'useorder',
 			'internalcode' => 'useorder',
 			'label' => 'Add from last order',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'orderaddress' => array(
+		],
+		'orderaddress' => [
 			'code' => 'orderaddress',
 			'internalcode' => 'orderaddress',
 			'label' => 'Add address from last order',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'orderservice' => array(
+		],
+		'orderservice' => [
 			'code' => 'orderservice',
 			'internalcode' => 'orderservice',
 			'label' => 'Add delivery/payment from last order',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -246,7 +246,7 @@ class Autofill
 		{
 			$map = $item->getAddresses();
 
-			foreach( $map as $type => $list ) {
+			foreach( $map as $list ) {
 				map( $list )->setId( null );
 			}
 
@@ -282,9 +282,7 @@ class Autofill
 
 						if( $provider->isAvailable( $order ) === true )
 						{
-							$attrItems = $service->getAttributeItems()->filter( function( $attr ) {
-								return in_array( $attr->getType(), ['', 'hidden'] );
-							} );
+							$attrItems = $service->getAttributeItems()->filter( fn($attr) => in_array( $attr->getType(), ['', 'hidden'] ) );
 
 							$service->setId( null )->setAttributeItems( $attrItems->setId( null ) );
 						}

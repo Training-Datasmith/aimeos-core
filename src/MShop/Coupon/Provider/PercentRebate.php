@@ -22,39 +22,39 @@ class PercentRebate
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'percentrebate.productcode' => array(
+	private array $beConfig = [
+		'percentrebate.productcode' => [
 			'code' => 'percentrebate.productcode',
 			'internalcode' => 'percentrebate.productcode',
 			'label' => 'Product code of the rebate product',
 			'default' => '',
 			'required' => true,
-		),
-		'percentrebate.rebate' => array(
+		],
+		'percentrebate.rebate' => [
 			'code' => 'percentrebate.rebate',
 			'internalcode' => 'percentrebate.rebate',
 			'label' => 'Discount in percent',
 			'type' => 'number',
 			'default' => 0,
 			'required' => true,
-		),
-		'percentrebate.precision' => array(
+		],
+		'percentrebate.precision' => [
 			'code' => 'percentrebate.precision',
 			'internalcode' => 'percentrebate.precision',
 			'label' => 'Number of decimal digits to round to',
 			'type' => 'int',
 			'default' => 2,
 			'required' => false,
-		),
-		'percentrebate.roundvalue' => array(
+		],
+		'percentrebate.roundvalue' => [
 			'code' => 'percentrebate.roundvalue',
 			'internalcode' => 'percentrebate.roundvalue',
 			'label' => 'Value to round rebate up/down',
 			'type' => 'number',
 			'default' => 0,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

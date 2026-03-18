@@ -22,24 +22,24 @@ class Reduction
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'reduction.percent' => array(
+	private array $beConfig = [
+		'reduction.percent' => [
 			'code' => 'reduction.percent',
 			'internalcode' => 'reduction.percent',
 			'label' => 'Decimal value in percent (positive or negative)',
 			'type' => 'number',
 			'default' => '',
 			'required' => true,
-		),
-		'reduction.include-costs' => array(
+		],
+		'reduction.include-costs' => [
 			'code' => 'reduction.include-costs',
 			'internalcode' => 'reduction.include-costs',
 			'label' => 'Include delivery/payments costs in reduction calculation',
 			'type' => 'bool',
 			'default' => '0',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -52,9 +52,8 @@ class Reduction
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

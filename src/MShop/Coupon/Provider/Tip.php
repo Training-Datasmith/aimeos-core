@@ -22,39 +22,39 @@ class Tip
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'tip.productcode' => array(
+	private array $beConfig = [
+		'tip.productcode' => [
 			'code' => 'tip.productcode',
 			'internalcode' => 'tip.productcode',
 			'label' => 'Product code of the tip product',
 			'default' => '',
 			'required' => true,
-		),
-		'tip.percent' => array(
+		],
+		'tip.percent' => [
 			'code' => 'tip.percent',
 			'internalcode' => 'tip.percent',
 			'label' => 'Tip in percent',
 			'type' => 'number',
 			'default' => 0,
 			'required' => true,
-		),
-		'tip.precision' => array(
+		],
+		'tip.precision' => [
 			'code' => 'tip.precision',
 			'internalcode' => 'tip.precision',
 			'label' => 'Number of decimal digits to round to',
 			'type' => 'int',
 			'default' => 2,
 			'required' => false,
-		),
-		'tip.roundvalue' => array(
+		],
+		'tip.roundvalue' => [
 			'code' => 'tip.roundvalue',
 			'internalcode' => 'tip.roundvalue',
 			'label' => 'Value to round tip up/down',
 			'type' => 'number',
 			'default' => 0,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

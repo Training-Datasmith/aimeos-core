@@ -100,21 +100,11 @@ trait Update
 	 */
 	public function update( \Aimeos\MShop\Order\Item\Iface $orderItem ) : \Aimeos\MShop\Order\Item\Iface
 	{
-		switch( $orderItem->getStatusPayment() )
-		{
-			case \Aimeos\MShop\Order\Item\Base::PAY_DELETED:
-			case \Aimeos\MShop\Order\Item\Base::PAY_CANCELED:
-			case \Aimeos\MShop\Order\Item\Base::PAY_REFUSED:
-			case \Aimeos\MShop\Order\Item\Base::PAY_REFUND:
-				$this->unblock( $orderItem );
-				break;
-
-			case \Aimeos\MShop\Order\Item\Base::PAY_PENDING:
-			case \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED:
-			case \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED:
-				$this->block( $orderItem );
-				break;
-		}
+		match ($orderItem->getStatusPayment()) {
+            \Aimeos\MShop\Order\Item\Base::PAY_DELETED, \Aimeos\MShop\Order\Item\Base::PAY_CANCELED, \Aimeos\MShop\Order\Item\Base::PAY_REFUSED, \Aimeos\MShop\Order\Item\Base::PAY_REFUND => $this->unblock( $orderItem ),
+            \Aimeos\MShop\Order\Item\Base::PAY_PENDING, \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED, \Aimeos\MShop\Order\Item\Base::PAY_RECEIVED => $this->block( $orderItem ),
+            default => $orderItem,
+        };
 
 		return $orderItem;
 	}
@@ -156,14 +146,14 @@ trait Update
 
 		$search = $productManager->filter();
 		$func = $search->make( 'product:has', ['product', 'default', $prodId] );
-		$expr = array(
+		$expr = [
 			$search->compare( '==', 'product.type', ['bundle', 'group'] ),
 			$search->compare( '!=', $func, null ),
-		);
+		];
 		$search->setConditions( $search->and( $expr ) );
 		$search->slice( 0, 0x7fffffff );
 
-		$bundleItems = $productManager->search( $search, array( 'product' ) );
+		$bundleItems = $productManager->search( $search, [ 'product' ] );
 
 		foreach( $bundleItems as $bundleItem )
 		{
@@ -189,13 +179,13 @@ trait Update
 		$manager = \Aimeos\MShop::create( $this->context(), 'order/status' );
 
 		$search = $manager->filter();
-		$expr = array(
+		$expr = [
 			$search->compare( '==', 'order.status.parentid', $parentid ),
 			$search->compare( '==', 'order.status.type', $type ),
 			$search->compare( '==', 'order.status.value', $status ),
-		);
+		];
 		$search->setConditions( $search->and( $expr ) );
-		$search->setSortations( array( $search->sort( '-', 'order.status.ctime' ) ) );
+		$search->setSortations( [ $search->sort( '-', 'order.status.ctime' ) ] );
 		$search->slice( 0, 1 );
 
 		return $manager->search( $search )->first();
@@ -421,9 +411,7 @@ trait Update
 		$stockItems = $this->getStockItems( $prodIds, $stocktype );
 		$selStockItem = $stockItems->col( null, 'stock.productid' )->pull( $prodId ) ?: $stockManager->create();
 
-		$sum = $stockItems->getStockLevel()->reduce( function( $result, $value ) {
-			return $result !== null && $value !== null ? $result + $value : null;
-		}, 0 );
+		$sum = $stockItems->getStockLevel()->reduce( fn($result, $value) => $result !== null && $value !== null ? $result + $value : null, 0 );
 
 		$selStockItem->setProductId( $productItem->getId() )->setType( $stocktype )->setStockLevel( $sum );
 		$stockManager->save( $selStockItem, false );

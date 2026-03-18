@@ -55,7 +55,6 @@ class Standard
 	 */
 	public function __clone()
 	{
-		parent::__clone();
 		$this->__cloneList();
 		$this->__cloneStock();
 		$this->__cloneProperty();

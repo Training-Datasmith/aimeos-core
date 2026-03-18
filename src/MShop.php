@@ -17,9 +17,9 @@ namespace Aimeos;
  */
 class MShop
 {
-	private static $context;
-	private static $cache = true;
-	private static $objects = [];
+	private static ?\Aimeos\MShop\ContextIface $context = null;
+	private static bool $cache = true;
+	private static array $objects = [];
 
 
 	/**
@@ -27,9 +27,9 @@ class MShop
 	 *
 	 * @param bool $value True to enable caching, false to disable it.
 	 */
-	public static function cache( bool $value )
+	public static function cache( bool $value ): void
 	{
-		self::$cache = (bool) $value;
+		self::$cache = $value;
 		self::$context = null;
 		self::$objects = [];
 	}
@@ -88,7 +88,7 @@ class MShop
 	 * @param string $classname Full name of the class for which the object should be returned
 	 * @param \Aimeos\MShop\Common\Manager\Iface|null $object Manager object for the given manager path or null to clear
 	 */
-	public static function inject( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $object = null )
+	public static function inject( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $object = null ): void
 	{
 		self::$objects['\\' . ltrim( $classname, '\\' )] = $object;
 	}
@@ -176,9 +176,8 @@ class MShop
 		}
 
 		$classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-		$manager = self::addDecorators( $context, $manager, $decorators, $classprefix );
 
-		return $manager;
+		return self::addDecorators( $context, $manager, $decorators, $classprefix );
 	}
 
 

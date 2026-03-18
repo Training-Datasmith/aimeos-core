@@ -43,8 +43,8 @@ class Standard
 	{
 		parent::__construct( $prefix, $values, str_replace( '.', '/', rtrim( $prefix, '.' ) ) );
 
-		$this->date = isset( $values['.date'] ) ? $values['.date'] : date( 'Y-m-d H:i:s' );
-		$this->prefix = (string) $prefix;
+		$this->date = $values['.date'] ?? date( 'Y-m-d H:i:s' );
+		$this->prefix = $prefix;
 	}
 
 

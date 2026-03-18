@@ -21,23 +21,23 @@ class Supplier
 	extends \Aimeos\MShop\Coupon\Provider\Decorator\Base
 	implements \Aimeos\MShop\Coupon\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'supplier.code' => array(
+	private array $beConfig = [
+		'supplier.code' => [
 			'code' => 'supplier.code',
 			'internalcode' => 'supplier.code',
 			'label' => 'Comma separated supplier codes',
 			'default' => '',
 			'required' => true,
-		),
-		'supplier.only' => array(
+		],
+		'supplier.only' => [
 			'code' => 'supplier.only',
 			'internalcode' => 'supplier.only',
 			'label' => 'Rebate is applied only to products of that supplier',
 			'type' => 'bool',
 			'default' => false,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

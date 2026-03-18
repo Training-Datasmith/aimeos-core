@@ -21,34 +21,34 @@ class Time
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'time.start' => array(
+	private array $beConfig = [
+		'time.start' => [
 			'code' => 'time.start',
 			'internalcode' => 'time.start',
 			'label' => 'Earliest delivery time in 24h "HH:MM" format',
 			'type' => 'time',
 			'default' => '00:00',
 			'required' => false,
-		),
-		'time.end' => array(
+		],
+		'time.end' => [
 			'code' => 'time.end',
 			'internalcode' => 'time.end',
 			'label' => 'Latest delivery time in 24h "HH:MM" format',
 			'type' => 'time',
 			'default' => '23:59',
 			'required' => false,
-		),
-		'time.weekdays' => array(
+		],
+		'time.weekdays' => [
 			'code' => 'time.weekdays',
 			'internalcode' => 'time.weekdays',
 			'label' => 'Comma separated week days the start and end time is valid for, i.e. number from 1 (Monday) to 7 (Sunday)',
 			'default' => '1,2,3,4,5,6,7',
 			'required' => false,
-		),
-	);
+		],
+	];
 
-	private array $feConfig = array(
-		'time.hourminute' => array(
+	private array $feConfig = [
+		'time.hourminute' => [
 			'code' => 'time.hourminute',
 			'internalcode' => 'hourminute',
 			'label' => 'Delivery time',
@@ -56,8 +56,8 @@ class Time
 			'internaltype' => 'time',
 			'default' => '',
 			'required' => true
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -70,9 +70,8 @@ class Time
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -110,7 +109,7 @@ class Time
 				$feconfig['time.hourminute']['default'] = $value;
 			}
 		}
-		catch( \Aimeos\MShop\Service\Exception $e ) {} // If service isn't available
+		catch( \Aimeos\MShop\Service\Exception ) {} // If service isn't available
 
 		return array_merge( $this->getProvider()->getConfigFE( $basket ), $this->getConfigItems( $feconfig ) );
 	}

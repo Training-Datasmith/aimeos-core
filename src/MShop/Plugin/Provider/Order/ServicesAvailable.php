@@ -36,24 +36,24 @@ class ServicesAvailable
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'payment' => array(
+	private array $beConfig = [
+		'payment' => [
 			'code' => 'payment',
 			'internalcode' => 'payment',
 			'label' => 'Require payment option',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-		'delivery' => array(
+		],
+		'delivery' => [
 			'code' => 'delivery',
 			'internalcode' => 'delivery',
 			'label' => 'Require delivery option',
 			'type' => 'bool',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -129,7 +129,7 @@ class ServicesAvailable
 
 		if( count( $problems ) > 0 )
 		{
-			$code = array( 'service' => $problems );
+			$code = [ 'service' => $problems ];
 			$msg = $this->context()->translate( 'mshop', 'Checks for available service items in basket failed' );
 			throw new \Aimeos\MShop\Plugin\Provider\Exception( $msg, -1, null, $code );
 		}

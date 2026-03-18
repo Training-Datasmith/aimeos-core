@@ -32,7 +32,7 @@ class Standard
 		$locale = $this->context()->locale();
 
 		$values['.languageid'] = $locale->getLanguageId();
-		$values['text.siteid'] = $values['text.siteid'] ?? $locale->getSiteId();
+		$values['text.siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Text\Item\Standard( 'text.', $values );
 	}

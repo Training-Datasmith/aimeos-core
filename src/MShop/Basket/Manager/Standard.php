@@ -19,56 +19,56 @@ class Standard
 	extends \Aimeos\MShop\Common\Manager\Base
 	implements \Aimeos\MShop\Basket\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'basket.id' => array(
+	private array $searchConfig = [
+		'basket.id' => [
 			'code' => 'basket.id',
 			'internalcode' => 'mbas."id"',
 			'label' => 'Basket ID',
 			'public' => false,
-		),
-		'basket.siteid' => array(
+		],
+		'basket.siteid' => [
 			'code' => 'basket.siteid',
 			'internalcode' => 'mbas."siteid"',
 			'label' => 'Basket site ID',
 			'public' => false,
-		),
-		'basket.customerid' => array(
+		],
+		'basket.customerid' => [
 			'code' => 'basket.customerid',
 			'internalcode' => 'mbas."customerid"',
 			'label' => 'Basket customer ID',
 			'public' => false,
-		),
-		'basket.name' => array(
+		],
+		'basket.name' => [
 			'code' => 'basket.name',
 			'internalcode' => 'mbas."name"',
 			'label' => 'Basket name',
-		),
-		'basket.content' => array(
+		],
+		'basket.content' => [
 			'code' => 'basket.content',
 			'internalcode' => 'mbas."content"',
 			'label' => 'Basket content',
-		),
-		'basket.ctime' => array(
+		],
+		'basket.ctime' => [
 			'code' => 'basket.ctime',
 			'internalcode' => 'mbas."ctime"',
 			'label' => 'Basket create date/time',
 			'type' => 'datetime',
 			'public' => false,
-		),
-		'basket.mtime' => array(
+		],
+		'basket.mtime' => [
 			'code' => 'basket.mtime',
 			'internalcode' => 'mbas."mtime"',
 			'label' => 'Basket modify date/time',
 			'type' => 'datetime',
 			'public' => false,
-		),
-		'basket.editor' => array(
+		],
+		'basket.editor' => [
 			'code' => 'basket.editor',
 			'internalcode' => 'mbas."editor"',
 			'label' => 'Basket editor',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -120,7 +120,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['basket.siteid'] = $values['basket.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['basket.siteid'] ??= $this->context()->locale()->getSiteId();
 		return $this->createItemBase( $values );
 	}
 
@@ -442,7 +442,7 @@ class Standard
 		$context = $this->context();
 		$conn = $context->db( $this->getResourceName() );
 
-		$required = array( 'basket' );
+		$required = [ 'basket' ];
 
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE;
 		$level = $context->config()->get( 'mshop/basket/manager/sitemode', $level );

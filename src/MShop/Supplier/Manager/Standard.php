@@ -48,7 +48,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['supplier.siteid'] = $values['supplier.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['supplier.siteid'] ??= $this->context()->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Supplier\Item\Standard( 'supplier.', $values );
 	}
@@ -96,7 +96,7 @@ class Standard
 	public function find( string $code, array $ref = [], ?string $domain = null, ?string $type = null,
 		?bool $default = false ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		return $this->findBase( array( 'supplier.code' => $code ), $ref, $default );
+		return $this->findBase( [ 'supplier.code' => $code ], $ref, $default );
 	}
 
 

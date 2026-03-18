@@ -129,7 +129,7 @@ class Standard
 	 */
 	public function setDomain( string $domain ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		return $this->set( 'media.domain', (string) $domain );
+		return $this->set( 'media.domain', $domain );
 	}
 
 
@@ -202,7 +202,7 @@ class Standard
 			throw new \Aimeos\MShop\Media\Exception( sprintf( 'Invalid mime type "%1$s"', $mimetype ) );
 		}
 
-		return $this->set( 'media.mimetype', (string) $mimetype );
+		return $this->set( 'media.mimetype', $mimetype );
 	}
 
 

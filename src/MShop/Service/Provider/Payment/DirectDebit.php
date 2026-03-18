@@ -22,36 +22,36 @@ class DirectDebit
 	extends \Aimeos\MShop\Service\Provider\Payment\Base
 	implements \Aimeos\MShop\Service\Provider\Payment\Iface
 {
-	private array $feConfig = array(
-		'directdebit.accountowner' => array(
+	private array $feConfig = [
+		'directdebit.accountowner' => [
 			'code' => 'directdebit.accountowner',
 			'internalcode' => 'accountowner',
 			'label' => 'Account owner',
 			'default' => '',
 			'required' => true
-		),
-		'directdebit.accountno' => array(
+		],
+		'directdebit.accountno' => [
 			'code' => 'directdebit.accountno',
 			'internalcode' => 'accountno',
 			'label' => 'Account number',
 			'default' => '',
 			'required' => true
-		),
-		'directdebit.bankcode' => array(
+		],
+		'directdebit.bankcode' => [
 			'code' => 'directdebit.bankcode',
 			'internalcode' => 'bankcode',
 			'label' => 'Bank code',
 			'default' => '',
 			'required' => true
-		),
-		'directdebit.bankname' => array(
+		],
+		'directdebit.bankname' => [
 			'code' => 'directdebit.bankname',
 			'internalcode' => 'bankname',
 			'label' => 'Bank name',
 			'default' => '',
 			'required' => true
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -73,7 +73,7 @@ class DirectDebit
 				$feconfig['directdebit.accountowner']['default'] = $fn . ' ' . $ln;
 			}
 		}
-		catch( \Aimeos\MShop\Order\Exception $e ) { ; } // If address isn't available
+		catch( \Aimeos\MShop\Order\Exception ) { ; } // If address isn't available
 
 		return $this->getConfigItems( $feconfig );
 	}

@@ -134,47 +134,47 @@ class Standard
 	private int $loglevel;
 	private string $requestid;
 
-	private array $searchConfig = array(
-		'log.id' => array(
+	private array $searchConfig = [
+		'log.id' => [
 			'code' => 'log.id',
 			'internalcode' => 'malog."id"',
 			'label' => 'Log ID',
 			'type' => 'int',
-		),
-		'log.siteid' => array(
+		],
+		'log.siteid' => [
 			'code' => 'log.siteid',
 			'internalcode' => 'malog."siteid"',
 			'label' => 'Log site ID',
 			'public' => false,
-		),
-		'log.message' => array(
+		],
+		'log.message' => [
 			'code' => 'log.message',
 			'internalcode' => 'malog."message"',
 			'label' => 'Log message',
-		),
-		'log.facility' => array(
+		],
+		'log.facility' => [
 			'code' => 'log.facility',
 			'internalcode' => 'malog."facility"',
 			'label' => 'Log facility',
-		),
-		'log.priority' => array(
+		],
+		'log.priority' => [
 			'code' => 'log.priority',
 			'internalcode' => 'malog."priority"',
 			'label' => 'Log priority',
 			'type' => 'int',
-		),
-		'log.timestamp' => array(
+		],
+		'log.timestamp' => [
 			'code' => 'log.timestamp',
 			'internalcode' => 'malog."timestamp"',
 			'label' => 'Log create date/time',
 			'type' => 'datetime',
-		),
-		'log.request' => array(
+		],
+		'log.request' => [
 			'code' => 'log.request',
 			'internalcode' => 'malog."request"',
 			'label' => 'Log request',
-		)
-	);
+		]
+	];
 
 
 	/**
@@ -265,8 +265,8 @@ class Standard
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
 		try {
-			$values['log.siteid'] = $values['log.siteid'] ?? $this->context()->locale()->getSiteId();
-		} catch( \Exception $e ) {} // if no locale item is available
+			$values['log.siteid'] ??= $this->context()->locale()->getSiteId();
+		} catch( \Exception ) {} // if no locale item is available
 
 		return $this->createItemBase( $values );
 	}
@@ -430,7 +430,7 @@ class Standard
 
 		try {
 			$siteid = $this->context()->locale()->getSiteId();
-		} catch( \Exception $e ) {
+		} catch( \Exception ) {
 			$siteid = '';
 		}
 
@@ -595,7 +595,7 @@ class Standard
 		$context = $this->context();
 		$conn = $context->db( $this->getResourceName() );
 
-		$required = array( 'log' );
+		$required = [ 'log' ];
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE;
 
 		/** madmin/log/manager/search/mysql

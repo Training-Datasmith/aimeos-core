@@ -21,14 +21,14 @@ namespace Aimeos\MShop\Index\Manager\Catalog;
 class MySQL
 	extends \Aimeos\MShop\Index\Manager\Catalog\Standard
 {
-	private array $searchConfig = array(
-		'index.catalog.id' => array(
+	private array $searchConfig = [
+		'index.catalog.id' => [
 			'code' => 'index.catalog.id',
 			'internalcode' => 'mindca."catid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_catalog" AS mindca USE INDEX ("idx_msindca_s_ca_lt_po", "unq_msindca_p_s_cid_lt_po") ON mindca."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_catalog" AS mindca USE INDEX ("idx_msindca_s_ca_lt_po", "unq_msindca_p_s_cid_lt_po") ON mindca."prodid" = mpro."id"' ],
 			'label' => 'Product index category ID',
-		),
-	);
+		],
+	];
 
 
 	/**

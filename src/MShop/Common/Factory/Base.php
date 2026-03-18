@@ -20,7 +20,7 @@ namespace Aimeos\MShop\Common\Factory;
  */
 abstract class Base
 {
-	private static $objects = [];
+	private static array $objects = [];
 
 
 	/**
@@ -31,7 +31,7 @@ abstract class Base
 	 * @param string $classname Full name of the class for which the object should be returned
 	 * @param \Aimeos\MShop\Common\Manager\Iface|null $manager Manager object or null for removing the manager object
 	 */
-	public static function injectManager( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $manager = null )
+	public static function injectManager( string $classname, ?\Aimeos\MShop\Common\Manager\Iface $manager = null ): void
 	{
 		self::$objects[$classname] = $manager;
 	}
@@ -135,10 +135,6 @@ abstract class Base
 	 */
 	protected static function createManager( \Aimeos\MShop\ContextIface $context, string $classname, string $interface ) : \Aimeos\MShop\Common\Manager\Iface
 	{
-		if( isset( self::$objects[$classname] ) ) {
-			return self::$objects[$classname];
-		}
-
-		return \Aimeos\Utils::create( $classname, [$context], $interface );
+		return self::$objects[$classname] ?? \Aimeos\Utils::create( $classname, [$context], $interface );
 	}
 }

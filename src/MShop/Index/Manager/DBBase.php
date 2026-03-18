@@ -367,7 +367,7 @@ abstract class DBBase
 			$list = $translations = [];
 			foreach( $cols as $idx => $col )
 			{
-				if( strpos( $col, '"' ) === false ) {
+				if( !str_contains( $col, '"' ) ) {
 					$col = $this->alias( $names[$idx] ) . '."' . $col . '"';
 				}
 
@@ -425,7 +425,7 @@ abstract class DBBase
 		$context = $this->context();
 		$conn = $context->db( $this->getResourceName() );
 
-		$required = array( 'product' );
+		$required = [ 'product' ];
 
 		/** mshop/index/manager/sitemode
 		 * Mode how items from levels below or above in the site tree are handled

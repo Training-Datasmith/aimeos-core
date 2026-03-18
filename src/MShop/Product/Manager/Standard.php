@@ -51,7 +51,7 @@ class Standard
 		$context = $this->context();
 
 		$values['.date'] = $context->datetime();
-		$values['product.siteid'] = $values['product.siteid'] ?? $context->locale()->getSiteId();
+		$values['product.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Product\Item\Standard( 'product.', $values );
 	}
@@ -378,7 +378,7 @@ class Standard
 		}
 
 		if( $this->hasRef( $ref, 'parent' ) || $this->hasRef( $ref, 'product/parent' ) ) {
-			$entries = $this->searchParents( $entries );
+			return $this->searchParents( $entries );
 		}
 
 		return $entries;

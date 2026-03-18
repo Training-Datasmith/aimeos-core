@@ -33,7 +33,7 @@ abstract class Base
 		$locale = $this->context()->locale();
 
 		$values['.languageid'] = $locale->getLanguageId();
-		$values[$prefix . 'siteid'] = $values[$prefix . 'siteid'] ?? $locale->getSiteId();
+		$values[$prefix . 'siteid'] ??= $locale->getSiteId();
 
 		return new \Aimeos\MShop\Common\Item\Property\Standard( $prefix, $values );
 	}

@@ -78,7 +78,7 @@ class ProductGone
 
 		if( count( $notAvailable ) > 0 )
 		{
-			$code = array( 'product' => $notAvailable );
+			$code = [ 'product' => $notAvailable ];
 			$msg = $this->context()->translate( 'mshop', 'Products in basket not available' );
 			throw new \Aimeos\MShop\Plugin\Provider\Exception( $msg, -1, null, $code );
 		}

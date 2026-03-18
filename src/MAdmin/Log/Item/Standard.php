@@ -52,7 +52,7 @@ class Standard
 	 */
 	public function setFacility( string $facility ) : \Aimeos\MAdmin\Log\Item\Iface
 	{
-		return $this->set( 'log.facility', (string) $facility );
+		return $this->set( 'log.facility', $facility );
 	}
 
 

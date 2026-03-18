@@ -97,13 +97,13 @@ abstract class Base
 		{
 			$search = $this->object()->filter( true );
 
-			$expr = array(
+			$expr = [
 				$search->compare( '==', 'plugin.type', $type ),
 				$search->getConditions(),
-			);
+			];
 
 			$search->setConditions( $search->and( $expr ) );
-			$search->setSortations( array( $search->sort( '+', 'plugin.position' ) ) );
+			$search->setSortations( [ $search->sort( '+', 'plugin.position' ) ] );
 
 			$this->plugins[$type] = [];
 

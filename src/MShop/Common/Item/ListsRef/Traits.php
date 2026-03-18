@@ -178,7 +178,7 @@ trait Traits
 	public function getListItemsDeleted( ?string $domain = null ) : \Aimeos\Map
 	{
 		if( $domain ) {
-			return map( $this->listRmItems )->filter( fn( $item ) => $item->getDomain() === $domain );
+			return map( $this->listRmItems )->filter( fn( $item ): bool => $item->getDomain() === $domain );
 		}
 
 		return map( $this->listRmItems );

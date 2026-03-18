@@ -131,29 +131,29 @@ class Standard
 	private ?\Aimeos\Base\Cache\Iface $object = null;
 	private ?\Aimeos\Base\DB\Connection\Iface $conn = null;
 
-	private array $searchConfig = array(
-		'cache.id' => array(
+	private array $searchConfig = [
+		'cache.id' => [
 			'code' => 'cache.id',
 			'internalcode' => '"id"',
 			'label' => 'ID',
-		),
-		'cache.value' => array(
+		],
+		'cache.value' => [
 			'code' => 'cache.value',
 			'internalcode' => '"value"',
 			'label' => 'Cached value',
-		),
-		'cache.expire' => array(
+		],
+		'cache.expire' => [
 			'code' => 'cache.expire',
 			'internalcode' => '"expire"',
 			'label' => 'Expiration date/time',
 			'type' => 'datetime',
-		),
-		'cache.tag.name' => array(
+		],
+		'cache.tag.name' => [
 			'code' => 'cache.tag.name',
 			'internalcode' => '"tname"',
 			'label' => 'Tag name',
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -368,7 +368,7 @@ class Standard
 			throw new \Aimeos\MAdmin\Cache\Exception( sprintf( 'Item with ID "%1$s" not found', $id ) );
 		}
 
-		return $this->createItemBase( array( 'id' => $id, 'value' => $value ) );
+		return $this->createItemBase( [ 'id' => $id, 'value' => $value ] );
 	}
 
 
@@ -386,7 +386,7 @@ class Standard
 		$context = $this->context();
 		$conn = $context->db( $this->getResourceName() );
 
-		$required = array( 'cache' );
+		$required = [ 'cache' ];
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_ONE;
 
 		/** madmin/cache/manager/search/mysql

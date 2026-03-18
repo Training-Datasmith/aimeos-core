@@ -26,22 +26,22 @@ class Category
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'category.include' => array(
+	private array $beConfig = [
+		'category.include' => [
 			'code' => 'category.include',
 			'internalcode' => 'category.include',
 			'label' => 'Code of allowed category and sub-categories for the service item',
 			'default' => '',
 			'required' => false,
-		),
-		'category.exclude' => array(
+		],
+		'category.exclude' => [
 			'code' => 'category.exclude',
 			'internalcode' => 'category.exclude',
 			'label' => 'Code of category and sub-categories not allowed for the service item',
 			'default' => '',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -54,9 +54,8 @@ class Category
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 

@@ -53,7 +53,7 @@ trait Traits
 		$context = $this->context();
 
 		$values['.languageid'] = $context->locale()->getLanguageId();
-		$values[$domain . '.property.siteid'] = $values[$domain . '.property.siteid'] ?? $context->locale()->getSiteId();
+		$values[$domain . '.property.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Common\Item\Property\Standard( $domain . '.property.', $values );
 	}

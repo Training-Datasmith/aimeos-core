@@ -20,14 +20,14 @@ class Standard
 	extends \Aimeos\MShop\Index\Manager\DBBase
 	implements \Aimeos\MShop\Index\Manager\Supplier\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'index.supplier.id' => array(
+	private array $searchConfig = [
+		'index.supplier.id' => [
 			'code' => 'index.supplier.id',
 			'internalcode' => 'mindsu."supid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_supplier" AS mindsu ON mindsu."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_supplier" AS mindsu ON mindsu."prodid" = mpro."id"' ],
 			'label' => 'Product index supplier ID',
-		),
-		'index.supplier:radius' => array(
+		],
+		'index.supplier:radius' => [
 			'code' => 'index.supplier:radius()',
 			'internalcode' => ':site AND
 				mindsu."latitude" > $1 - $3 / 111.19493 AND
@@ -43,22 +43,22 @@ class Standard
 			'label' => 'Within distance to given coordinates, parameter(<latitude>,<longitude>,<distance in km>)',
 			'type' => 'bool',
 			'public' => false,
-		),
-		'index.supplier:position' => array(
+		],
+		'index.supplier:position' => [
 			'code' => 'index.supplier:position()',
 			'internalcode' => ':site AND mindsu."supid" IN ( $2 ) AND mindsu."listtype" = $1 AND mindsu."pos"',
 			'label' => 'Product position in supplier list, parameter(<list type code>,<supplier IDs>)',
 			'type' => 'int',
 			'public' => false,
-		),
-		'sort:index.supplier:position' => array(
+		],
+		'sort:index.supplier:position' => [
 			'code' => 'sort:index.supplier:position()',
 			'internalcode' => 'mindsu."pos"',
 			'label' => 'Sort product position in supplier list, parameter(<list type code>,<supplier IDs>)',
 			'type' => 'int',
 			'public' => false,
-		)
-	);
+		]
+	];
 
 	private ?array $subManagers = null;
 
@@ -438,7 +438,7 @@ class Standard
 			 */
 			$stmt = $this->getCachedStatement( $conn, 'mshop/index/manager/supplier/insert' );
 
-			foreach( $items as $id => $item )
+			foreach( $items as $item )
 			{
 				foreach( $item->getListItems( 'supplier' ) as $listItem )
 				{
@@ -446,11 +446,9 @@ class Standard
 						continue;
 					}
 
-					$pairs = $supplier->getAddressItems()->map( function( $addr ) {
-						return $addr->getLatitude() !== null && $addr->getLongitude() !== null
+					$pairs = $supplier->getAddressItems()->map( fn($addr) => $addr->getLatitude() !== null && $addr->getLongitude() !== null
 							? ['lat' => $addr->getLatitude(), 'lon' => $addr->getLongitude()]
-							: null;
-					} )->filter();
+							: null )->filter();
 
 					if( $pairs->isEmpty() ) {
 						$pairs = [['lat' => null, 'lon' => null]];
@@ -469,7 +467,7 @@ class Standard
 
 						try {
 							$stmt->execute()->finish();
-						} catch( \Aimeos\Base\DB\Exception $e ) { ; } // Ignore duplicates
+						} catch( \Aimeos\Base\DB\Exception ) { ; } // Ignore duplicates
 					}
 				}
 			}

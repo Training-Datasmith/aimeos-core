@@ -21,35 +21,35 @@ class Delivery
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'delivery.partial' => array(
+	private array $beConfig = [
+		'delivery.partial' => [
 			'code' => 'delivery.partial',
 			'internalcode' => 'delivery.partial',
 			'label' => 'Choice of partitial delivery',
 			'type' => 'bool',
 			'default' => '0',
 			'required' => false,
-		),
-		'delivery.collective' => array(
+		],
+		'delivery.collective' => [
 			'code' => 'delivery.collective',
 			'internalcode' => 'delivery.collective',
 			'label' => 'Choice of collective delivery',
 			'type' => 'bool',
 			'default' => '0',
 			'required' => false,
-		),
-	);
+		],
+	];
 
-	private array $feConfig = array(
-		'delivery.type' => array(
+	private array $feConfig = [
+		'delivery.type' => [
 			'code' => 'delivery.type',
 			'internalcode' => 'type',
 			'label' => 'Delivery type',
 			'type' => 'list',
 			'default' => [1 => 'complete delivery'],
 			'required' => true
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -84,9 +84,8 @@ class Delivery
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -126,7 +125,7 @@ class Delivery
 				$feconfig['delivery.type']['default'] = $values;
 			}
 		}
-		catch( \Aimeos\MShop\Service\Exception $e ) {} // If service isn't available
+		catch( \Aimeos\MShop\Service\Exception ) {} // If service isn't available
 
 		return array_merge( $this->getProvider()->getConfigFE( $basket ), $this->getConfigItems( $feconfig ) );
 	}

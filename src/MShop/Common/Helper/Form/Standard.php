@@ -20,11 +20,7 @@ namespace Aimeos\MShop\Common\Helper\Form;
  */
 class Standard implements \Aimeos\MShop\Common\Helper\Form\Iface
 {
-	private string $url;
-	private string $html;
-	private string $method;
 	private array $values;
-	private bool $external;
 
 
 	/**
@@ -36,15 +32,10 @@ class Standard implements \Aimeos\MShop\Common\Helper\Form\Iface
 	 * @param bool $external True if URL points to an external site, false if it stays on the same site
 	 * @param string $html Custom HTML for rendering form (e.g. Including JS or custom html)
 	 */
-	public function __construct( string $url = '', string $method = '', array $values = [], bool $external = true, string $html = '' )
+	public function __construct( private string $url = '', private string $method = '', array $values = [], private bool $external = true, private string $html = '' )
 	{
 		map( $values )->implements( \Aimeos\Base\Criteria\Attribute\Iface::class, true );
-
-		$this->url = $url;
-		$this->external = $external;
-		$this->method = $method;
 		$this->values = $values;
-		$this->html = $html;
 	}
 
 
@@ -67,7 +58,7 @@ class Standard implements \Aimeos\MShop\Common\Helper\Form\Iface
 	 */
 	public function setExternal( bool $value ) : \Aimeos\MShop\Common\Helper\Form\Iface
 	{
-		$this->external = (bool) $value;
+		$this->external = $value;
 
 		return $this;
 	}

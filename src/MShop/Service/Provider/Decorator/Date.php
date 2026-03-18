@@ -21,27 +21,27 @@ class Date
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'date.minimumdays' => array(
+	private array $beConfig = [
+		'date.minimumdays' => [
 			'code' => 'date.minimumdays',
 			'internalcode' => 'date.minimumdays',
 			'label' => 'Miniumn number of days to wait when selecting dates',
 			'type' => 'int',
 			'default' => '0',
 			'required' => false,
-		),
-	);
+		],
+	];
 
-	private array $feConfig = array(
-		'date.value' => array(
+	private array $feConfig = [
+		'date.value' => [
 			'code' => 'date.value',
 			'internalcode' => 'value',
 			'label' => 'Delivery date',
 			'type' => 'date',
 			'default' => '',
 			'required' => true
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -54,9 +54,8 @@ class Date
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -95,7 +94,7 @@ class Date
 				$feconfig['date.value']['default'] = $value;
 			}
 		}
-		catch( \Aimeos\MShop\Service\Exception $e ) {} // If service isn't available
+		catch( \Aimeos\MShop\Service\Exception ) {} // If service isn't available
 
 		return array_merge( $this->getProvider()->getConfigFE( $basket ), $this->getConfigItems( $feconfig ) );
 	}

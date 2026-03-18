@@ -27,24 +27,24 @@ class OrderCheck
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $beConfig = array(
-		'ordercheck.total-number-min' => array(
+	private array $beConfig = [
+		'ordercheck.total-number-min' => [
 			'code' => 'ordercheck.total-number-min',
 			'internalcode' => 'ordercheck.total-number-min',
 			'label' => 'Required minimum successful orders',
 			'type' => 'int',
 			'default' => 0,
 			'required' => true,
-		),
-		'ordercheck.limit-days-pending' => array(
+		],
+		'ordercheck.limit-days-pending' => [
 			'code' => 'ordercheck.limit-days-pending',
 			'internalcode' => 'ordercheck.limit-days-pending',
 			'label' => 'Number of days which must not contain pending orders',
 			'type' => 'int',
 			'default' => 0,
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -57,9 +57,8 @@ class OrderCheck
 	public function checkConfigBE( array $attributes ) : array
 	{
 		$error = $this->getProvider()->checkConfigBE( $attributes );
-		$error += $this->checkConfig( $this->beConfig, $attributes );
 
-		return $error;
+		return $error + $this->checkConfig( $this->beConfig, $attributes );
 	}
 
 
@@ -96,11 +95,11 @@ class OrderCheck
 		if( isset( $config['ordercheck.total-number-min'] ) )
 		{
 			$search = $manager->filter( true );
-			$expr = array(
+			$expr = [
 				$search->compare( '==', 'order.customerid', $customerId ),
 				$search->compare( '>=', 'order.statuspayment', \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED ),
 				$search->getConditions(),
-			);
+			];
 			$search->setConditions( $search->and( $expr ) );
 			$search->slice( 0, $config['ordercheck.total-number-min'] );
 
@@ -114,12 +113,12 @@ class OrderCheck
 			$time = time() - (int) $config['ordercheck.limit-days-pending'] * 86400;
 
 			$search = $manager->filter( true );
-			$expr = array(
+			$expr = [
 				$search->compare( '==', 'order.customerid', $customerId ),
 				$search->compare( '>=', 'order.datepayment', date( 'Y-m-d H:i:s', $time ) ),
 				$search->compare( '==', 'order.statuspayment', \Aimeos\MShop\Order\Item\Base::PAY_PENDING ),
 				$search->getConditions(),
-			);
+			];
 			$search->setConditions( $search->and( $expr ) );
 			$search->slice( 0, 1 );
 

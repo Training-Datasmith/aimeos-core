@@ -21,8 +21,8 @@ class Supplier
 	extends \Aimeos\MShop\Service\Provider\Decorator\Base
 	implements \Aimeos\MShop\Service\Provider\Decorator\Iface
 {
-	private array $feConfig = array(
-		'supplier.code' => array(
+	private array $feConfig = [
+		'supplier.code' => [
 			'code' => 'supplier.code',
 			'internalcode' => 'supplier.code',
 			'label' => 'Pick-up address',
@@ -30,8 +30,8 @@ class Supplier
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => true
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -158,7 +158,7 @@ class Supplier
 				$feconfig['supplier.code']['default'] = [$value => $address] + $feconfig['supplier.code']['default'];
 			}
 		}
-		catch( \Aimeos\MShop\Service\Exception $e ) {} // If service isn't available
+		catch( \Aimeos\MShop\Service\Exception ) {} // If service isn't available
 
 		return array_merge( $this->getProvider()->getConfigFE( $basket ), $this->getConfigItems( $feconfig ) );
 	}

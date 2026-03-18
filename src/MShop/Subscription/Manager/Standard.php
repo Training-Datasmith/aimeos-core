@@ -167,7 +167,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['subscription.siteid'] = $values['subscription.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['subscription.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Subscription\Item\Standard( 'subscription.', $values );
 	}
 

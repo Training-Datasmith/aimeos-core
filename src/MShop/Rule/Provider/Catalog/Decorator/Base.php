@@ -21,9 +21,6 @@ abstract class Base
 	extends \Aimeos\MShop\Rule\Provider\Base
 	implements Iface
 {
-	private \Aimeos\MShop\Rule\Provider\Iface $provider;
-
-
 	/**
 	 * Initializes the rule instance
 	 *
@@ -32,11 +29,9 @@ abstract class Base
 	 * @param \Aimeos\MShop\Rule\Provider\Iface $provider Rule provider object
 	 */
 	public function __construct( \Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Rule\Item\Iface $item,
-		\Aimeos\MShop\Rule\Provider\Iface $provider )
+		private \Aimeos\MShop\Rule\Provider\Iface $provider )
 	{
 		parent::__construct( $context, $item );
-
-		$this->provider = $provider;
 	}
 
 

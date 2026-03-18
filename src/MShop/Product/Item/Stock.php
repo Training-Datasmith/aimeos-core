@@ -147,9 +147,7 @@ trait Stock
 
 		if( $type !== null )
 		{
-			$list = $list->filter( function( $item ) use ( $type ) {
-				return in_array( $item->getType(), (array) $type, true );
-			});
+			return $list->filter( fn($item) => in_array( $item->getType(), (array) $type, true ));
 		}
 
 		return $list;

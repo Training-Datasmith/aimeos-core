@@ -33,24 +33,24 @@ class ProductLimit
 	extends \Aimeos\MShop\Plugin\Provider\Factory\Base
 	implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'single-number-max' => array(
+	private array $beConfig = [
+		'single-number-max' => [
 			'code' => 'single-number-max',
 			'internalcode' => 'single-number-max',
 			'label' => 'Maximum product quantity',
 			'type' => 'int',
 			'default' => '',
 			'required' => false,
-		),
-		'total-number-max' => array(
+		],
+		'total-number-max' => [
 			'code' => 'total-number-max',
 			'internalcode' => 'total-number-max',
 			'label' => 'Maximum total products in basket',
 			'type' => 'int',
 			'default' => '',
 			'required' => false,
-		),
-		'single-value-max' => array(
+		],
+		'single-value-max' => [
 			'code' => 'single-value-max',
 			'internalcode' => 'single-value-max',
 			'label' => 'Maximum product value',
@@ -58,8 +58,8 @@ class ProductLimit
 			'internaltype' => 'array',
 			'default' => '{}',
 			'required' => false,
-		),
-		'total-value-max' => array(
+		],
+		'total-value-max' => [
 			'code' => 'total-value-max',
 			'internalcode' => 'total-value-max',
 			'label' => 'Maximum total basket value',
@@ -67,8 +67,8 @@ class ProductLimit
 			'internaltype' => 'array',
 			'default' => '{}',
 			'required' => false,
-		),
-	);
+		],
+	];
 
 
 	/**

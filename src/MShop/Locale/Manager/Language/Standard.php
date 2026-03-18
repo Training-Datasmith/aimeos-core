@@ -170,7 +170,7 @@ class Standard
 	public function find( string $code, array $ref = [], ?string $domain = null, ?string $type = null,
 		?bool $default = false ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		return $this->findBase( array( 'locale.language.id' => $code ), $ref, $default );
+		return $this->findBase( [ 'locale.language.id' => $code ], $ref, $default );
 	}
 
 

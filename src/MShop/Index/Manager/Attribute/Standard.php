@@ -21,14 +21,14 @@ class Standard
 	extends \Aimeos\MShop\Index\Manager\DBBase
 	implements \Aimeos\MShop\Index\Manager\Attribute\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'index.attribute.id' => array(
+	private array $searchConfig = [
+		'index.attribute.id' => [
 			'code' => 'index.attribute.id',
 			'internalcode' => 'mindat."attrid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_attribute" AS mindat ON mindat."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_attribute" AS mindat ON mindat."prodid" = mpro."id"' ],
 			'label' => 'Product index attribute ID',
-		),
-		'index.attribute:allof' => array(
+		],
+		'index.attribute:allof' => [
 			'code' => 'index.attribute:allof()',
 			'internalcode' => '( SELECT mpro_allof."id" FROM mshop_product AS mpro_allof
 				WHERE mpro."id" = mpro_allof."id" AND (
@@ -42,8 +42,8 @@ class Standard
 			'label' => 'Number of product attributes, parameter(<attribute IDs>)',
 			'type' => 'null',
 			'public' => false,
-		),
-		'index.attribute:oneof' => array(
+		],
+		'index.attribute:oneof' => [
 			'code' => 'index.attribute:oneof()',
 			'internalcode' => '( SELECT mpro_oneof."id" FROM mshop_product AS mpro_oneof
 				WHERE mpro."id" = mpro_oneof."id" AND (
@@ -55,8 +55,8 @@ class Standard
 			'label' => 'Number of product attributes, parameter(<attribute IDs>)',
 			'type' => 'null',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 	private ?array $subManagers = null;
 
@@ -73,9 +73,7 @@ class Standard
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
 		$level = $context->config()->get( 'mshop/index/manager/sitemode', $level );
 
-		$this->searchConfig['index.attribute:allof']['function'] = function( $source, array $params ) {
-			return [$params[0], count( $params[0] )];
-		};
+		$this->searchConfig['index.attribute:allof']['function'] = (fn($source, array $params) => [$params[0], count( $params[0] )]);
 
 		$name = 'index.attribute:allof';
 		$expr = $this->siteString( 'mindat_allof."siteid"', $level );
@@ -654,7 +652,7 @@ class Standard
 
 				try {
 					$stmt->execute()->finish();
-				} catch( \Aimeos\Base\DB\Exception $e ) { ; } // Ignore duplicates
+				} catch( \Aimeos\Base\DB\Exception ) { ; } // Ignore duplicates
 			}
 		}
 	}

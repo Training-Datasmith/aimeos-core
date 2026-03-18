@@ -128,53 +128,53 @@ class Standard
 	 */
 
 
-	private array $searchConfig = array(
-		'job.id' => array(
+	private array $searchConfig = [
+		'job.id' => [
 			'code' => 'job.id',
 			'internalcode' => 'majob."id"',
 			'label' => 'ID',
 			'type' => 'int',
-		),
-		'job.siteid' => array(
+		],
+		'job.siteid' => [
 			'code' => 'job.siteid',
 			'internalcode' => 'majob."siteid"',
 			'label' => 'Site ID',
 			'public' => false,
-		),
-		'job.label' => array(
+		],
+		'job.label' => [
 			'code' => 'job.label',
 			'internalcode' => 'majob."label"',
 			'label' => 'Label',
-		),
-		'job.status' => array(
+		],
+		'job.status' => [
 			'code' => 'job.status',
 			'internalcode' => 'majob."status"',
 			'label' => 'Status',
 			'type' => 'int',
-		),
-		'job.path' => array(
+		],
+		'job.path' => [
 			'code' => 'job.path',
 			'internalcode' => 'majob."path"',
 			'label' => 'Generated file path',
-		),
-		'job.ctime' => array(
+		],
+		'job.ctime' => [
 			'code' => 'job.ctime',
 			'internalcode' => 'majob."ctime"',
 			'label' => 'Create date/time',
 			'type' => 'datetime',
-		),
-		'job.mtime' => array(
+		],
+		'job.mtime' => [
 			'code' => 'job.mtime',
 			'internalcode' => 'majob."mtime"',
 			'label' => 'Modify date/time',
 			'type' => 'datetime',
-		),
-		'job.editor' => array(
+		],
+		'job.editor' => [
 			'code' => 'job.editor',
 			'internalcode' => 'majob."editor"',
 			'label' => 'Editor',
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -226,7 +226,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['job.siteid'] = $values['job.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['job.siteid'] ??= $this->context()->locale()->getSiteId();
 		return $this->createItemBase( $values );
 	}
 
@@ -490,10 +490,10 @@ class Standard
 	{
 		$items = [];
 		$context = $this->context();
-		$logger = $context->logger();
+		$context->logger();
 		$conn = $context->db( $this->getResourceName() );
 
-		$required = array( 'job' );
+		$required = [ 'job' ];
 		$level = \Aimeos\MShop\Locale\Manager\Base::SITE_ONE;
 
 		/** madmin/job/manager/search/mysql

@@ -21,14 +21,14 @@ namespace Aimeos\MShop\Index\Manager\Price;
 class MySQL
 	extends \Aimeos\MShop\Index\Manager\Price\Standard
 {
-	private array $searchConfig = array(
-		'index.price.id' => array(
+	private array $searchConfig = [
+		'index.price.id' => [
 			'code' => 'index.price.id',
 			'internalcode' => 'mindpr."prodid"',
-			'internaldeps'=>array( 'LEFT JOIN "mshop_index_price" AS mindpr USE INDEX ("unq_msindpr_pid_sid_cid", "idx_msindpr_sid_cid_val") ON mindpr."prodid" = mpro."id"' ),
+			'internaldeps'=>[ 'LEFT JOIN "mshop_index_price" AS mindpr USE INDEX ("unq_msindpr_pid_sid_cid", "idx_msindpr_sid_cid_val") ON mindpr."prodid" = mpro."id"' ],
 			'label' => 'Product index price ID',
-		),
-	);
+		],
+	];
 
 
 	/**

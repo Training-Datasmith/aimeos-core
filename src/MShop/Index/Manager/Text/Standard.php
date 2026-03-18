@@ -21,46 +21,46 @@ class Standard
 	extends \Aimeos\MShop\Index\Manager\DBBase
 	implements \Aimeos\MShop\Index\Manager\Text\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'index.text.id' => array(
+	private array $searchConfig = [
+		'index.text.id' => [
 			'code' => 'index.text.id',
 			'internalcode' => 'mindte."prodid"',
-			'internaldeps' => array( 'LEFT JOIN "mshop_index_text" AS mindte ON mindte."prodid" = mpro."id"' ),
+			'internaldeps' => [ 'LEFT JOIN "mshop_index_text" AS mindte ON mindte."prodid" = mpro."id"' ],
 			'label' => 'Product index text ID',
-		),
-		'index.text:url' => array(
+		],
+		'index.text:url' => [
 			'code' => 'index.text:url()',
 			'internalcode' => ':site AND mindte."url"',
 			'label' => 'Product URL',
 			'public' => false,
-		),
-		'index.text:name' => array(
+		],
+		'index.text:name' => [
 			'code' => 'index.text:name()',
 			'internalcode' => ':site AND mindte."langid" = $1 AND mindte."name"',
 			'label' => 'Product name, parameter(<language ID>)',
 			'public' => false,
-		),
-		'sort:index.text:name' => array(
+		],
+		'sort:index.text:name' => [
 			'code' => 'sort:index.text:name()',
 			'internalcode' => 'mindte."name"',
 			'label' => 'Sort by product name, parameter(<language ID>)',
 			'public' => false,
-		),
-		'index.text:relevance' => array(
+		],
+		'index.text:relevance' => [
 			'code' => 'index.text:relevance()',
 			'internalcode' => ':site AND mindte."langid" = $1 AND POSITION( $2 IN mindte."content" )',
 			'label' => 'Product texts, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-		'sort:index.text:relevance' => array(
+		],
+		'sort:index.text:relevance' => [
 			'code' => 'sort:index.text:relevance()',
 			'internalcode' => '-POSITION( $2 IN mindte."content" ) * mpro."boost"',
 			'label' => 'Product texts, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 	private ?array $languageIds = null;
 	private ?array $subManagers = null;
@@ -603,7 +603,7 @@ class Standard
 	 */
 	protected function getFunctionRelevance()
 	{
-		return function( $source, array $params ) {
+		return function( $source, array $params ): array {
 
 			if( isset( $params[1] ) ) {
 				$params[1] = mb_strtolower( $params[1] );
@@ -778,7 +778,7 @@ class Standard
 
 		try {
 			$stmt->execute()->finish();
-		} catch( \Aimeos\Base\DB\Exception $e ) { ; } // Ignore duplicates
+		} catch( \Aimeos\Base\DB\Exception ) { ; } // Ignore duplicates
 	}
 
 

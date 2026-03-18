@@ -103,7 +103,7 @@ class Lists
 				'label' => 'Has list item, parameter(<domain>[,<list type>[,<reference ID>]])',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $alias, $level ) {
+				'function' => function( &$source, array $params ) use ( $alias, $level ): array {
 					$keys = [];
 
 					foreach( (array) ( $params[1] ?? '' ) as $type ) {
@@ -128,7 +128,7 @@ class Lists
 				'label' => 'Has list item with start date, parameter(<domain>,<list type>,<after>[,<before>])',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $alias, $level ) {
+				'function' => function( &$source, array $params ) use ( $alias, $level ): array {
 					$expr = [
 						$this->toExpression( $alias . '."domain"', $params[0] ?? '' ),
 						$this->toExpression( $alias . '."type"', $params[1] ?? '' ),
@@ -154,7 +154,7 @@ class Lists
 				'label' => 'Has list item with end date, parameter(<domain>,<list type>,<after>[,<before>])',
 				'type' => 'null',
 				'public' => false,
-				'function' => function( &$source, array $params ) use ( $alias, $level ) {
+				'function' => function( &$source, array $params ) use ( $alias, $level ): array {
 					$expr = [
 						$this->toExpression( $alias . '."domain"', $params[0] ?? '' ),
 						$this->toExpression( $alias . '."type"', $params[1] ?? '' ),

@@ -119,8 +119,8 @@ class Standard
 	{
 		$context = $this->context();
 
-		$values['.price'] = $values['.price'] ?? \Aimeos\MShop::create( $context, 'price' )->create();
-		$values['order.service.transaction.siteid'] = $values['order.service.transaction.siteid'] ?? $context->locale()->getSiteId();
+		$values['.price'] ??= \Aimeos\MShop::create( $context, 'price' )->create();
+		$values['order.service.transaction.siteid'] ??= $context->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Order\Item\Service\Transaction\Standard( 'order.service.transaction.', $values );
 	}

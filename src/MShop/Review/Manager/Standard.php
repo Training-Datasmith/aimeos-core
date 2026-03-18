@@ -21,48 +21,48 @@ class Standard
 	extends \Aimeos\MShop\Common\Manager\Base
 	implements \Aimeos\MShop\Review\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'review.customerid' => array(
+	private array $searchConfig = [
+		'review.customerid' => [
 			'label' => 'Customer ID',
 			'internalcode' => 'customerid',
 			'public' => false,
-		),
-		'review.orderproductid' => array(
+		],
+		'review.orderproductid' => [
 			'label' => 'Order product ID',
 			'internalcode' => 'ordprodid',
 			'public' => false,
-		),
-		'review.domain' => array(
+		],
+		'review.domain' => [
 			'label' => 'Domain',
 			'internalcode' => 'domain',
-		),
-		'review.refid' => array(
+		],
+		'review.refid' => [
 			'label' => 'ID from the referenced domain',
 			'internalcode' => 'refid',
-		),
-		'review.name' => array(
+		],
+		'review.name' => [
 			'label' => 'Name',
 			'internalcode' => 'name',
-		),
-		'review.comment' => array(
+		],
+		'review.comment' => [
 			'label' => 'Comment',
 			'internalcode' => 'comment',
-		),
-		'review.response' => array(
+		],
+		'review.response' => [
 			'label' => 'Response',
 			'internalcode' => 'response',
-		),
-		'review.rating' => array(
+		],
+		'review.rating' => [
 			'label' => 'Rating',
 			'internalcode' => 'rating',
 			'type' => 'int',
-		),
-		'review.status' => array(
+		],
+		'review.status' => [
 			'label' => 'Review status',
 			'internalcode' => 'status',
 			'type' => 'int',
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -138,7 +138,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['review.siteid'] = $values['review.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['review.siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MShop\Review\Item\Standard( 'review.', $values );
 	}
 

@@ -75,7 +75,7 @@ class Standard
 	 */
 	public function setLabel( string $label ) : \Aimeos\MShop\Locale\Item\Language\Iface
 	{
-		return $this->set( 'locale.language.label', (string) $label );
+		return $this->set( 'locale.language.label', $label );
 	}
 
 

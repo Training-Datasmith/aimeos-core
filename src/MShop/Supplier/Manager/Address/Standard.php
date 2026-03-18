@@ -29,7 +29,7 @@ class Standard
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['supplier.address.siteid'] = $values['supplier.address.siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['supplier.address.siteid'] ??= $this->context()->locale()->getSiteId();
 
 		return new \Aimeos\MShop\Supplier\Item\Address\Standard( 'supplier.address.', $values );
 	}

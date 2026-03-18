@@ -22,15 +22,15 @@ class FixedRebate
 	extends \Aimeos\MShop\Coupon\Provider\Factory\Base
 	implements \Aimeos\MShop\Coupon\Provider\Iface, \Aimeos\MShop\Coupon\Provider\Factory\Iface
 {
-	private array $beConfig = array(
-		'fixedrebate.productcode' => array(
+	private array $beConfig = [
+		'fixedrebate.productcode' => [
 			'code' => 'fixedrebate.productcode',
 			'internalcode' => 'fixedrebate.productcode',
 			'label' => 'Product code of the rebate product',
 			'default' => '',
 			'required' => true,
-		),
-		'fixedrebate.rebate' => array(
+		],
+		'fixedrebate.rebate' => [
 			'code' => 'fixedrebate.rebate',
 			'internalcode' => 'fixedrebate.rebate',
 			'label' => 'Map of currency ID and rebate amount',
@@ -38,8 +38,8 @@ class FixedRebate
 			'internaltype' => 'array',
 			'default' => [],
 			'required' => true,
-		),
-	);
+		],
+	];
 
 
 	/**

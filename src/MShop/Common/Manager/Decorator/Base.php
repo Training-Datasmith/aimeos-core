@@ -21,18 +21,14 @@ abstract class Base
 	extends \Aimeos\MShop\Common\Manager\Base
 	implements \Aimeos\MShop\Common\Manager\Decorator\Iface
 {
-	private \Aimeos\MShop\Common\Manager\Iface $manager;
-
-
 	/**
 	 * Initializes the manager decorator.
 	 *
 	 * @param \Aimeos\MShop\Common\Manager\Iface $manager Manager object
 	 * @param \Aimeos\MShop\ContextIface $context Context object with required objects
 	 */
-	public function __construct( \Aimeos\MShop\Common\Manager\Iface $manager, \Aimeos\MShop\ContextIface $context )
+	public function __construct( private \Aimeos\MShop\Common\Manager\Iface $manager, \Aimeos\MShop\ContextIface $context )
 	{
-		$this->manager = $manager;
 		parent::__construct( $context );
 	}
 
@@ -57,7 +53,7 @@ abstract class Base
 	 * @param string $iface Interface name of the item to apply the filter to
 	 * @param \Closure $fcn Anonymous function receiving the item to check as first parameter
 	 */
-	public function addFilter( string $iface, \Closure $fcn )
+	public function addFilter( string $iface, \Closure $fcn ): void
 	{
 		$this->manager->addFilter( $iface, $fcn );
 	}
@@ -70,7 +66,7 @@ abstract class Base
 	 */
 	public function classes() : array
 	{
-		return array_merge( $this->getManager()->classes(), [get_class( $this )] );
+		return array_merge( $this->getManager()->classes(), [static::class] );
 	}
 
 

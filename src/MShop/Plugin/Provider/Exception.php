@@ -20,9 +20,6 @@ namespace Aimeos\MShop\Plugin\Provider;
  */
 class Exception extends \Aimeos\MShop\Plugin\Exception
 {
-	private array $errorCodes;
-
-
 	/**
 	 * Initializes the instance of the exception
 	 *
@@ -31,11 +28,9 @@ class Exception extends \Aimeos\MShop\Plugin\Exception
 	 * @param \Exception|null $previous Previously thrown exception
 	 * @param array $errorCodes List of error codes for error handling
 	 */
-	public function __construct( string $message = '', int $code = 0, ?\Exception $previous = null, array $errorCodes = [] )
+	public function __construct( string $message = '', int $code = 0, ?\Exception $previous = null, private array $errorCodes = [] )
 	{
 		parent::__construct( $message, $code, $previous );
-
-		$this->errorCodes = $errorCodes;
 	}
 
 

@@ -20,20 +20,20 @@ namespace Aimeos\MShop\Index\Manager\Text;
 class SQLSrv
 	extends \Aimeos\MShop\Index\Manager\Text\Standard
 {
-	private array $searchConfig = array(
-		'index.text:relevance' => array(
+	private array $searchConfig = [
+		'index.text:relevance' => [
 			'code' => 'index.text:relevance()',
 			'label' => 'Product texts, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-		'sort:index.text:relevance' => array(
+		],
+		'sort:index.text:relevance' => [
 			'code' => 'sort:index.text:relevance()',
 			'label' => 'Product text sorting, parameter(<language ID>,<search term>)',
 			'type' => 'float',
 			'public' => false,
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -64,7 +64,7 @@ class SQLSrv
 			$search = ':site AND mindte."langid" = $1 AND CHARINDEX( $2, content )';
 			$sort = '-CHARINDEX( $2, content ) * mpro."boost"';
 
-			$func = function( $source, array $params ) {
+			$func = function( $source, array $params ): array {
 
 				if( isset( $params[1] ) ) {
 					$params[1] = mb_strtolower( $params[1] );
@@ -107,7 +107,7 @@ class SQLSrv
 	 */
 	protected function getFunctionRelevance()
 	{
-		return function( $source, array $params ) {
+		return function( $source, array $params ): array {
 
 			if( isset( $params[1] ) )
 			{

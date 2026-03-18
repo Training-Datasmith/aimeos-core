@@ -22,13 +22,13 @@ class None
 	extends \Aimeos\MAdmin\Common\Manager\Base
 	implements \Aimeos\MAdmin\Cache\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
 {
-	private array $searchConfig = array(
-		'cache.id' => array(
+	private array $searchConfig = [
+		'cache.id' => [
 			'code' => 'cache.id',
 			'internalcode' => '"id"',
 			'label' => 'ID',
-		),
-	);
+		],
+	];
 
 
 	/**
@@ -62,7 +62,7 @@ class None
 	 */
 	public function create( array $values = [] ) : \Aimeos\MShop\Common\Item\Iface
 	{
-		$values['siteid'] = $values['siteid'] ?? $this->context()->locale()->getSiteId();
+		$values['siteid'] ??= $this->context()->locale()->getSiteId();
 		return new \Aimeos\MAdmin\Cache\Item\Standard( $values );
 	}
 
