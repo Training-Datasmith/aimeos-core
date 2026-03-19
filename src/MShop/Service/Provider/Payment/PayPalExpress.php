@@ -472,7 +472,8 @@ class PayPalExpress extends \Aimeos\MShop\Service\Provider\Payment\Base implemen
         parse_str($response, $rvals);
 
         if ($rvals['ACK'] !== 'Success') {
-            $msg = 'PayPal Express: method = ' . $method . ', order ID = ' . $orderid . ', response = ' . print_r($rvals, true);
+            $safeVals = array_diff_key($rvals, array_flip(['USER', 'PWD', 'SIGNATURE']));
+            $msg = 'PayPal Express: method = ' . $method . ', order ID = ' . $orderid . ', response = ' . print_r($safeVals, true);
             $this->context()->logger()->warning($msg, 'core/service/paypalexpress');
 
             if ($rvals['ACK'] !== 'SuccessWithWarning') {
@@ -505,9 +506,17 @@ class PayPalExpress extends \Aimeos\MShop\Service\Provider\Payment\Base implemen
 
         $price = $basket->getPrice();
 
-        if ($this->getAmount($price) != $params['payment_amount']) {
+        $expectedCurrency = $price->getCurrencyId();
+        $actualCurrency = $params['mc_currency'] ?? $params['currency_code'] ?? null;
+
+        if ($actualCurrency !== null && $actualCurrency !== $expectedCurrency) {
+            $msg = $this->context()->translate('mshop', 'PayPal Express: Wrong payment currency "%1$s" for order ID "%2$s"');
+            throw new \Aimeos\MShop\Service\Exception(sprintf($msg, $actualCurrency, $params['invoice']));
+        }
+
+        if ((float) $this->getAmount($price) !== (float) ($params['payment_amount'] ?? $params['mc_gross'] ?? 0)) {
             $msg = $this->context()->translate('mshop', 'PayPal Express: Wrong payment amount "%1$s" for order ID "%2$s"');
-            throw new \Aimeos\MShop\Service\Exception(sprintf($msg, $params['payment_amount'], $params['invoice']));
+            throw new \Aimeos\MShop\Service\Exception(sprintf($msg, $params['payment_amount'] ?? $params['mc_gross'] ?? 0, $params['invoice']));
         }
 
         $search = $attrManager->filter();
