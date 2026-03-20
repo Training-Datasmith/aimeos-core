@@ -1,105 +1,90 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Media
  */
+namespace Aimeos\M_Shop\Media\Manager;
 
-namespace Aimeos\MShop\Media\Manager;
-
-use Psr\Http\Message\UploadedFileInterface;
-
+use Psr\Http\Message\Uploaded_File_Interface;
 /**
  * Default media manager implementation.
  *
  * @package MShop
  * @subpackage Media
  */
-class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends Base implements \Aimeos\M_Shop\Media\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    use \Aimeos\MShop\Upload;
+    use \Aimeos\M_Shop\Upload;
     use Preview;
-
     /**
      * Copies the media item and the referenced files
      *
      * @param \Aimeos\MShop\Media\Item\Iface $item Media item whose files should be copied
      * @return \Aimeos\MShop\Media\Item\Iface Copied media item with new files
      */
-    public function copy(\Aimeos\MShop\Media\Item\Iface $item): \Aimeos\MShop\Media\Item\Iface
+    public function copy(\Aimeos\M_Shop\Media\Item\Iface $item): \Aimeos\M_Shop\Media\Item\Iface
     {
-        $item = (clone $item)->setId(null);
-
-        $path = $item->getUrl();
-        $mime = $item->getMimeType();
-        $domain = $item->getDomain();
-        $previews = $item->getPreviews();
-        $fsname = $item->getFileSystem();
+        $item = (clone $item)->set_id(null);
+        $path = $item->get_url();
+        $mime = $item->get_mime_type();
+        $domain = $item->get_domain();
+        $previews = $item->get_previews();
+        $fsname = $item->get_file_system();
         $fs = $this->context()->fs($fsname);
-
         if ($fs->has($path)) {
-            $newPath = $this->path(substr(basename($path), 9), $mime, $domain);
-            $fs->copy($path, $newPath);
-            $item->setUrl($newPath);
+            $new_path = $this->path(substr(basename($path), 9), $mime, $domain);
+            $fs->copy($path, $new_path);
+            $item->set_url($new_path);
         }
-
         if (empty($previews)) {
             return $this->scale($item, true);
         }
-
         foreach ($previews as $size => $preview) {
             if ($fsname !== 'fs-mimeicon' && $fs->has($preview)) {
-                $newPath = $this->path(substr(basename($preview), 9), $mime, $domain);
-                $fs->copy($preview, $newPath);
-                $previews[$size] = $newPath;
+                $new_path = $this->path(substr(basename($preview), 9), $mime, $domain);
+                $fs->copy($preview, $new_path);
+                $previews[$size] = $new_path;
             }
         }
-
-        return $item->setPreviews($previews);
+        return $item->set_previews($previews);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Media\Item\Iface New media item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $locale = $this->context()->locale();
-
-        $values['.languageid'] = $locale->getLanguageId();
-        $values['media.siteid'] ??= $locale->getSiteId();
-
-        return new \Aimeos\MShop\Media\Item\Standard('media.', $values);
+        $values['.languageid'] = $locale->get_language_id();
+        $values['media.siteid'] ??= $locale->get_site_id();
+        return new \Aimeos\M_Shop\Media\Item\Standard('media.', $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $items List of item objects or IDs of the items
      * @return \Aimeos\MShop\Media\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         foreach (map($items) as $item) {
-            if ($item instanceof \Aimeos\MShop\Media\Item\Iface && $item->getFileSystem() === 'fs-media') {
+            if ($item instanceof \Aimeos\M_Shop\Media\Item\Iface && $item->get_file_system() === 'fs-media') {
                 try {
-                    $this->deletePreviews($item, $item->getPreviews());
-                    $this->deleteFile($item->getUrl(), 'fs-media');
+                    $this->delete_previews($item, $item->get_previews());
+                    $this->delete_file($item->get_url(), 'fs-media');
                 } catch (\Exception $e) {
-                    $this->context()->logger()->notice($e->getMessage());
+                    $this->context()->logger()->notice($e->get_message());
                 }
             }
         }
-
         return parent::delete($items);
     }
-
     /**
      * Creates a filter object.
      *
@@ -109,84 +94,31 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('media', $default);
-
-        if ($default !== false && ($langid = $this->context()->locale()->getLanguageId())) {
-            $filter->add($filter->or([
-                $filter->compare('==', 'media.languageid', $langid),
-                $filter->compare('==', 'media.languageid', null),
-            ]));
+        $filter = $this->filter_base('media', $default);
+        if ($default !== false && $langid = $this->context()->locale()->get_language_id()) {
+            $filter->add($filter->or([$filter->compare('==', 'media.languageid', $langid), $filter->compare('==', 'media.languageid', null)]));
         }
-
         return $filter;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'media.type' => [
-                'label' => 'Type',
-                'internalcode' => 'type',
-            ],
-            'media.label' => [
-                'label' => 'Label',
-                'internalcode' => 'label',
-            ],
-            'media.domain' => [
-                'label' => 'Domain',
-                'internalcode' => 'domain',
-            ],
-            'media.languageid' => [
-                'label' => 'Language code',
-                'internalcode' => 'langid',
-            ],
-            'media.mimetype' => [
-                'label' => 'Mime type',
-                'internalcode' => 'mimetype',
-            ],
-            'media.url' => [
-                'label' => 'URL',
-                'internalcode' => 'link',
-            ],
-            'media.previews' => [
-                'label' => 'Preview URLs as JSON encoded string',
-                'internalcode' => 'preview',
-                'type' => 'json',
-            ],
-            'media.filesystem' => [
-                'label' => 'File sytem name',
-                'internalcode' => 'fsname',
-            ],
-            'media.status' => [
-                'label' => 'Status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-        ]);
+        return $this->create_attributes(['media.type' => ['label' => 'Type', 'internalcode' => 'type'], 'media.label' => ['label' => 'Label', 'internalcode' => 'label'], 'media.domain' => ['label' => 'Domain', 'internalcode' => 'domain'], 'media.languageid' => ['label' => 'Language code', 'internalcode' => 'langid'], 'media.mimetype' => ['label' => 'Mime type', 'internalcode' => 'mimetype'], 'media.url' => ['label' => 'URL', 'internalcode' => 'link'], 'media.previews' => ['label' => 'Preview URLs as JSON encoded string', 'internalcode' => 'preview', 'type' => 'json'], 'media.filesystem' => ['label' => 'File sytem name', 'internalcode' => 'fsname'], 'media.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int']]);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'media.preview' => [
-                'label' => 'Preview URLs as JSON encoded string',
-                'internalcode' => 'preview',
-                'type' => 'json',
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['media.preview' => ['label' => 'Preview URLs as JSON encoded string', 'internalcode' => 'preview', 'type' => 'json']]));
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -196,7 +128,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
     {
         return 'media.';
     }
-
     /**
      * Rescales the original file to preview files referenced by the media item
      *
@@ -209,52 +140,33 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @param bool $force True to enforce creating new preview images
      * @return \Aimeos\MShop\Media\Item\Iface Rescaled media item
      */
-    public function scale(\Aimeos\MShop\Media\Item\Iface $item, bool $force = false): \Aimeos\MShop\Media\Item\Iface
+    public function scale(\Aimeos\M_Shop\Media\Item\Iface $item, bool $force = false): \Aimeos\M_Shop\Media\Item\Iface
     {
-        $mime = $item->getMimeType();
-
-        if (empty($url = $item->getUrl())
-            || $item->getFileSystem() === 'fs-mimeicon'
-            || strncmp('data:', $url, 5) === 0
-            || strncmp('image/svg', $mime, 9) === 0
-            || strncmp('image/', $mime, 6) !== 0
-        ) {
+        $mime = $item->get_mime_type();
+        if (empty($url = $item->get_url()) || $item->get_file_system() === 'fs-mimeicon' || strncmp('data:', $url, 5) === 0 || strncmp('image/svg', $mime, 9) === 0 || strncmp('image/', $mime, 6) !== 0) {
             return $item;
         }
-
-        $fs = $this->context()->fs($item->getFileSystem());
-        $is = ($fs instanceof \Aimeos\Base\Filesystem\MetaIface ? true : false);
-
-        if (!$force
-            && !empty($item->getPreviews())
-            && preg_match('#^[a-zA-Z]{2,6}://#', $url) !== 1
-            && ($is && date('Y-m-d H:i:s', $fs->time($url)) < $item->getTimeModified() || $fs->has($url))
-        ) {
+        $fs = $this->context()->fs($item->get_file_system());
+        $is = $fs instanceof \Aimeos\Base\Filesystem\Meta_Iface ? true : false;
+        if (!$force && !empty($item->get_previews()) && preg_match('#^[a-zA-Z]{2,6}://#', $url) !== 1 && ($is && date('Y-m-d H:i:s', $fs->time($url)) < $item->get_time_modified() || $fs->has($url))) {
             return $item;
         }
-
-        $domain = $item->getDomain() ?: '-';
-        $sizes = $this->sizes($domain, $item->getType());
+        $domain = $item->get_domain() ?: '-';
+        $sizes = $this->sizes($domain, $item->get_type());
         $image = $this->image($url);
         $quality = $this->quality();
-        $old = $item->getPreviews();
+        $old = $item->get_previews();
         $previews = [];
-
-        foreach ($this->createPreviews($image, $sizes) as $width => $image) {
+        foreach ($this->create_previews($image, $sizes) as $width => $image) {
             $path = $old[$width] ?? $this->path($url, 'image/webp', $domain);
-            $fs->write($path, (string) $image->toWebp($quality));
-
+            $fs->write($path, (string) $image->to_webp($quality));
             $previews[$width] = $path;
             unset($old[$width]);
         }
-
-        $item = $this->deletePreviews($item, $old)->setPreviews($previews);
-
+        $item = $this->delete_previews($item, $old)->set_previews($previews);
         $this->call('scaled', $item, $image);
-
         return $item;
     }
-
     /**
      * Returns the preview image sizes for scaling the images.
      *
@@ -265,7 +177,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
     protected function sizes(string $domain, string $type): array
     {
         $config = $this->context()->config();
-
         /** mshop/media/manager/previews/common
          * Scaling options for preview images
          *
@@ -348,10 +259,8 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
          */
         $sizes = $config->get('mshop/media/manager/previews/common', []);
         $sizes = $config->get('mshop/media/manager/previews/' . $domain, $sizes);
-
         return $config->get('mshop/media/manager/previews/' . $domain . '/' . $type, $sizes);
     }
-
     /**
      * Stores the uploaded file and returns the updated item
      *
@@ -360,27 +269,20 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @param \Psr\Http\Message\UploadedFileInterface|null $preview Uploaded preview image
      * @return \Aimeos\MShop\Media\Item\Iface Updated media item including file and preview paths
      */
-    public function upload(\Aimeos\MShop\Media\Item\Iface $item, ?UploadedFileInterface $file, ?UploadedFileInterface $preview = null): \Aimeos\MShop\Media\Item\Iface
+    public function upload(\Aimeos\M_Shop\Media\Item\Iface $item, ?Uploaded_File_Interface $file, ?Uploaded_File_Interface $preview = null): \Aimeos\M_Shop\Media\Item\Iface
     {
-        $domain = $item->getDomain() ?: '-';
-        $fsname = $item->getFileSystem() ?: 'fs-media';
+        $domain = $item->get_domain() ?: '-';
+        $fsname = $item->get_file_system() ?: 'fs-media';
         $fs = $this->context()->fs($fsname);
-
-        if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE && $this->isAllowed($mime = $this->mimetype($file))) {
+        if ($file && $file->get_error() !== UPLOAD_ERR_NO_FILE && $this->is_allowed($mime = $this->mimetype($file))) {
             try {
-                $oldpath = $item->getUrl();
-
-                $path = $this->path($file->getClientFilename(), $mime, $domain);
-                $fs->write($path, $this->sanitize($file->getStream()->getContents(), $mime));
-
-                $item->setLabel($file->getClientFilename())
-                    ->setMimetype($mime)
-                    ->setUrl($path);
-
+                $oldpath = $item->get_url();
+                $path = $this->path($file->get_client_filename(), $mime, $domain);
+                $fs->write($path, $this->sanitize($file->get_stream()->get_contents(), $mime));
+                $item->set_label($file->get_client_filename())->set_mimetype($mime)->set_url($path);
                 if (!$preview) {
                     $this->scale($item, true);
                 }
-
                 if (!empty($oldpath) && $fs->has($oldpath)) {
                     $fs->rm($oldpath);
                 }
@@ -388,21 +290,16 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
                 if (!empty($path) && $fs->has($path)) {
                     $fs->rm($path);
                 }
-
                 throw $e;
             }
         }
-
-        if ($preview && $preview->getError() !== UPLOAD_ERR_NO_FILE && $this->isAllowed($mime = $this->mimetype($preview))) {
-            $path = $this->path($preview->getClientFilename(), $mime, $domain);
-            $fs->write($path, $this->sanitize($preview->getStream()->getContents(), $mime));
-
-            $item->setPreview($path);
+        if ($preview && $preview->get_error() !== UPLOAD_ERR_NO_FILE && $this->is_allowed($mime = $this->mimetype($preview))) {
+            $path = $this->path($preview->get_client_filename(), $mime, $domain);
+            $fs->write($path, $this->sanitize($preview->get_stream()->get_contents(), $mime));
+            $item->set_preview($path);
         }
-
         return $item;
     }
-
     /** mshop/media/manager/resource
      * Name of the database connection resource to use
      *
@@ -414,7 +311,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/media/manager/name
      * Class name of the used media manager implementation
      *
@@ -447,7 +343,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/media/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the media manager
      *
@@ -472,7 +367,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/decorators/global
      * @see mshop/media/manager/decorators/local
      */
-
     /** mshop/media/manager/decorators/global
      * Adds a list of globally available decorators only to the media manager
      *
@@ -496,7 +390,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/decorators/excludes
      * @see mshop/media/manager/decorators/local
      */
-
     /** mshop/media/manager/decorators/local
      * Adds a list of local decorators only to the media manager
      *
@@ -520,7 +413,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/decorators/excludes
      * @see mshop/media/manager/decorators/global
      */
-
     /** mshop/media/manager/submanagers
      * List of manager names that can be instantiated by the media manager
      *
@@ -537,13 +429,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/media/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/media/manager/delete/ansi
      */
-
     /** mshop/media/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -567,13 +457,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/search/ansi
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/insert/mysql
      * Inserts a new media record into the database table
      *
      * @see mshop/media/manager/insert/ansi
      */
-
     /** mshop/media/manager/insert/ansi
      * Inserts a new media record into the database table
      *
@@ -602,13 +490,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/search/ansi
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/update/mysql
      * Updates an existing media record in the database
      *
      * @see mshop/media/manager/update/ansi
      */
-
     /** mshop/media/manager/update/ansi
      * Updates an existing media record in the database
      *
@@ -634,13 +520,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/search/ansi
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/media/manager/newid/ansi
      */
-
     /** mshop/media/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -670,7 +554,6 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/search/ansi
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -699,13 +582,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/media/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/media/manager/search/ansi
      */
-
     /** mshop/media/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -754,13 +635,11 @@ class Standard extends Base implements \Aimeos\MShop\Media\Manager\Iface, \Aimeo
      * @see mshop/media/manager/delete/ansi
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/media/manager/count/ansi
      */
-
     /** mshop/media/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

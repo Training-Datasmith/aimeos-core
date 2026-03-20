@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2013
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Decorator for service providers adding additional costs.
@@ -18,19 +16,9 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Costs extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Costs extends \Aimeos\M_Shop\Service\Provider\Decorator\Base implements \Aimeos\M_Shop\Service\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'costs.percent' => [
-            'code' => 'costs.percent',
-            'internalcode' => 'costs.percent',
-            'label' => 'Costs: Decimal percent value',
-            'type' => 'number',
-            'default' => 0,
-            'required' => true,
-        ],
-    ];
-
+    private array $be_config = ['costs.percent' => ['code' => 'costs.percent', 'internalcode' => 'costs.percent', 'label' => 'Costs: Decimal percent value', 'type' => 'number', 'default' => 0, 'required' => true]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -38,24 +26,21 @@ class Costs extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Ai
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $error = $this->getProvider()->checkConfigBE($attributes);
-
-        return $error + $this->checkConfig($this->beConfig, $attributes);
+        $error = $this->get_provider()->check_config_be($attributes);
+        return $error + $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return array_replace(parent::getConfigBE(), $this->getConfigItems($this->beConfig));
+        return array_replace(parent::get_config_be(), $this->get_config_items($this->be_config));
     }
-
     /**
      * Returns the price when using the provider.
      * Usually, this is the lowest price that is available in the service item but can also be a calculated based on
@@ -65,19 +50,16 @@ class Costs extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Ai
      * @param array $options Selected options by customer from frontend
      * @return \Aimeos\MShop\Price\Item\Iface Price item containing the price, shipping, rebate
      */
-    public function calcPrice(\Aimeos\MShop\Order\Item\Iface $basket, array $options = []): \Aimeos\MShop\Price\Item\Iface
+    public function calc_price(\Aimeos\M_Shop\Order\Item\Iface $basket, array $options = []): \Aimeos\M_Shop\Price\Item\Iface
     {
-        $config = $this->getServiceItem()->getConfig();
-
+        $config = $this->get_service_item()->get_config();
         if (!isset($config['costs.percent'])) {
             $msg = $this->context()->translate('mshop', 'Missing configuration "%1$s"');
-            throw new \Aimeos\MShop\Service\Exception(sprintf($msg, 'costs.percent'));
+            throw new \Aimeos\M_Shop\Service\Exception(sprintf($msg, 'costs.percent'));
         }
-
-        $value = $basket->getPrice()->getValue() * $config['costs.percent'] / 100;
-        $price = $this->getProvider()->calcPrice($basket, $options);
-        $price->setCosts($price->getCosts() + $value);
-
+        $value = $basket->get_price()->get_value() * $config['costs.percent'] / 100;
+        $price = $this->get_provider()->calc_price($basket, $options);
+        $price->set_costs($price->get_costs() + $value);
         return $price;
     }
 }

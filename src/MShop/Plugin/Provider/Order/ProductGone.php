@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Checks the current availability of the products in a basket
@@ -28,7 +26,7 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class ProductGone extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Product_Gone extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -36,12 +34,11 @@ class ProductGone extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements 
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $p->attach($this->object(), 'check.after');
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -51,32 +48,27 @@ class ProductGone extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements 
      * @return mixed Modified value parameter
      * @throws \Aimeos\MShop\Plugin\Provider\Exception if checks fail
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
         if (!in_array('order/product', (array) $value)) {
             return $value;
         }
-
-        $notAvailable = [];
-        $productIds = $order->getProducts()->getProductId()->toArray();
-        $productManager = \Aimeos\MShop::create($this->context(), 'product');
-
-        $filter = $productManager->filter(true)->add('product.id', '==', $productIds);
-        $checkItems = $productManager->search($filter);
-
-        foreach ($order->getProducts() as $position => $orderProduct) {
-            if (($product = $checkItems->get($orderProduct->getProductId())) === null) {
-                $notAvailable[$position] = 'gone.notexist';
+        $not_available = [];
+        $product_ids = $order->get_products()->get_product_id()->to_array();
+        $product_manager = \Aimeos\M_Shop::create($this->context(), 'product');
+        $filter = $product_manager->filter(true)->add('product.id', '==', $product_ids);
+        $check_items = $product_manager->search($filter);
+        foreach ($order->get_products() as $position => $order_product) {
+            if (($product = $check_items->get($order_product->get_product_id())) === null) {
+                $not_available[$position] = 'gone.notexist';
                 continue;
             }
         }
-
-        if (count($notAvailable) > 0) {
-            $code = [ 'product' => $notAvailable ];
+        if (count($not_available) > 0) {
+            $code = ['product' => $not_available];
             $msg = $this->context()->translate('mshop', 'Products in basket not available');
-            throw new \Aimeos\MShop\Plugin\Provider\Exception($msg, -1, null, $code);
+            throw new \Aimeos\M_Shop\Plugin\Provider\Exception($msg, -1, null, $code);
         }
-
         return $value;
     }
 }

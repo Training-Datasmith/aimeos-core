@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Product
  */
-
-namespace Aimeos\MShop\Product\Manager\Type;
+namespace Aimeos\M_Shop\Product\Manager\Type;
 
 /**
  * Interface for product type manager.
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Product\Manager\Type;
  * @package MShop
  * @subpackage Product
  */
-interface Iface extends \Aimeos\MShop\Type\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Type\Manager\Iface
 {
 }

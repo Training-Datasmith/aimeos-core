@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Locale
  */
-
-namespace Aimeos\MShop\Locale\Manager;
+namespace Aimeos\M_Shop\Locale\Manager;
 
 /**
  * Shop interface with methods for setting locale.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Locale\Manager;
  * @package MShop
  * @subpackage Locale
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
     /**
      * Returns the locale item for the given site code, language code and currency code.
@@ -33,12 +31,5 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @return \Aimeos\MShop\Locale\Item\Iface Locale item for the given parameters
      * @throws \Aimeos\MShop\Locale\Exception If no locale item is found
      */
-    public function bootstrap(
-        string $site,
-        string $lang = '',
-        string $currency = '',
-        bool $active = true,
-        ?int $level = null,
-        bool $bare = false
-    ): \Aimeos\MShop\Locale\Item\Iface;
+    public function bootstrap(string $site, string $lang = '', string $currency = '', bool $active = true, ?int $level = null, bool $bare = false): \Aimeos\M_Shop\Locale\Item\Iface;
 }

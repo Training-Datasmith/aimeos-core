@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\Config;
+namespace Aimeos\M_Shop\Common\Item\Config;
 
 /**
  * Common interface for items containing configuration
@@ -24,8 +22,7 @@ interface Iface
      *
      * @return array Configuration values
      */
-    public function getConfig(): array;
-
+    public function get_config(): array;
     /**
      * Returns the configuration value for the specified path
      *
@@ -41,16 +38,14 @@ interface Iface
      * @param mixed $default Default value if no configration is found
      * @return mixed Configuration value or array of values
      */
-    public function getConfigValue(string $key, $default = null);
-
+    public function get_config_value(string $key, $default = null);
     /**
      * Sets the configuration values of the item
      *
      * @param array $config Configuration values
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setConfig(array $config): \Aimeos\MShop\Common\Item\Iface;
-
+    public function set_config(array $config): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Sets the configuration value for the specified path
      *
@@ -66,5 +61,5 @@ interface Iface
      * @param mixed $value Value to set for the key
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setConfigValue(string $key, $value): \Aimeos\MShop\Common\Item\Iface;
+    public function set_config_value(string $key, $value): \Aimeos\M_Shop\Common\Item\Iface;
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  * @package MShop
  * @subpackage Rule
  */
-
-namespace Aimeos\MShop\Rule\Manager;
+namespace Aimeos\M_Shop\Rule\Manager;
 
 /**
  * Default rule manager implementation.
@@ -17,61 +15,20 @@ namespace Aimeos\MShop\Rule\Manager;
  * @package MShop
  * @subpackage Rule
  */
-class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\Rule\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Rule\Manager\Base implements \Aimeos\M_Shop\Rule\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'rule.type' => [
-            'label' => 'Type ID',
-            'internalcode' => 'type',
-        ],
-        'rule.label' => [
-            'label' => 'Label',
-            'internalcode' => 'label',
-        ],
-        'rule.provider' => [
-            'label' => 'Provider',
-            'internalcode' => 'provider',
-        ],
-        'rule.position' => [
-            'label' => 'Position',
-            'internalcode' => 'pos',
-            'type' => 'int',
-        ],
-        'rule.status' => [
-            'label' => 'Status',
-            'internalcode' => 'status',
-            'type' => 'int',
-        ],
-        'rule.config' => [
-            'label' => 'Configuration',
-            'internalcode' => 'config',
-            'type' => 'json',
-            'public' => false,
-        ],
-        'rule.datestart' => [
-            'label' => 'Start date/time',
-            'internalcode' => 'start',
-            'type' => 'datetime',
-        ],
-        'rule.dateend' => [
-            'label' => 'End date/time',
-            'internalcode' => 'end',
-            'type' => 'datetime',
-        ],
-    ];
-
+    private array $search_config = ['rule.type' => ['label' => 'Type ID', 'internalcode' => 'type'], 'rule.label' => ['label' => 'Label', 'internalcode' => 'label'], 'rule.provider' => ['label' => 'Provider', 'internalcode' => 'provider'], 'rule.position' => ['label' => 'Position', 'internalcode' => 'pos', 'type' => 'int'], 'rule.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int'], 'rule.config' => ['label' => 'Configuration', 'internalcode' => 'config', 'type' => 'json', 'public' => false], 'rule.datestart' => ['label' => 'Start date/time', 'internalcode' => 'start', 'type' => 'datetime'], 'rule.dateend' => ['label' => 'End date/time', 'internalcode' => 'end', 'type' => 'datetime']];
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Review\Item\Iface New review item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['rule.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Rule\Item\Standard('rule.', $values);
+        $values['rule.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Rule\Item\Standard('rule.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -81,36 +38,22 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('rule', $default);
-
+        $filter = $this->filter_base('rule', $default);
         if ($default !== false) {
             $date = $this->context()->datetime();
-
-            return $filter->add($filter->and([
-                $filter->or([
-                    $filter->is('rule.datestart', '==', null),
-                    $filter->is('rule.datestart', '<=', $date),
-                ]),
-                $filter->or([
-                    $filter->is('rule.dateend', '==', null),
-                    $filter->is('rule.dateend', '>=', $date),
-                ]),
-            ]));
+            return $filter->add($filter->and([$filter->or([$filter->is('rule.datestart', '==', null), $filter->is('rule.datestart', '<=', $date)]), $filter->or([$filter->is('rule.dateend', '==', null), $filter->is('rule.dateend', '>=', $date)])]));
         }
-
         return $filter;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -120,7 +63,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
     {
         return 'rule.';
     }
-
     /** mshop/rule/manager/name
      * Class name of the used rule manager implementation
      *
@@ -153,7 +95,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @param string Last part of the class name
      * @since 2021.04
      */
-
     /** mshop/rule/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the rule manager
      *
@@ -178,7 +119,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/decorators/global
      * @see mshop/rule/manager/decorators/local
      */
-
     /** mshop/rule/manager/decorators/global
      * Adds a list of globally available decorators only to the rule manager
      *
@@ -202,7 +142,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/decorators/excludes
      * @see mshop/rule/manager/decorators/local
      */
-
     /** mshop/rule/manager/decorators/local
      * Adds a list of local decorators only to the rule manager
      *
@@ -226,7 +165,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/decorators/excludes
      * @see mshop/rule/manager/decorators/global
      */
-
     /** mshop/rule/manager/resource
      * Name of the database connection resource to use
      *
@@ -238,13 +176,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/rule/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/rule/manager/delete/ansi
      */
-
     /** mshop/rule/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -268,7 +204,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/search/ansi
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/submanagers
      * List of manager names that can be instantiated by the rule manager
      *
@@ -285,13 +220,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @param array List of sub-manager names
      * @since 2021.04
      */
-
     /** mshop/rule/manager/insert/mysql
      * Inserts a new rule record into the database table
      *
      * @see mshop/rule/manager/insert/ansi
      */
-
     /** mshop/rule/manager/insert/ansi
      * Inserts a new rule record into the database table
      *
@@ -320,13 +253,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/search/ansi
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/update/mysql
      * Updates an existing rule record in the database
      *
      * @see mshop/rule/manager/update/ansi
      */
-
     /** mshop/rule/manager/update/ansi
      * Updates an existing rule record in the database
      *
@@ -352,13 +283,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/search/ansi
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/rule/manager/newid/ansi
      */
-
     /** mshop/rule/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -388,7 +317,6 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/search/ansi
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -417,13 +345,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/rule/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/rule/manager/search/ansi
      */
-
     /** mshop/rule/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -470,13 +396,11 @@ class Standard extends \Aimeos\MShop\Rule\Manager\Base implements \Aimeos\MShop\
      * @see mshop/rule/manager/delete/ansi
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/rule/manager/count/ansi
      */
-
     /** mshop/rule/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

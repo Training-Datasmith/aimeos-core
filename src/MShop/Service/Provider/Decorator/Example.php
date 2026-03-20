@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Example decorator for service provider.
@@ -18,18 +16,9 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Example extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Example extends \Aimeos\M_Shop\Service\Provider\Decorator\Base implements \Aimeos\M_Shop\Service\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'country' => [
-            'code' => 'country',
-            'internalcode' => 'country',
-            'label' => 'Country',
-            'default' => '',
-            'required' => true,
-        ],
-    ];
-
+    private array $be_config = ['country' => ['code' => 'country', 'internalcode' => 'country', 'label' => 'Country', 'default' => '', 'required' => true]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -37,30 +26,25 @@ class Example extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $error = $this->getProvider()->checkConfigBE($attributes);
-
-        return $error + $this->checkConfig($this->beConfig, $attributes);
+        $error = $this->get_provider()->check_config_be($attributes);
+        return $error + $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        $list = $this->getProvider()->getConfigBE();
-
-        foreach ($this->beConfig as $key => $config) {
+        $list = $this->get_provider()->get_config_be();
+        foreach ($this->be_config as $key => $config) {
             $list[$key] = new \Aimeos\Base\Criteria\Attribute\Standard($config);
         }
-
         return $list;
     }
-
     /**
      * Checks if payment provider can be used based on the basket content.
      * Checks for country, currency, address, scoring, etc. should be implemented in separate decorators
@@ -68,10 +52,10 @@ class Example extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return bool True if payment provider can be used, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $basket): bool
     {
-        if ($basket->locale()->getLanguageId() === 'en') {
-            return $this->getProvider()->isAvailable($basket);
+        if ($basket->locale()->get_language_id() === 'en') {
+            return $this->get_provider()->is_available($basket);
         }
         return false;
     }

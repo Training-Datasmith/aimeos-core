@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Cache
  */
-
-namespace Aimeos\MAdmin\Cache\Manager;
+namespace Aimeos\M_Admin\Cache\Manager;
 
 /**
  * Default cache manager implementation.
@@ -18,7 +16,7 @@ namespace Aimeos\MAdmin\Cache\Manager;
  * @package MAdmin
  * @subpackage Cache
  */
-class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\Cache\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Admin\Common\Manager\Base implements \Aimeos\M_Admin\Cache\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /** madmin/cache/manager/name
      * Class name of the used cache manager implementation
@@ -52,7 +50,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string Last part of the class name
      * @since 2014.03
      */
-
     /** madmin/cache/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the cache manager
      *
@@ -77,7 +74,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/cache/manager/decorators/global
      * @see madmin/cache/manager/decorators/local
      */
-
     /** madmin/cache/manager/decorators/global
      * Adds a list of globally available decorators only to the cache manager
      *
@@ -100,7 +96,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/cache/manager/decorators/excludes
      * @see madmin/cache/manager/decorators/local
      */
-
     /** madmin/cache/manager/decorators/local
      * Adds a list of local decorators only to the cache manager
      *
@@ -124,43 +119,17 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/cache/manager/decorators/excludes
      * @see madmin/cache/manager/decorators/global
      */
-
     private ?\Aimeos\Base\Cache\Iface $object = null;
     private ?\Aimeos\Base\DB\Connection\Iface $conn = null;
-
-    private array $searchConfig = [
-        'cache.id' => [
-            'code' => 'cache.id',
-            'internalcode' => '"id"',
-            'label' => 'ID',
-        ],
-        'cache.value' => [
-            'code' => 'cache.value',
-            'internalcode' => '"value"',
-            'label' => 'Cached value',
-        ],
-        'cache.expire' => [
-            'code' => 'cache.expire',
-            'internalcode' => '"expire"',
-            'label' => 'Expiration date/time',
-            'type' => 'datetime',
-        ],
-        'cache.tag.name' => [
-            'code' => 'cache.tag.name',
-            'internalcode' => '"tname"',
-            'label' => 'Tag name',
-        ],
-    ];
-
+    private array $search_config = ['cache.id' => ['code' => 'cache.id', 'internalcode' => '"id"', 'label' => 'ID'], 'cache.value' => ['code' => 'cache.value', 'internalcode' => '"value"', 'label' => 'Cached value'], 'cache.expire' => ['code' => 'cache.expire', 'internalcode' => '"expire"', 'label' => 'Expiration date/time', 'type' => 'datetime'], 'cache.tag.name' => ['code' => 'cache.tag.name', 'internalcode' => '"tname"', 'label' => 'Tag name']];
     /**
      * Creates the cache manager that will use the given context object.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         /** madmin/cache/manager/resource
          * Name of the database connection resource to use
          *
@@ -172,63 +141,48 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @param string Database connection name
          * @since 2023.04
          */
-        $this->setResourceName($context->config()->get('madmin/cache/manager/resource', 'db-cache'));
+        $this->set_resource_name($context->config()->get('madmin/cache/manager/resource', 'db-cache'));
     }
-
     public function __destruct()
     {
         unset($this->conn, $this->object);
     }
-
     /**
      * Returns the cache object
      *
      * @return \Aimeos\Base\Cache\Iface Cache object
      */
-    public function getCache(): \Aimeos\Base\Cache\Iface
+    public function get_cache(): \Aimeos\Base\Cache\Iface
     {
         if (!isset($this->object)) {
             $context = $this->context();
-            $cfg = [
-                'cleanup' => $context->config()->get('madmin/cache/manager/cleanup'),
-                'clear' => $context->config()->get('madmin/cache/manager/clear'),
-                'delete' => $context->config()->get('madmin/cache/manager/delete'),
-                'deletebytag' => $context->config()->get('madmin/cache/manager/deletebytag'),
-                'get' => $context->config()->get('madmin/cache/manager/get'),
-                'set' => $context->config()->get('madmin/cache/manager/set'),
-                'settag' => $context->config()->get('madmin/cache/manager/settag'),
-            ];
-
+            $cfg = ['cleanup' => $context->config()->get('madmin/cache/manager/cleanup'), 'clear' => $context->config()->get('madmin/cache/manager/clear'), 'delete' => $context->config()->get('madmin/cache/manager/delete'), 'deletebytag' => $context->config()->get('madmin/cache/manager/deletebytag'), 'get' => $context->config()->get('madmin/cache/manager/get'), 'set' => $context->config()->get('madmin/cache/manager/set'), 'settag' => $context->config()->get('madmin/cache/manager/settag')];
             $this->conn = $context->db('db-cache');
             $this->object = \Aimeos\Base\Cache\Factory::create('DB', $cfg, $this->conn);
         }
-
         return $this->object;
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MAdmin\Cache\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        $this->getCache()->clear();
+        $this->get_cache()->clear();
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MAdmin\Cache\Item\Iface New cache item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->createItemBase($values);
+        return $this->create_item_base($values);
     }
-
     /**
      * Adds a new cache to the storage.
      *
@@ -236,22 +190,19 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MAdmin\Cache\Item\Iface Updated item including the generated ID
      */
-    protected function saveItem(\Aimeos\MAdmin\Cache\Item\Iface $item, bool $fetch = true): \Aimeos\MAdmin\Cache\Item\Iface
+    protected function save_item(\Aimeos\M_Admin\Cache\Item\Iface $item, bool $fetch = true): \Aimeos\M_Admin\Cache\Item\Iface
     {
-        if ($item->getId() === null) {
-            throw new \Aimeos\MAdmin\Cache\Exception('ID is required for caching');
+        if ($item->get_id() === null) {
+            throw new \Aimeos\M_Admin\Cache\Exception('ID is required for caching');
         }
-
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         /** madmin/cache/manager/set/mysql
          * Inserts the cache entry into the database
          *
          * @see madmin/cache/manager/set/ansi
          */
-
         /** madmin/cache/manager/set/ansi
          * Inserts the cache entry into the database
          *
@@ -281,13 +232,11 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/cache/manager/search/ansi
          * @see madmin/cache/manager/count/ansi
          */
-
         /** madmin/cache/manager/settag/mysql
          * Inserts a new tag to an existing cache entry
          *
          * @see madmin/cache/manager/settag/ansi
          */
-
         /** madmin/cache/manager/settag/ansi
          * Inserts a new tag to an existing cache entry
          *
@@ -317,32 +266,26 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/cache/manager/search/ansi
          * @see madmin/cache/manager/count/ansi
          */
-
-        $id = $item->getId();
-        $cache = $this->getCache();
-
+        $id = $item->get_id();
+        $cache = $this->get_cache();
         $cache->delete($id);
-        $cache->set($id, $item->getValue(), $item->getTimeExpire(), $item->getTags());
-
+        $cache->set($id, $item->get_value(), $item->get_time_expire(), $item->get_tags());
         return $item;
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|array|string $items List of item objects or IDs of the items
      * @return \Aimeos\MAdmin\Cache\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         if (empty($items)) {
             return $this;
         }
-
-        $this->getCache()->deleteMultiple(map($items));
+        $this->get_cache()->delete_multiple(map($items));
         return $this;
     }
-
     /**
      * Creates the cache object for the given cache id.
      *
@@ -352,15 +295,13 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @return \Aimeos\MAdmin\Cache\Item\Iface Returns the cache item of the given id
      * @throws \Aimeos\MAdmin\Cache\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
-        if (($value = $this->getCache()->get($id)) === null) {
-            throw new \Aimeos\MAdmin\Cache\Exception(sprintf('Item with ID "%1$s" not found', $id));
+        if (($value = $this->get_cache()->get($id)) === null) {
+            throw new \Aimeos\M_Admin\Cache\Exception(sprintf('Item with ID "%1$s" not found', $id));
         }
-
-        return $this->createItemBase([ 'id' => $id, 'value' => $value ]);
+        return $this->create_item_base(['id' => $id, 'value' => $value]);
     }
-
     /**
      * Search for cache entries based on the given criteria.
      *
@@ -373,17 +314,14 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
     {
         $items = [];
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $required = [ 'cache' ];
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ONE;
-
+        $conn = $context->db($this->get_resource_name());
+        $required = ['cache'];
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ONE;
         /** madmin/cache/manager/search/mysql
          * Retrieves the records matched by the given criteria in the database
          *
          * @see madmin/cache/manager/search/ansi
          */
-
         /** madmin/cache/manager/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -417,14 +355,12 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/cache/manager/settag/ansi
          * @see madmin/cache/manager/count/ansi
          */
-        $cfgPathSearch = 'madmin/cache/manager/search';
-
+        $cfg_path_search = 'madmin/cache/manager/search';
         /** madmin/cache/manager/count/mysql
          * Retrieves the records matched by the given criteria in the database
          *
          * @see madmin/cache/manager/count/ansi
          */
-
         /** madmin/cache/manager/count/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -457,26 +393,22 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/cache/manager/settag/ansi
          * @see madmin/cache/manager/search/ansi
          */
-        $cfgPathCount = 'madmin/cache/manager/count';
-
-        $results = $this->searchItemsBase($conn, $search, $cfgPathSearch, $cfgPathCount, $required, $total, $level);
-
+        $cfg_path_count = 'madmin/cache/manager/count';
+        $results = $this->search_items_base($conn, $search, $cfg_path_search, $cfg_path_count, $required, $total, $level);
         while ($row = $results->fetch()) {
-            if ($item = $this->applyFilter($this->createItemBase($row))) {
+            if ($item = $this->apply_filter($this->create_item_base($row))) {
                 $items[$row['id']] = $item;
             }
         }
-
         return map($items);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] Returns a list of attributes
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         /** madmin/cache/manager/submanagers
          * List of manager names that can be instantiated by the cache manager
@@ -495,10 +427,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @since 2014.03
          */
         $path = 'madmin/cache/manager/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for cache extensions
      *
@@ -506,19 +436,18 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->getSubManagerBase('cache', $manager, $name);
+        return $this->get_sub_manager_base('cache', $manager, $name);
     }
-
     /**
      * Create new admin cache item object initialized with given parameters.
      *
      * @param array $values Associative list of key/value pairs of a job
      * @return \Aimeos\MAdmin\Cache\Item\Iface New cache item
      */
-    protected function createItemBase(array $values = []): \Aimeos\MAdmin\Cache\Item\Iface
+    protected function create_item_base(array $values = []): \Aimeos\M_Admin\Cache\Item\Iface
     {
-        return new \Aimeos\MAdmin\Cache\Item\Standard($values);
+        return new \Aimeos\M_Admin\Cache\Item\Standard($values);
     }
 }

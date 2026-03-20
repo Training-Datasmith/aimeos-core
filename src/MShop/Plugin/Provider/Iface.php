@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider;
+namespace Aimeos\M_Shop\Plugin\Provider;
 
 /**
  * Plugin provider interface for dealing with run-time loadable extensions.
@@ -27,32 +25,28 @@ interface Iface
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid resp. null for attributes whose values are OK
      */
-    public function checkConfigBE(array $attributes): array;
-
+    public function check_config_be(array $attributes): array;
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array;
-
+    public function get_config_be(): array;
     /**
      * Injects the outer object into the decorator stack
      *
      * @param \Aimeos\MShop\Plugin\Provider\Iface $object First object of the decorator stack
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for chaining method calls
      */
-    public function setObject(\Aimeos\MShop\Plugin\Provider\Iface $object): \Aimeos\MShop\Plugin\Provider\Iface;
-
+    public function set_object(\Aimeos\M_Shop\Plugin\Provider\Iface $object): \Aimeos\M_Shop\Plugin\Provider\Iface;
     /**
      * Subscribes itself to a publisher.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface;
-
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface;
     /**
      * Receives a notification from a publisher object.
      *
@@ -61,5 +55,5 @@ interface Iface
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $p, string $action, $value = null);
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $p, string $action, $value = null);
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Sub;
+namespace Aimeos\M_Shop\Common\Manager\Sub;
 
 /**
  * Common trait for creating sub-managers
@@ -19,15 +17,13 @@ namespace Aimeos\MShop\Common\Manager\Sub;
  */
 trait Traits
 {
-    private array $subManagers = [];
-
+    private array $sub_managers = [];
     /**
      * Returns the context object.
      *
      * @return \Aimeos\MShop\ContextIface Context object
      */
-    abstract protected function context(): \Aimeos\MShop\ContextIface;
-
+    abstract protected function context(): \Aimeos\M_Shop\Context_Iface;
     /**
      * Adds the decorators to the manager object.
      *
@@ -37,26 +33,18 @@ trait Traits
      * @param string $classprefix Decorator class prefix, e.g. "\Aimeos\MShop\Product\Manager\Decorator\"
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected function addDecorators(
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Common\Manager\Iface $manager,
-        array $decorators,
-        string $classprefix
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    protected function add_decorators(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Common\Manager\Iface $manager, array $decorators, string $classprefix): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         foreach ($decorators as $name) {
             if (ctype_alnum($name) === false) {
                 throw new \LogicException(sprintf('Invalid characters in class name "%1$s"', $name), 400);
             }
-
             $classname = $classprefix . $name;
-            $interface = \Aimeos\MShop\Common\Manager\Decorator\Iface::class;
-
+            $interface = \Aimeos\M_Shop\Common\Manager\Decorator\Iface::class;
             $manager = \Aimeos\Utils::create($classname, [$manager, $context], $interface);
         }
-
         return $manager;
     }
-
     /**
      * Adds the configured decorators to the given manager object.
      *
@@ -65,57 +53,43 @@ trait Traits
      * @param string $domain Domain name in lower case, e.g. "product"
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected function addManagerDecorators(
-        \Aimeos\MShop\Common\Manager\Iface $manager,
-        string $managerpath,
-        string $domain
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    protected function add_manager_decorators(\Aimeos\M_Shop\Common\Manager\Iface $manager, string $managerpath, string $domain): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         $config = $this->context()->config();
-
-        $subpath = $this->createSubNames($managerpath);
+        $subpath = $this->create_sub_names($managerpath);
         $classprefix = '\Aimeos\MShop\\' . ucfirst($domain) . '\Manager\\' . $subpath . '\Decorator\\';
         $decorators = array_reverse($config->get('mshop/' . $domain . '/manager/' . $managerpath . '/decorators/local', []));
-        $manager = $this->addDecorators($this->context(), $manager, $decorators, $classprefix);
-
+        $manager = $this->add_decorators($this->context(), $manager, $decorators, $classprefix);
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
         $decorators = array_reverse($config->get('mshop/' . $domain . '/manager/' . $managerpath . '/decorators/global', []));
-        $manager = $this->addDecorators($this->context(), $manager, $decorators, $classprefix);
-
+        $manager = $this->add_decorators($this->context(), $manager, $decorators, $classprefix);
         $decorators = array_reverse($config->get('mshop/common/manager/decorators/default', []));
         $excludes = $config->get('mshop/' . $domain . '/manager/' . $managerpath . '/decorators/excludes', []);
-
         foreach ($decorators as $key => $name) {
             if (in_array($name, $excludes)) {
                 unset($decorators[$key]);
             }
         }
-
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-
-        return $this->addDecorators($this->context(), $manager, $decorators, $classprefix);
+        return $this->add_decorators($this->context(), $manager, $decorators, $classprefix);
     }
-
     /**
      * Transforms the manager path to the appropriate class names.
      *
      * @param string $manager Path of manager names, e.g. "lists/type"
      * @return string Class names, e.g. "List_Type"
      */
-    protected function createSubNames(string $manager): string
+    protected function create_sub_names(string $manager): string
     {
         $names = explode('/', $manager);
-
         foreach ($names as $key => $subname) {
             if (empty($subname) || ctype_alnum($subname) === false) {
                 throw new \LogicException(sprintf('Invalid characters in manager name "%1$s"', $manager), 400);
             }
-
             $names[$key] = ucfirst($subname);
         }
-
         return implode('\\', $names);
     }
-
     /**
      * Returns a new manager the given extension name.
      *
@@ -125,40 +99,31 @@ trait Traits
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions
      * @throws \LogicException If class isn't found
      */
-    protected function getSubManagerBase(string $domain, string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    protected function get_sub_manager_base(string $domain, string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $context = $this->context();
         $domain = strtolower($domain);
         $manager = strtolower($manager);
-
         $name = $name ?: $context->config()->get('mshop/' . $domain . '/manager/' . $manager . '/name', 'Standard');
         $key = $domain . $manager . $name;
-
-        if (!isset($this->subManagers[$key])) {
+        if (!isset($this->sub_managers[$key])) {
             if (empty($domain) || ctype_alnum($domain) === false) {
                 throw new \LogicException(sprintf('Invalid characters in domain name "%1$s"', $domain), 400);
             }
-
             if (preg_match('/^[a-z0-9\/]+$/', $manager) !== 1) {
                 throw new \LogicException(sprintf('Invalid characters in manager name "%1$s"', $manager), 400);
             }
-
             if (empty($name) || ctype_alnum($name) === false) {
                 throw new \LogicException(sprintf('Invalid characters in manager name "%1$s"', $name), 400);
             }
-
             $domainname = ucfirst($domain);
-            $subnames = $this->createSubNames($manager);
-
+            $subnames = $this->create_sub_names($manager);
             $class = '\Aimeos\MShop\\' . $domainname . '\Manager\\' . $subnames . '\\' . $name;
             $iface = '\Aimeos\MShop\\' . $domainname . '\Manager\\' . $subnames . '\Iface';
-
-            $subManager = \Aimeos\Utils::create($class, [$context], interface_exists($iface) ? $iface : null);
-
-            $subManager = $this->addManagerDecorators($subManager, $manager, $domain);
-            $this->subManagers[$key] = $subManager->setObject($subManager);
+            $sub_manager = \Aimeos\Utils::create($class, [$context], interface_exists($iface) ? $iface : null);
+            $sub_manager = $this->add_manager_decorators($sub_manager, $manager, $domain);
+            $this->sub_managers[$key] = $sub_manager->set_object($sub_manager);
         }
-
-        return $this->subManagers[$key];
+        return $this->sub_managers[$key];
     }
 }

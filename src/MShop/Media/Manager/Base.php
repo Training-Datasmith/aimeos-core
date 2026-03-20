@@ -1,26 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2023
  * @package MShop
  * @subpackage Media
  */
-
-namespace Aimeos\MShop\Media\Manager;
+namespace Aimeos\M_Shop\Media\Manager;
 
 use Enshrined\Svgsanitize\Sanitizer;
-use Intervention\Image\Interfaces\ImageInterface;
-
+use Intervention\Image\Interfaces\Image_Interface;
 /**
  * Base media manager implementation
  *
  * @package MShop
  * @subpackage Media
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base
 {
     /**
      * Checks if the mime type is allowed
@@ -29,10 +26,9 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return bool TRUE if mime type is allowed
      * @throws \Aimeos\MShop\Media\Exception If mime type is not allowed
      */
-    protected function isAllowed(string $mimetype): bool
+    protected function is_allowed(string $mimetype): bool
     {
         $context = $this->context();
-
         /** mshop/media/manager/allowedtypes
          * A list of mime types that are allowed for uploaded files
          *
@@ -43,22 +39,14 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          * @param array List of image mime types
          * @since 2024.01
          */
-        $default = [
-            'image/webp', 'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml',
-            'application/epub+zip', 'application/pdf', 'application/zip',
-            'video/mp4', 'video/webm',
-            'audio/mpeg', 'audio/ogg', 'audio/weba',
-        ];
+        $default = ['image/webp', 'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'application/epub+zip', 'application/pdf', 'application/zip', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/ogg', 'audio/weba'];
         $allowed = $context->config()->get('mshop/media/manager/allowedtypes', $default);
-
         if (!in_array($mimetype, $allowed)) {
             $msg = sprintf($context->translate('mshop', 'Uploading mimetype "%1$s" is not allowed'), $mimetype);
-            throw new \Aimeos\MShop\Media\Exception($msg, 406);
+            throw new \Aimeos\M_Shop\Media\Exception($msg, 406);
         }
-
         return true;
     }
-
     /**
      * Creates a new file path from the given arguments
      *
@@ -70,7 +58,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
     protected function path(string $filepath, string $mimetype, string $domain): string
     {
         $context = $this->context();
-
         /** mshop/media/manager/extensions
          * Available files extensions for mime types of uploaded files
          *
@@ -86,18 +73,14 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          */
         $default = ['image/gif' => 'gif', 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         $list = $context->config()->get('mshop/media/manager/extensions', $default);
-
         $filename = basename($filepath);
         $filename = \Aimeos\Base\Str::slug(substr($filename, 0, strrpos($filename, '.') ?: null));
         $filename = substr(md5($filename . getmypid() . microtime(true)), -8) . '_' . $filename;
-
         $ext = isset($list[$mimetype]) ? '.' . $list[$mimetype] : '';
-        $siteid = $context->locale()->getSiteId();
-
+        $siteid = $context->locale()->get_site_id();
         // the "d" after {siteid} is the required extension for Windows (no dots at the end allowed)
         return "{$siteid}d/{$domain}/{$filename[0]}/{$filename[1]}/{$filename}{$ext}";
     }
-
     /**
      * Returns the quality level of the resized images
      *
@@ -116,7 +99,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          */
         return $this->context()->config()->get('mshop/media/manager/quality', 75);
     }
-
     /**
      * Sanitizes the uploaded file
      *
@@ -128,21 +110,17 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
     {
         if (strncmp('image/svg', $mimetype, 9) === 0) {
             $sanitizer = new Sanitizer();
-            $sanitizer->removeRemoteReferences(true);
-
+            $sanitizer->remove_remote_references(true);
             if (($content = $sanitizer->sanitize($content)) === false) {
                 $msg = $this->context()->translate('mshop', 'Invalid SVG file: %1$s');
-                throw new \Aimeos\MShop\Media\Exception(sprintf($msg, print_r($sanitizer->getXmlIssues(), true)));
+                throw new \Aimeos\M_Shop\Media\Exception(sprintf($msg, print_r($sanitizer->get_xml_issues(), true)));
             }
         }
-
         if ($fcn = self::macro('sanitize')) {
             return $fcn($content, $mimetype);
         }
-
         return $content;
     }
-
     /**
      * Called after the image has been scaled
      * Can be used to update the media item with image information.
@@ -150,7 +128,7 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param \Aimeos\MShop\Media\Item\Iface $item Media item with new preview URLs
      * @param \Intervention\Image\Interfaces\ImageInterface $image Media object
      */
-    protected function scaled(\Aimeos\MShop\Media\Item\Iface $item, ImageInterface $image)
+    protected function scaled(\Aimeos\M_Shop\Media\Item\Iface $item, Image_Interface $image)
     {
     }
 }

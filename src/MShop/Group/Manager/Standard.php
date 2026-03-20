@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org], 2024-2026
  * @package MShop
  * @subpackage Group
  */
-
-namespace Aimeos\MShop\Group\Manager;
+namespace Aimeos\M_Shop\Group\Manager;
 
 /**
  * Default implementation of the group manager
@@ -17,31 +15,20 @@ namespace Aimeos\MShop\Group\Manager;
  * @package MShop
  * @subpackage Group
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Group\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Group\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-       'group.code' => [
-           'label' => 'Group code',
-           'internalcode' => 'code',
-       ],
-       'group.label' => [
-           'label' => 'Group label',
-           'internalcode' => 'label',
-       ],
-    ];
-
+    private array $search_config = ['group.code' => ['label' => 'Group code', 'internalcode' => 'code'], 'group.label' => ['label' => 'Group label', 'internalcode' => 'label']];
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Group\Item\Iface New group item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['group.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Group\Item\Standard('group.', $values);
+        $values['group.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Group\Item\Standard('group.', $values);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -52,26 +39,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['group.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['group.code' => $code], $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -81,7 +61,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'group.';
     }
-
     /** mshop/group/manager/name
      * Class name of the used group manager implementation
      *
@@ -114,7 +93,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2024.04
      */
-
     /** mshop/group/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the group manager
      *
@@ -139,7 +117,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/decorators/global
      * @see mshop/group/manager/decorators/local
      */
-
     /** mshop/group/manager/decorators/global
      * Adds a list of globally available decorators only to the group manager
      *
@@ -163,7 +140,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/decorators/excludes
      * @see mshop/group/manager/decorators/local
      */
-
     /** mshop/group/manager/decorators/local
      * Adds a list of local decorators only to the group manager
      *
@@ -187,7 +163,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/decorators/excludes
      * @see mshop/group/manager/decorators/global
      */
-
     /** mshop/group/manager/resource
      * Name of the database connection resource to use
      *
@@ -199,13 +174,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/group/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/group/manager/delete/ansi
      */
-
     /** mshop/group/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -229,30 +202,27 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/search/ansi
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/submanagers
-    * List of manager names that can be instantiated by the group manager
-    *
-    * Managers provide a generic interface to the underlying storage.
-    * Each manager has or can have sub-managers caring about particular
-    * aspects. Each of these sub-managers can be instantiated by its
-    * parent manager using the getSubManager() method.
-    *
-    * The search keys from sub-managers can be normally used in the
-    * manager as well. It allows you to search for items of the manager
-    * using the search keys of the sub-managers to further limit the
-    * retrieved list of items.
-    *
-    * @param array List of sub-manager names
-    * @since 2024.04
-    */
-
+     * List of manager names that can be instantiated by the group manager
+     *
+     * Managers provide a generic interface to the underlying storage.
+     * Each manager has or can have sub-managers caring about particular
+     * aspects. Each of these sub-managers can be instantiated by its
+     * parent manager using the getSubManager() method.
+     *
+     * The search keys from sub-managers can be normally used in the
+     * manager as well. It allows you to search for items of the manager
+     * using the search keys of the sub-managers to further limit the
+     * retrieved list of items.
+     *
+     * @param array List of sub-manager names
+     * @since 2024.04
+     */
     /** mshop/group/manager/insert/mysql
-    * Inserts a new group record into the database table
-    *
-    * @see mshop/group/manager/insert/ansi
-    */
-
+     * Inserts a new group record into the database table
+     *
+     * @see mshop/group/manager/insert/ansi
+     */
     /** mshop/group/manager/insert/ansi
      * Inserts a new group record into the database table
      *
@@ -281,13 +251,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/search/ansi
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/update/mysql
-    * Updates an existing group record in the database
-    *
-    * @see mshop/group/manager/update/ansi
-    */
-
+     * Updates an existing group record in the database
+     *
+     * @see mshop/group/manager/update/ansi
+     */
     /** mshop/group/manager/update/ansi
      * Updates an existing group record in the database
      *
@@ -313,13 +281,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/search/ansi
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/group/manager/newid/ansi
      */
-
     /** mshop/group/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -349,7 +315,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/search/ansi
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -378,13 +343,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/group/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/group/manager/search/ansi
      */
-
     /** mshop/group/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -431,13 +394,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/group/manager/delete/ansi
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/group/manager/count/ansi
      */
-
     /** mshop/group/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

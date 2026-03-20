@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Decorator for service providers adding additional costs
@@ -22,27 +20,9 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Weight extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Weight extends \Aimeos\M_Shop\Service\Provider\Decorator\Base implements \Aimeos\M_Shop\Service\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'weight.min' => [
-            'code' => 'weight.min',
-            'internalcode' => 'weight.min',
-            'label' => 'Minimum weight of the package',
-            'type' => 'number',
-            'default' => '',
-            'required' => false,
-        ],
-        'weight.max' => [
-            'code' => 'weight.max',
-            'internalcode' => 'weight.max',
-            'label' => 'Maximum weight of the package',
-            'type' => 'number',
-            'default' => '',
-            'required' => false,
-        ],
-    ];
-
+    private array $be_config = ['weight.min' => ['code' => 'weight.min', 'internalcode' => 'weight.min', 'label' => 'Minimum weight of the package', 'type' => 'number', 'default' => '', 'required' => false], 'weight.max' => ['code' => 'weight.max', 'internalcode' => 'weight.max', 'label' => 'Maximum weight of the package', 'type' => 'number', 'default' => '', 'required' => false]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -50,13 +30,11 @@ class Weight extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \A
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      *    known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $error = $this->getProvider()->checkConfigBE($attributes);
-
-        return $error + $this->checkConfig($this->beConfig, $attributes);
+        $error = $this->get_provider()->check_config_be($attributes);
+        return $error + $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider
      *
@@ -65,90 +43,78 @@ class Weight extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \A
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return array_replace(parent::getConfigBE(), $this->getConfigItems($this->beConfig));
+        return array_replace(parent::get_config_be(), $this->get_config_items($this->be_config));
     }
-
     /**
      * Checks if the the basket weight is ok for the service provider.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return bool True if payment provider can be used, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $basket): bool
     {
-        if ($this->checkWeightScale($this->getWeight($this->getQuantities($basket))) === false) {
+        if ($this->check_weight_scale($this->get_weight($this->get_quantities($basket))) === false) {
             return false;
         }
-
-        return $this->getProvider()->isAvailable($basket);
+        return $this->get_provider()->is_available($basket);
     }
-
     /**
      * Checks if the country code is in the list of codes specified by the given key
      *
      * @param float $basketWeight The basket weight
      * @return bool True if the current basket weight is within the providers weight range
      */
-    protected function checkWeightScale(float $basketWeight): bool
+    protected function check_weight_scale(float $basket_weight): bool
     {
-        $min = $this->getConfigValue([ 'weight.min' ]);
-        $max = $this->getConfigValue([ 'weight.max' ]);
-
-        if ($min !== null && ((float) $min) > $basketWeight) {
+        $min = $this->get_config_value(['weight.min']);
+        $max = $this->get_config_value(['weight.max']);
+        if ($min !== null && (float) $min > $basket_weight) {
             return false;
         }
-
-        if ($max !== null && ((float) $max) < $basketWeight) {
+        if ($max !== null && (float) $max < $basket_weight) {
             return false;
         }
-
         return true;
     }
-
     /**
      * Returns the product quantities
      *
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return array Associative list of product codes as keys and quantities as values
      */
-    protected function getQuantities(\Aimeos\MShop\Order\Item\Iface $basket): array
+    protected function get_quantities(\Aimeos\M_Shop\Order\Item\Iface $basket): array
     {
-        $prodMap = [];
-
+        $prod_map = [];
         // basket can contain a product several times in different basket items
-        foreach ($basket->getProducts() as $orderProduct) {
-            $code = $orderProduct->getProductCode();
-            $prodMap[$code] = ($prodMap[$code] ?? 0) + $orderProduct->getQuantity();
-
-            foreach ($orderProduct->getProducts() as $prodItem) { // calculate bundled products
-                $code = $prodItem->getProductCode();
-                $prodMap[$code] = ($prodMap[$code] ?? 0) + $prodItem->getQuantity();
+        foreach ($basket->get_products() as $order_product) {
+            $code = $order_product->get_product_code();
+            $prod_map[$code] = ($prod_map[$code] ?? 0) + $order_product->get_quantity();
+            foreach ($order_product->get_products() as $prod_item) {
+                // calculate bundled products
+                $code = $prod_item->get_product_code();
+                $prod_map[$code] = ($prod_map[$code] ?? 0) + $prod_item->get_quantity();
             }
         }
-
-        return $prodMap;
+        return $prod_map;
     }
-
     /**
      * Returns the weight of the products
      *
      * @param array $prodMap Associative list of product codes as keys and quantities as values
      * @return float Sumed up product weight multiplied with its quantity
      */
-    protected function getWeight(array $prodMap): float
+    protected function get_weight(array $prod_map): float
     {
         $weight = 0;
-        $manager = \Aimeos\MShop::create($this->context(), 'product');
-        $search = $manager->filter()->add(['product.code' => array_keys($prodMap)])->slice(0, count($prodMap));
-
+        $manager = \Aimeos\M_Shop::create($this->context(), 'product');
+        $search = $manager->filter()->add(['product.code' => array_keys($prod_map)])->slice(0, count($prod_map));
         foreach ($manager->search($search, ['product/property' => ['package-weight']]) as $product) {
-            foreach ($product->getProperties('package-weight') as $value) {
-                $weight += $value * $prodMap[$product->getCode()];
+            foreach ($product->get_properties('package-weight') as $value) {
+                $weight += $value * $prod_map[$product->get_code()];
             }
         }
-
         return $weight;
     }
 }

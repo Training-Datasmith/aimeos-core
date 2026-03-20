@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2017-2026
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Decorator;
+namespace Aimeos\M_Shop\Plugin\Provider\Decorator;
 
 /**
  * Prevent recursive plugin calls
@@ -17,10 +15,9 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
  * @package MShop
  * @subpackage Plugin
  */
-class Singleton extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \Aimeos\MShop\Plugin\Provider\Decorator\Iface
+class Singleton extends \Aimeos\M_Shop\Plugin\Provider\Decorator\Base implements \Aimeos\M_Shop\Plugin\Provider\Decorator\Iface
 {
     private bool $singleton = false;
-
     /**
      * Receives a notification from a publisher object
      *
@@ -29,16 +26,14 @@ class Singleton extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements 
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
         if ($this->singleton === true) {
             return $value;
         }
-
         $this->singleton = true;
-        $value = $this->getProvider()->update($order, $action, $value);
+        $value = $this->get_provider()->update($order, $action, $value);
         $this->singleton = false;
-
         return $value;
     }
 }

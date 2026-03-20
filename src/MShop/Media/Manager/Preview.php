@@ -1,18 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2023
  * @package MShop
  * @subpackage Media
  */
+namespace Aimeos\M_Shop\Media\Manager;
 
-namespace Aimeos\MShop\Media\Manager;
-
-use Intervention\Image\Interfaces\ImageInterface;
-
+use Intervention\Image\Interfaces\Image_Interface;
 /**
  * Media preview trait
  *
@@ -22,16 +19,13 @@ use Intervention\Image\Interfaces\ImageInterface;
 trait Preview
 {
     use \Aimeos\Macro\Macroable;
-
-    private ?\Intervention\Image\ImageManager $driver = null;
-
+    private ?\Intervention\Image\Image_Manager $driver = null;
     /**
      * Returns the context object.
      *
      * @return \Aimeos\MShop\ContextIface Context object
      */
-    abstract protected function context(): \Aimeos\MShop\ContextIface;
-
+    abstract protected function context(): \Aimeos\M_Shop\Context_Iface;
     /**
      * Creates scaled images according to the configuration settings
      *
@@ -39,30 +33,25 @@ trait Preview
      * @param array $sizes List of entries with "maxwidth" (int or null), "maxheight" (int or null), "force-size" (0: scale, 1: pad, 2: cover) and "background" (hex color) values
      * @return \Intervention\Image\Interfaces\ImageInterface[] Associative list of image width as keys and scaled media object as values
      */
-    protected function createPreviews(ImageInterface $image, array $sizes): array
+    protected function create_previews(Image_Interface $image, array $sizes): array
     {
         $list = [];
-
         foreach ($sizes as $entry) {
             $force = $entry['force-size'] ?? 0;
             $maxwidth = $entry['maxwidth'] ?? null;
             $maxheight = $entry['maxheight'] ?? null;
             $bg = ltrim($entry['background'] ?? 'ffffff00', '#');
-
             if ($this->call('filterPreviews', $image, $maxwidth, $maxheight, $force)) {
-                $file = match($force) {
-                    0 => (clone $image)->scaleDown($maxwidth, $maxheight),
+                $file = match ($force) {
+                    0 => (clone $image)->scale_down($maxwidth, $maxheight),
                     1 => (clone $image)->pad($maxwidth, $maxheight, $bg, 'center'),
-                    2 => (clone $image)->cover($maxwidth, $maxheight)
+                    2 => (clone $image)->cover($maxwidth, $maxheight),
                 };
-
                 $list[$file->width()] = $file;
             }
         }
-
         return $list;
     }
-
     /**
      * Removes the previes images from the storage
      *
@@ -70,21 +59,18 @@ trait Preview
      * @param array List of preview paths to remove
      * @return \Aimeos\MShop\Media\Item\Iface Media item with preview images removed
      */
-    protected function deletePreviews(\Aimeos\MShop\Media\Item\Iface $item, array $paths): \Aimeos\MShop\Media\Item\Iface
+    protected function delete_previews(\Aimeos\M_Shop\Media\Item\Iface $item, array $paths): \Aimeos\M_Shop\Media\Item\Iface
     {
         if (!empty($paths = $this->call('removePreviews', $item, $paths))) {
-            $fs = $this->context()->fs($item->getFileSystem());
-
+            $fs = $this->context()->fs($item->get_file_system());
             foreach ($paths as $preview) {
                 if ($preview && $fs->has($preview)) {
                     $fs->rm($preview);
                 }
             }
         }
-
         return $item;
     }
-
     /**
      * Tests if the preview image should be created
      *
@@ -93,11 +79,10 @@ trait Preview
      * @param int|null $height New height of the image or null for automatic calculation
      * @param int $fit "0" keeps image ratio, "1" adds padding while "2" crops image to enforce image size
      */
-    protected function filterPreviews(ImageInterface $image, ?int $maxwidth, ?int $maxheight, int $force): bool
+    protected function filter_previews(Image_Interface $image, ?int $maxwidth, ?int $maxheight, int $force): bool
     {
         return true;
     }
-
     /**
      * Returns the image object for the given file name
      *
@@ -105,7 +90,7 @@ trait Preview
      * @param string $fsname File system name where the file is stored
      * @return \Intervention\Image\Interfaces\ImageInterface Image object
      */
-    protected function image(string $file, string $fsname = 'fs-media'): ImageInterface
+    protected function image(string $file, string $fsname = 'fs-media'): Image_Interface
     {
         if (!isset($this->driver)) {
             if (class_exists('\Intervention\Image\Vips\Driver')) {
@@ -115,10 +100,8 @@ trait Preview
             } else {
                 $driver = new \Intervention\Image\Drivers\Gd\Driver();
             }
-
-            $this->driver = new \Intervention\Image\ImageManager($driver);
+            $this->driver = new \Intervention\Image\Image_Manager($driver);
         }
-
         if (preg_match('#^[a-zA-Z]{1,10}://#', $file) === 1) {
             if (($fh = fopen($file, 'r')) === false) {
                 $msg = $this->context()->translate('mshop', 'Unable to open file "%1$s"');
@@ -127,13 +110,10 @@ trait Preview
         } else {
             $fh = $this->context()->fs($fsname)->reads($file);
         }
-
         $image = $this->driver->read($fh);
         fclose($fh);
-
         return $image;
     }
-
     /**
      * Returns the preview images to be deleted
      *
@@ -141,15 +121,13 @@ trait Preview
      * @param array List of preview paths to remove
      * @return iterable List of preview URLs to remove
      */
-    protected function removePreviews(\Aimeos\MShop\Media\Item\Iface $item, array $paths): iterable
+    protected function remove_previews(\Aimeos\M_Shop\Media\Item\Iface $item, array $paths): iterable
     {
-        $previews = $item->getPreviews();
-
+        $previews = $item->get_previews();
         // don't delete first (smallest) image because it may be referenced in past orders
-        if ($item->getDomain() === 'product' && in_array(key($previews), $paths)) {
+        if ($item->get_domain() === 'product' && in_array(key($previews), $paths)) {
             return array_slice($paths, 1);
         }
-
         return $paths;
     }
 }

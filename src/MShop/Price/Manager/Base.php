@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Price
  */
-
-namespace Aimeos\MShop\Price\Manager;
+namespace Aimeos\M_Shop\Price\Manager;
 
 /**
  * Abstract class for all price managers with basic methods.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Price\Manager;
  * @package MShop
  * @subpackage Price
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base
 {
     /**
      * Returns the price item with the lowest price for the given quantity.
@@ -29,27 +27,19 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\MShop\Price\Item\Iface Price item with the lowest price
      * @throws \Aimeos\MShop\Price\Exception if no price item is available
      */
-    public function getLowestPrice(
-        \Aimeos\Map $priceItems,
-        float $quantity,
-        ?string $currencyId = null,
-        ?string $siteId = null
-    ): \Aimeos\MShop\Price\Item\Iface {
-        $priceList = $this->getPriceList($priceItems, $currencyId, $siteId);
-
-        if (($price = $priceList->first()) === null) {
+    public function get_lowest_price(\Aimeos\Map $price_items, float $quantity, ?string $currency_id = null, ?string $site_id = null): \Aimeos\M_Shop\Price\Item\Iface
+    {
+        $price_list = $this->get_price_list($price_items, $currency_id, $site_id);
+        if (($price = $price_list->first()) === null) {
             $msg = $this->context()->translate('mshop', 'Price item not available');
-            throw new \Aimeos\MShop\Price\Exception($msg);
+            throw new \Aimeos\M_Shop\Price\Exception($msg);
         }
-
-        if ($price->getQuantity() > $quantity) {
+        if ($price->get_quantity() > $quantity) {
             $msg = $this->context()->translate('mshop', 'Price for the given quantity "%1$s" not available');
-            throw new \Aimeos\MShop\Price\Exception(sprintf($msg, $quantity));
+            throw new \Aimeos\M_Shop\Price\Exception(sprintf($msg, $quantity));
         }
-
-        return $this->call('calcLowestPrice', $priceList, $quantity);
+        return $this->call('calcLowestPrice', $price_list, $quantity);
     }
-
     /**
      * Returns the lowest price for the given quantity
      *
@@ -57,20 +47,17 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param float $quantity Number of products
      * @return \Aimeos\MShop\Price\Item\Iface Price item with the lowest price
      */
-    protected function calcLowestPrice(\Aimeos\Map $priceList, float $quantity): \Aimeos\MShop\Price\Item\Iface
+    protected function calc_lowest_price(\Aimeos\Map $price_list, float $quantity): \Aimeos\M_Shop\Price\Item\Iface
     {
-        $price = $priceList->first();
-
-        foreach ($priceList as $qty => $priceItem) {
+        $price = $price_list->first();
+        foreach ($price_list as $qty => $price_item) {
             // add $priceItem->getValue() < $price->getValue() to use lowest price regardless of quantity
-            if ($quantity >= $qty && $price->getQuantity() < $qty) {
-                $price = $priceItem;
+            if ($quantity >= $qty && $price->get_quantity() < $qty) {
+                $price = $price_item;
             }
         }
-
         return $price;
     }
-
     /**
      * Returns the price items sorted by quantity
      *
@@ -80,37 +67,31 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\Map Associative list of quantity as keys and price item as value
      * @throws \Aimeos\MShop\Price\Exception If an object is no price item
      */
-    protected function getPriceList(\Aimeos\Map $priceItems, ?string $currencyId, ?string $siteId): \Aimeos\Map
+    protected function get_price_list(\Aimeos\Map $price_items, ?string $currency_id, ?string $site_id): \Aimeos\Map
     {
         $list = map();
-        $siteIds = $this->context()->locale()->getSitePath();
-        $priceItems->implements(\Aimeos\MShop\Price\Item\Iface::class, true);
-
-        foreach ($priceItems as $priceItem) {
-            if ($currencyId && $currencyId !== $priceItem->getCurrencyId()) {
+        $site_ids = $this->context()->locale()->get_site_path();
+        $price_items->implements(\Aimeos\M_Shop\Price\Item\Iface::class, true);
+        foreach ($price_items as $price_item) {
+            if ($currency_id && $currency_id !== $price_item->get_currency_id()) {
                 continue;
             }
-
-            if ($siteId) {
-                if (in_array($siteId, $siteIds)) { // if product is inherited, inherit price too
-                    if (!in_array($priceItem->getSiteId(), $siteIds)) {
+            if ($site_id) {
+                if (in_array($site_id, $site_ids)) {
+                    // if product is inherited, inherit price too
+                    if (!in_array($price_item->get_site_id(), $site_ids)) {
                         continue;
                     }
-                } elseif ($priceItem->getSiteId() !== $siteId) { // Use price from specific site originally passed as parameter
+                } elseif ($price_item->get_site_id() !== $site_id) {
+                    // Use price from specific site originally passed as parameter
                     continue;
                 }
             }
-
-            $qty = (string) $priceItem->getQuantity();
-
-            if (!isset($list[$qty])
-                || $list[$qty]->getValue() === null
-                || $priceItem->getValue() !== null && $list[$qty]->getValue() > $priceItem->getValue()
-            ) {
-                $list[$qty] = $priceItem;
+            $qty = (string) $price_item->get_quantity();
+            if (!isset($list[$qty]) || $list[$qty]->get_value() === null || $price_item->get_value() !== null && $list[$qty]->get_value() > $price_item->get_value()) {
+                $list[$qty] = $price_item;
             }
         }
-
         return $list->ksort();
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Rating;
+namespace Aimeos\M_Shop\Common\Manager\Rating;
 
 /**
  * Common interface for managers implementing customer ratings
@@ -27,5 +25,5 @@ interface Iface
      * @param int $ratings Total number of ratings for the item
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rate(string $id, string $rating, int $ratings): \Aimeos\MShop\Common\Manager\Iface;
+    public function rate(string $id, string $rating, int $ratings): \Aimeos\M_Shop\Common\Manager\Iface;
 }

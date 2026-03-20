@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\PropertyRef;
+namespace Aimeos\M_Shop\Common\Item\Property_Ref;
 
 /**
  * Common interface for items containing property items.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Common\Item\PropertyRef;
  * @package MShop
  * @subpackage Common
  */
-interface Iface extends \Aimeos\MShop\Common\Item\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Item\Iface
 {
     /**
      * Adds a new property item or overwrite an existing one
@@ -25,39 +23,34 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param \Aimeos\MShop\Common\Item\Property\Iface $item New or existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function addPropertyItem(\Aimeos\MShop\Common\Item\Property\Iface $item): \Aimeos\MShop\Common\Item\PropertyRef\Iface;
-
+    public function add_property_item(\Aimeos\M_Shop\Common\Item\Property\Iface $item): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface;
     /**
      * Adds new property items or overwrite existing ones
      *
      * @param \Aimeos\Map|\Aimeos\MShop\Common\Item\Property\Iface $item New or existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function addPropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface;
-
+    public function add_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface;
     /**
      * Removes an existing property item
      *
      * @param \Aimeos\MShop\Common\Item\Property\Iface $item Existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function deletePropertyItem(\Aimeos\MShop\Common\Item\Property\Iface $item): \Aimeos\MShop\Common\Item\PropertyRef\Iface;
-
+    public function delete_property_item(\Aimeos\M_Shop\Common\Item\Property\Iface $item): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface;
     /**
      * Removes a list of existing property items
      *
      * @param \Aimeos\Map|\Aimeos\MShop\Common\Item\Property\Iface[] $items Existing property items
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function deletePropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface;
-
+    public function delete_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface;
     /**
      * Returns the deleted property items
      *
      * @return \Aimeos\Map Property items implementing \Aimeos\MShop\Common\Item\Property\Iface
      */
-    public function getPropertyItemsDeleted(): \Aimeos\Map;
-
+    public function get_property_items_deleted(): \Aimeos\Map;
     /**
      * Returns the property values for the given type
      *
@@ -65,8 +58,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of property values
      */
-    public function getProperties(string $type, bool $active = true): \Aimeos\Map;
-
+    public function get_properties(string $type, bool $active = true): \Aimeos\Map;
     /**
      * Returns the property item for the given type, language and value
      *
@@ -76,8 +68,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\MShop\Common\Item\Property\Iface|null Matching property item or null if none
      */
-    public function getPropertyItem(string $type, ?string $langId, string $value, bool $active = true): ?\Aimeos\MShop\Common\Item\Property\Iface;
-
+    public function get_property_item(string $type, ?string $lang_id, string $value, bool $active = true): ?\Aimeos\M_Shop\Common\Item\Property\Iface;
     /**
      * Returns the property items of the product
      *
@@ -85,13 +76,12 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of property IDs as keys and property items implementing \Aimeos\MShop\Common\Item\Property\Iface
      */
-    public function getPropertyItems($type = null, bool $active = true): \Aimeos\Map;
-
+    public function get_property_items($type = null, bool $active = true): \Aimeos\Map;
     /**
      * Adds a new property item or overwrite an existing one
      *
      * @param \Aimeos\Map|\Aimeos\MShop\Common\Item\Property\Iface[] $items New list of property items
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function setPropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface;
+    public function set_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface;
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Factory;
+namespace Aimeos\M_Shop\Plugin\Provider\Factory;
 
 /**
  * Plugin factory interface for dealing with run-time loadable extensions.
@@ -26,5 +24,5 @@ interface Iface
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      * @param \Aimeos\MShop\Plugin\Item\Iface $item Plugin item object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Plugin\Item\Iface $item);
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Plugin\Item\Iface $item);
 }

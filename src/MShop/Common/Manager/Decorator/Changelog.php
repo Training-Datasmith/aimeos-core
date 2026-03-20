@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Decorator;
+namespace Aimeos\M_Shop\Common\Manager\Decorator;
 
 /**
  * Provides a changelog decorator for managers.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Common\Manager\Decorator;
  * @package MShop
  * @subpackage Common
  */
-class Changelog extends \Aimeos\MShop\Common\Manager\Decorator\Base
+class Changelog extends \Aimeos\M_Shop\Common\Manager\Decorator\Base
 {
     /**
      * Deletes one or more items.
@@ -26,17 +24,14 @@ class Changelog extends \Aimeos\MShop\Common\Manager\Decorator\Base
      * @param \Aimeos\MShop\Common\Item\Iface|\Aimeos\Map|array|string $items Item object, ID or a list of them
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        $this->getManager()->delete($items);
-
-        if (!map($items)->isEmpty()) {
+        $this->get_manager()->delete($items);
+        if (!map($items)->is_empty()) {
             $this->context()->logger()->notice($items, 'changelog:delete');
         }
-
         return $this;
     }
-
     /**
      * Adds or updates an item object.
      *
@@ -46,12 +41,10 @@ class Changelog extends \Aimeos\MShop\Common\Manager\Decorator\Base
      */
     public function save($items, bool $fetch = true)
     {
-        $items = $this->getManager()->save($items, true);
-
-        if (map($items)->isModified()->some(true)) {
+        $items = $this->get_manager()->save($items, true);
+        if (map($items)->is_modified()->some(true)) {
             $this->context()->logger()->notice($items, 'changelog:save');
         }
-
         return $items;
     }
 }

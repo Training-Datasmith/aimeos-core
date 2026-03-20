@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Customer
  */
-
-namespace Aimeos\MShop\Customer\Manager;
+namespace Aimeos\M_Shop\Customer\Manager;
 
 /**
  * Default implementation of the customer class.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Customer\Manager;
  * @package MShop
  * @subpackage Customer
  */
-class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MShop\Customer\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Customer\Manager\Base implements \Aimeos\M_Shop\Customer\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Removes old entries from the storage.
@@ -25,233 +23,60 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Customer\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         foreach ($this->context()->config()->get('mshop/customer/manager/submanagers', []) as $domain) {
-            $this->object()->getSubManager($domain)->clear($siteids);
+            $this->object()->get_sub_manager($domain)->clear($siteids);
         }
-
-        return $this->clearBase($siteids, 'mshop/customer/manager/clear');
+        return $this->clear_base($siteids, 'mshop/customer/manager/clear');
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Customer\Item\Iface New customer item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['customer.siteid'] ??= $this->context()->locale()->getSiteId();
-
-        $address = new \Aimeos\MShop\Common\Item\Address\Standard('customer.', $values);
-        return new \Aimeos\MShop\Customer\Item\Standard($address, 'customer.', $values, $this->context()->password());
+        $values['customer.siteid'] ??= $this->context()->locale()->get_site_id();
+        $address = new \Aimeos\M_Shop\Common\Item\Address\Standard('customer.', $values);
+        return new \Aimeos\M_Shop\Customer\Item\Standard($address, 'customer.', $values, $this->context()->password());
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $this->context()->config()->get('mshop/customer/manager/sitemode', $level);
-
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'customer.id' => [
-                'label' => 'ID',
-                'internalcode' => 'id',
-                'type' => 'int',
-                'public' => false,
-            ],
-            'customer.siteid' => [
-                'label' => 'Customer site ID',
-                'internalcode' => 'siteid',
-                'public' => false,
-            ],
-            'customer.code' => [
-                'label' => 'Username',
-                'internalcode' => 'code',
-            ],
-            'customer.label' => [
-                'label' => 'Label',
-                'internalcode' => 'label',
-            ],
-            'customer.salutation' => [
-                'label' => 'Salutation',
-                'internalcode' => 'salutation',
-            ],
-            'customer.company' => [
-                'label' => 'Company',
-                'internalcode' => 'company',
-            ],
-            'customer.vatid' => [
-                'label' => 'Vat ID',
-                'internalcode' => 'vatid',
-            ],
-            'customer.title' => [
-                'label' => 'Title',
-                'internalcode' => 'title',
-            ],
-            'customer.firstname' => [
-                'label' => 'Firstname',
-                'internalcode' => 'firstname',
-            ],
-            'customer.lastname' => [
-                'label' => 'Lastname',
-                'internalcode' => 'lastname',
-            ],
-            'customer.address1' => [
-                'label' => 'Address part one',
-                'internalcode' => 'address1',
-            ],
-            'customer.address2' => [
-                'label' => 'Address part two',
-                'internalcode' => 'address2',
-            ],
-            'customer.address3' => [
-                'label' => 'Address part three',
-                'internalcode' => 'address3',
-            ],
-            'customer.postal' => [
-                'label' => 'Postal',
-                'internalcode' => 'postal',
-            ],
-            'customer.city' => [
-                'label' => 'City',
-                'internalcode' => 'city',
-            ],
-            'customer.state' => [
-                'label' => 'State',
-                'internalcode' => 'state',
-            ],
-            'customer.languageid' => [
-                'label' => 'Language',
-                'internalcode' => 'langid',
-            ],
-            'customer.countryid' => [
-                'label' => 'Country',
-                'internalcode' => 'countryid',
-            ],
-            'customer.telephone' => [
-                'label' => 'Telephone',
-                'internalcode' => 'telephone',
-            ],
-            'customer.telefax' => [
-                'label' => 'Facsimile',
-                'internalcode' => 'telefax',
-            ],
-            'customer.mobile' => [
-                'label' => 'Mobile number',
-                'internalcode' => 'mobile',
-            ],
-            'customer.email' => [
-                'label' => 'E-mail',
-                'internalcode' => 'email',
-            ],
-            'customer.website' => [
-                'label' => 'Web site',
-                'internalcode' => 'website',
-            ],
-            'customer.longitude' => [
-                'label' => 'Longitude',
-                'internalcode' => 'longitude',
-                'public' => false,
-            ],
-            'customer.latitude' => [
-                'label' => 'Latitude',
-                'internalcode' => 'latitude',
-                'public' => false,
-            ],
-            'customer.birthday' => [
-                'label' => 'Birthday',
-                'internalcode' => 'birthday',
-            ],
-            'customer.status' => [
-                'label' => 'Status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-            'customer.dateverified' => [
-                'label' => 'Verification date',
-                'internalcode' => 'vdate',
-                'type' => 'date',
-                'public' => false,
-            ],
-            'customer.password' => [
-                'label' => 'Password',
-                'internalcode' => 'password',
-                'public' => false,
-            ],
-            'customer.ctime' => [
-                'label' => 'Create date/time',
-                'internalcode' => 'ctime',
-                'type' => 'datetime',
-                'public' => false,
-            ],
-            'customer.mtime' => [
-                'label' => 'Modify date/time',
-                'internalcode' => 'mtime',
-                'type' => 'datetime',
-                'public' => false,
-            ],
-            'customer.editor' => [
-                'label' => 'Editor',
-                'internalcode' => 'editor',
-                'public' => false,
-            ],
-            'customer:has' => [
-                'code' => 'customer:has()',
-                'internalcode' => ':site AND :key AND mcusli."id"',
-                'internaldeps' => ['LEFT JOIN "mshop_customer_list" AS mcusli ON ( mcusli."parentid" = mcus."id" )'],
-                'label' => 'Customer has list item, parameter(<domain>[,<list type>[,<reference ID>)]]',
-                'type' => 'null',
-                'public' => false,
-                'function' => function (&$source, array $params) use ($level): array {
-                    $keys = [];
-
-                    foreach ((array) ($params[1] ?? '') as $type) {
-                        foreach ((array) ($params[2] ?? '') as $id) {
-                            $keys[] = $params[0] . '|' . ($type ? $type . '|' : '') . $id;
-                        }
-                    }
-
-                    $sitestr = $this->siteString('mcusli."siteid"', $level);
-                    $keystr = $this->toExpression('mcusli."key"', $keys, ($params[2] ?? null) ? '==' : '=~');
-                    $source = str_replace([':site', ':key'], [$sitestr, $keystr], $source);
-
-                    return $params;
-                },
-            ],
-            'customer:prop' => [
-                'code' => 'customer:prop()',
-                'internalcode' => ':site AND :key AND mcuspr."id"',
-                'internaldeps' => ['LEFT JOIN "mshop_customer_property" AS mcuspr ON ( mcuspr."parentid" = mcus."id" )'],
-                'label' => 'Customer has property item, parameter(<property type>[,<language code>[,<property value>]])',
-                'type' => 'null',
-                'public' => false,
-                'function' => function (&$source, array $params) use ($level): array {
-                    $keys = [];
-                    $langs = array_key_exists(1, $params) ? ($params[1] ?? 'null') : '';
-
-                    foreach ((array) $langs as $lang) {
-                        foreach ((array) ($params[2] ?? '') as $val) {
-                            $keys[] = substr($params[0] . '|' . ($lang === null ? 'null|' : ($lang ? $lang . '|' : '')) . $val, 0, 255);
-                        }
-                    }
-
-                    $sitestr = $this->siteString('mcuspr."siteid"', $level);
-                    $keystr = $this->toExpression('mcuspr."key"', $keys, ($params[2] ?? null) ? '==' : '=~');
-                    $source = str_replace([':site', ':key'], [$sitestr, $keystr], $source);
-
-                    return $params;
-                },
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['customer.id' => ['label' => 'ID', 'internalcode' => 'id', 'type' => 'int', 'public' => false], 'customer.siteid' => ['label' => 'Customer site ID', 'internalcode' => 'siteid', 'public' => false], 'customer.code' => ['label' => 'Username', 'internalcode' => 'code'], 'customer.label' => ['label' => 'Label', 'internalcode' => 'label'], 'customer.salutation' => ['label' => 'Salutation', 'internalcode' => 'salutation'], 'customer.company' => ['label' => 'Company', 'internalcode' => 'company'], 'customer.vatid' => ['label' => 'Vat ID', 'internalcode' => 'vatid'], 'customer.title' => ['label' => 'Title', 'internalcode' => 'title'], 'customer.firstname' => ['label' => 'Firstname', 'internalcode' => 'firstname'], 'customer.lastname' => ['label' => 'Lastname', 'internalcode' => 'lastname'], 'customer.address1' => ['label' => 'Address part one', 'internalcode' => 'address1'], 'customer.address2' => ['label' => 'Address part two', 'internalcode' => 'address2'], 'customer.address3' => ['label' => 'Address part three', 'internalcode' => 'address3'], 'customer.postal' => ['label' => 'Postal', 'internalcode' => 'postal'], 'customer.city' => ['label' => 'City', 'internalcode' => 'city'], 'customer.state' => ['label' => 'State', 'internalcode' => 'state'], 'customer.languageid' => ['label' => 'Language', 'internalcode' => 'langid'], 'customer.countryid' => ['label' => 'Country', 'internalcode' => 'countryid'], 'customer.telephone' => ['label' => 'Telephone', 'internalcode' => 'telephone'], 'customer.telefax' => ['label' => 'Facsimile', 'internalcode' => 'telefax'], 'customer.mobile' => ['label' => 'Mobile number', 'internalcode' => 'mobile'], 'customer.email' => ['label' => 'E-mail', 'internalcode' => 'email'], 'customer.website' => ['label' => 'Web site', 'internalcode' => 'website'], 'customer.longitude' => ['label' => 'Longitude', 'internalcode' => 'longitude', 'public' => false], 'customer.latitude' => ['label' => 'Latitude', 'internalcode' => 'latitude', 'public' => false], 'customer.birthday' => ['label' => 'Birthday', 'internalcode' => 'birthday'], 'customer.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int'], 'customer.dateverified' => ['label' => 'Verification date', 'internalcode' => 'vdate', 'type' => 'date', 'public' => false], 'customer.password' => ['label' => 'Password', 'internalcode' => 'password', 'public' => false], 'customer.ctime' => ['label' => 'Create date/time', 'internalcode' => 'ctime', 'type' => 'datetime', 'public' => false], 'customer.mtime' => ['label' => 'Modify date/time', 'internalcode' => 'mtime', 'type' => 'datetime', 'public' => false], 'customer.editor' => ['label' => 'Editor', 'internalcode' => 'editor', 'public' => false], 'customer:has' => ['code' => 'customer:has()', 'internalcode' => ':site AND :key AND mcusli."id"', 'internaldeps' => ['LEFT JOIN "mshop_customer_list" AS mcusli ON ( mcusli."parentid" = mcus."id" )'], 'label' => 'Customer has list item, parameter(<domain>[,<list type>[,<reference ID>)]]', 'type' => 'null', 'public' => false, 'function' => function (&$source, array $params) use ($level): array {
+            $keys = [];
+            foreach ((array) ($params[1] ?? '') as $type) {
+                foreach ((array) ($params[2] ?? '') as $id) {
+                    $keys[] = $params[0] . '|' . ($type ? $type . '|' : '') . $id;
+                }
+            }
+            $sitestr = $this->site_string('mcusli."siteid"', $level);
+            $keystr = $this->to_expression('mcusli."key"', $keys, $params[2] ?? null ? '==' : '=~');
+            $source = str_replace([':site', ':key'], [$sitestr, $keystr], $source);
+            return $params;
+        }], 'customer:prop' => ['code' => 'customer:prop()', 'internalcode' => ':site AND :key AND mcuspr."id"', 'internaldeps' => ['LEFT JOIN "mshop_customer_property" AS mcuspr ON ( mcuspr."parentid" = mcus."id" )'], 'label' => 'Customer has property item, parameter(<property type>[,<language code>[,<property value>]])', 'type' => 'null', 'public' => false, 'function' => function (&$source, array $params) use ($level): array {
+            $keys = [];
+            $langs = array_key_exists(1, $params) ? $params[1] ?? 'null' : '';
+            foreach ((array) $langs as $lang) {
+                foreach ((array) ($params[2] ?? '') as $val) {
+                    $keys[] = substr($params[0] . '|' . ($lang === null ? 'null|' : ($lang ? $lang . '|' : '')) . $val, 0, 255);
+                }
+            }
+            $sitestr = $this->site_string('mcuspr."siteid"', $level);
+            $keystr = $this->to_expression('mcuspr."key"', $keys, $params[2] ?? null ? '==' : '=~');
+            $source = str_replace([':site', ':key'], [$sitestr, $keystr], $source);
+            return $params;
+        }]]));
     }
-
     /**
      * Saves a customer item object.
      *
@@ -259,28 +84,23 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Customer\Item\Iface $item Updated item including the generated ID
      */
-    protected function saveItem(\Aimeos\MShop\Customer\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Customer\Item\Iface
+    protected function save_item(\Aimeos\M_Shop\Customer\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Customer\Item\Iface
     {
-        $item = $this->addGroups($item);
-
-        if (!$item->isModified()) {
-            return $this->object()->saveRefs($item, $fetch);
+        $item = $this->add_groups($item);
+        if (!$item->is_modified()) {
+            return $this->object()->save_refs($item, $fetch);
         }
-
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $id = $item->getId();
-        $billingAddress = $item->getPaymentAddress();
-        $columns = $this->object()->getSaveAttributes();
-
+        $conn = $context->db($this->get_resource_name());
+        $id = $item->get_id();
+        $billing_address = $item->get_payment_address();
+        $columns = $this->object()->get_save_attributes();
         if ($id === null) {
             /** mshop/customer/manager/insert/mysql
              * Inserts a new customer record into the database table
              *
              * @see mshop/customer/manager/insert/ansi
              */
-
             /** mshop/customer/manager/insert/ansi
              * Inserts a new customer record into the database table
              *
@@ -310,14 +130,13 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
              * @see mshop/customer/manager/count/ansi
              */
             $path = 'mshop/customer/manager/insert';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         } else {
             /** mshop/customer/manager/update/mysql
              * Updates an existing customer record in the database
              *
              * @see mshop/customer/manager/update/ansi
              */
-
             /** mshop/customer/manager/update/ansi
              * Updates an existing customer record in the database
              *
@@ -344,65 +163,61 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
              * @see mshop/customer/manager/count/ansi
              */
             $path = 'mshop/customer/manager/update';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         }
-
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $item->getLabel());
-        $stmt->bind($idx++, $item->getCode());
-        $stmt->bind($idx++, $billingAddress->getCompany());
-        $stmt->bind($idx++, $billingAddress->getVatID());
-        $stmt->bind($idx++, $billingAddress->getSalutation());
-        $stmt->bind($idx++, $billingAddress->getTitle());
-        $stmt->bind($idx++, $billingAddress->getFirstname());
-        $stmt->bind($idx++, $billingAddress->getLastname());
-        $stmt->bind($idx++, $billingAddress->getAddress1());
-        $stmt->bind($idx++, $billingAddress->getAddress2());
-        $stmt->bind($idx++, $billingAddress->getAddress3());
-        $stmt->bind($idx++, $billingAddress->getPostal());
-        $stmt->bind($idx++, $billingAddress->getCity());
-        $stmt->bind($idx++, $billingAddress->getState());
-        $stmt->bind($idx++, $billingAddress->getCountryId());
-        $stmt->bind($idx++, $billingAddress->getLanguageId());
-        $stmt->bind($idx++, $billingAddress->getTelephone());
-        $stmt->bind($idx++, $billingAddress->getMobile());
-        $stmt->bind($idx++, $billingAddress->getEmail());
-        $stmt->bind($idx++, $billingAddress->getTelefax());
-        $stmt->bind($idx++, $billingAddress->getWebsite());
-        $stmt->bind($idx++, $billingAddress->getLongitude());
-        $stmt->bind($idx++, $billingAddress->getLatitude());
-        $stmt->bind($idx++, $billingAddress->getBirthday());
-        $stmt->bind($idx++, $item->getStatus(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind($idx++, $item->getDateVerified());
-        $stmt->bind($idx++, $item->getPassword());
-        $stmt->bind($idx++, $context->datetime()); // Modification time
+        $stmt->bind($idx++, $item->get_label());
+        $stmt->bind($idx++, $item->get_code());
+        $stmt->bind($idx++, $billing_address->get_company());
+        $stmt->bind($idx++, $billing_address->get_vat_id());
+        $stmt->bind($idx++, $billing_address->get_salutation());
+        $stmt->bind($idx++, $billing_address->get_title());
+        $stmt->bind($idx++, $billing_address->get_firstname());
+        $stmt->bind($idx++, $billing_address->get_lastname());
+        $stmt->bind($idx++, $billing_address->get_address1());
+        $stmt->bind($idx++, $billing_address->get_address2());
+        $stmt->bind($idx++, $billing_address->get_address3());
+        $stmt->bind($idx++, $billing_address->get_postal());
+        $stmt->bind($idx++, $billing_address->get_city());
+        $stmt->bind($idx++, $billing_address->get_state());
+        $stmt->bind($idx++, $billing_address->get_country_id());
+        $stmt->bind($idx++, $billing_address->get_language_id());
+        $stmt->bind($idx++, $billing_address->get_telephone());
+        $stmt->bind($idx++, $billing_address->get_mobile());
+        $stmt->bind($idx++, $billing_address->get_email());
+        $stmt->bind($idx++, $billing_address->get_telefax());
+        $stmt->bind($idx++, $billing_address->get_website());
+        $stmt->bind($idx++, $billing_address->get_longitude());
+        $stmt->bind($idx++, $billing_address->get_latitude());
+        $stmt->bind($idx++, $billing_address->get_birthday());
+        $stmt->bind($idx++, $item->get_status(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $item->get_date_verified());
+        $stmt->bind($idx++, $item->get_password());
+        $stmt->bind($idx++, $context->datetime());
+        // Modification time
         $stmt->bind($idx++, $context->editor());
-
         if ($id !== null) {
-            $stmt->bind($idx++, $context->locale()->getSiteId() . '%');
-            $stmt->bind($idx++, (string) $context->user()?->getSiteId());
+            $stmt->bind($idx++, $context->locale()->get_site_id() . '%');
+            $stmt->bind($idx++, (string) $context->user()?->get_site_id());
             $stmt->bind($idx, $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-            $billingAddress->setId($id); // enforce ID to be present
+            $billing_address->set_id($id);
+            // enforce ID to be present
         } else {
-            $stmt->bind($idx++, $this->siteId($item->getSiteId(), \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE));
-            $stmt->bind($idx, $context->datetime()); // Creation time
+            $stmt->bind($idx++, $this->site_id($item->get_site_id(), \Aimeos\M_Shop\Locale\Manager\Base::SITE_SUBTREE));
+            $stmt->bind($idx, $context->datetime());
+            // Creation time
         }
-
         $stmt->execute()->finish();
-
         if ($id === null) {
             /** mshop/customer/manager/newid/mysql
              * Retrieves the ID generated by the database when inserting a new record
              *
              * @see mshop/customer/manager/newid/ansi
              */
-
             /** mshop/customer/manager/newid/ansi
              * Retrieves the ID generated by the database when inserting a new record
              *
@@ -433,12 +248,10 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
              * @see mshop/customer/manager/count/ansi
              */
             $path = 'mshop/customer/manager/newid';
-            $id = $this->newId($conn, $path);
+            $id = $this->new_id($conn, $path);
         }
-
-        return $this->object()->saveRefs($item->setId($id), $fetch);
+        return $this->object()->save_refs($item->set_id($id), $fetch);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -448,7 +261,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
     {
         return 'customer.';
     }
-
     /** mshop/customer/manager/name
      * Class name of the used customer manager implementation
      *
@@ -481,7 +293,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/customer/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the customer manager
      *
@@ -506,7 +317,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @see mshop/customer/manager/decorators/global
      * @see mshop/customer/manager/decorators/local
      */
-
     /** mshop/customer/manager/decorators/global
      * Adds a list of globally available decorators only to the customer manager
      *
@@ -530,7 +340,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @see mshop/customer/manager/decorators/excludes
      * @see mshop/customer/manager/decorators/local
      */
-
     /** mshop/customer/manager/decorators/local
      * Adds a list of local decorators only to the customer manager
      *
@@ -554,7 +363,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @see mshop/customer/manager/decorators/excludes
      * @see mshop/customer/manager/decorators/global
      */
-
     /** mshop/customer/manager/resource
      * Name of the database connection resource to use
      *
@@ -566,7 +374,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/customer/manager/submanagers
      * List of manager names that can be instantiated by the customer manager
      *
@@ -583,13 +390,11 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/customer/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/customer/manager/delete/ansi
      */
-
     /** mshop/customer/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -613,7 +418,6 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @see mshop/customer/manager/search/ansi
      * @see mshop/customer/manager/count/ansi
      */
-
     /** mshop/customer/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -642,13 +446,11 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/customer/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/customer/manager/search/ansi
      */
-
     /** mshop/customer/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -697,13 +499,11 @@ class Standard extends \Aimeos\MShop\Customer\Manager\Base implements \Aimeos\MS
      * @see mshop/customer/manager/delete/ansi
      * @see mshop/customer/manager/count/ansi
      */
-
     /** mshop/customer/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/customer/manager/count/ansi
      */
-
     /** mshop/customer/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

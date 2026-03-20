@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Lists;
+namespace Aimeos\M_Shop\Common\Manager\Lists;
 
 /**
  * Abstract list manager implementation
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Common\Manager\Lists;
  * @package MShop
  * @subpackage Common
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Common\Manager\Lists\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Common\Manager\Lists\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Creates a new empty item instance
@@ -25,17 +23,14 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Lists\Iface New list item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $prefix = $this->prefix();
         $context = $this->context();
-
         $values['.date'] = $context->datetime();
-        $values[$prefix . 'siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Common\Item\Lists\Standard($prefix, $values);
+        $values[$prefix . 'siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Common\Item\Lists\Standard($prefix, $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -46,89 +41,24 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
         $prefix = rtrim($this->prefix(), '.');
-        $filter = $this->filterBase($prefix, $default);
-
+        $filter = $this->filter_base($prefix, $default);
         if ($default !== false) {
             $date = $this->context()->datetime();
-
-            $filter->add($filter->and([
-                $filter->or([
-                    $filter->compare('<=', $prefix . '.datestart', $date),
-                    $filter->compare('==', $prefix . '.datestart', null),
-                ]),
-                $filter->or([
-                    $filter->compare('>=', $prefix . '.dateend', $date),
-                    $filter->compare('==', $prefix . '.dateend', null),
-                ]),
-            ]));
+            $filter->add($filter->and([$filter->or([$filter->compare('<=', $prefix . '.datestart', $date), $filter->compare('==', $prefix . '.datestart', null)]), $filter->or([$filter->compare('>=', $prefix . '.dateend', $date), $filter->compare('==', $prefix . '.dateend', null)])]));
         }
-
         return $filter;
     }
-
     /**
      * Returns the attributes that can be used for saving.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSaveAttributes(bool $withsub = true): array
+    public function get_save_attributes(bool $withsub = true): array
     {
         $prefix = $this->prefix();
-
-        return $this->createAttributes([
-            $prefix . 'parentid' => [
-                'internalcode' => 'parentid',
-                'label' => 'List parent ID',
-                'type' => 'int',
-                'public' => false,
-            ],
-            $prefix . 'key' => [
-                'internalcode' => 'key',
-                'label' => 'List key',
-                'public' => false,
-            ],
-            $prefix . 'type' => [
-                'internalcode' => 'type',
-                'label' => 'List type',
-            ],
-            $prefix . 'refid' => [
-                'internalcode' => 'refid',
-                'label' => 'List reference ID',
-            ],
-            $prefix . 'datestart' => [
-                'internalcode' => 'start',
-                'label' => 'List start date',
-                'type' => 'datetime',
-            ],
-            $prefix . 'dateend' => [
-                'internalcode' => 'end',
-                'label' => 'List end date',
-                'type' => 'datetime',
-            ],
-            $prefix . 'domain' => [
-                'internalcode' => 'domain',
-                'label' => 'List domain',
-            ],
-            $prefix . 'position' => [
-                'internalcode' => 'pos',
-                'label' => 'List position',
-                'type' => 'int',
-            ],
-            $prefix . 'status' => [
-                'internalcode' => 'status',
-                'label' => 'List status',
-                'type' => 'int',
-            ],
-            $prefix . 'config' => [
-                'internalcode' => 'config',
-                'label' => 'List config',
-                'type' => 'json',
-                'public' => false,
-            ],
-        ]);
+        return $this->create_attributes([$prefix . 'parentid' => ['internalcode' => 'parentid', 'label' => 'List parent ID', 'type' => 'int', 'public' => false], $prefix . 'key' => ['internalcode' => 'key', 'label' => 'List key', 'public' => false], $prefix . 'type' => ['internalcode' => 'type', 'label' => 'List type'], $prefix . 'refid' => ['internalcode' => 'refid', 'label' => 'List reference ID'], $prefix . 'datestart' => ['internalcode' => 'start', 'label' => 'List start date', 'type' => 'datetime'], $prefix . 'dateend' => ['internalcode' => 'end', 'label' => 'List end date', 'type' => 'datetime'], $prefix . 'domain' => ['internalcode' => 'domain', 'label' => 'List domain'], $prefix . 'position' => ['internalcode' => 'pos', 'label' => 'List position', 'type' => 'int'], $prefix . 'status' => ['internalcode' => 'status', 'label' => 'List status', 'type' => 'int'], $prefix . 'config' => ['internalcode' => 'config', 'label' => 'List config', 'type' => 'json', 'public' => false]]);
     }
-
     /**
      * Search for all list items based on the given critera.
      *
@@ -140,35 +70,25 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     public function search(\Aimeos\Base\Criteria\Iface $search, array $ref = [], ?int &$total = null): \Aimeos\Map
     {
         $items = parent::search($search, $ref, $total);
-
         if (empty($ref)) {
             return $items;
         }
-
-        $refItemMap = [];
-        $refIdMap = $items->groupBy($this->prefix() . 'domain');
-
-        foreach ($refIdMap as $domain => $list) {
-            $manager = \Aimeos\MShop::create($this->context(), $domain);
-            $attr = map($manager->getSearchAttributes());
-
-            $key = $attr->get('id')?->getCode() === 'id' ? 'id' : str_replace('/', '.', $domain) . '.id';
-
-            $search = $manager->filter()->slice(0, count($list))
-                ->add([$key => map($list)->getRefId()]);
-
-            $refItemMap[$domain] = $manager->search($search, $ref);
+        $ref_item_map = [];
+        $ref_id_map = $items->group_by($this->prefix() . 'domain');
+        foreach ($ref_id_map as $domain => $list) {
+            $manager = \Aimeos\M_Shop::create($this->context(), $domain);
+            $attr = map($manager->get_search_attributes());
+            $key = $attr->get('id')?->get_code() === 'id' ? 'id' : str_replace('/', '.', $domain) . '.id';
+            $search = $manager->filter()->slice(0, count($list))->add([$key => map($list)->get_ref_id()]);
+            $ref_item_map[$domain] = $manager->search($search, $ref);
         }
-
-        foreach ($items as $listItem) {
-            if (isset($refItemMap[$listItem->getDomain()][$listItem->getRefId()])) {
-                $listItem->setRefItem($refItemMap[$listItem->getDomain()][$listItem->getRefId()]);
+        foreach ($items as $list_item) {
+            if (isset($ref_item_map[$list_item->get_domain()][$list_item->get_ref_id()])) {
+                $list_item->set_ref_item($ref_item_map[$list_item->get_domain()][$list_item->get_ref_id()]);
             }
         }
-
         return $items;
     }
-
     /**
      * Returns the name of the used table
      *
@@ -176,9 +96,9 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      */
     protected function table(): string
     {
-        return substr(parent::table(), 0, -1); // cuts of the "s" from "lists"
+        return substr(parent::table(), 0, -1);
+        // cuts of the "s" from "lists"
     }
-
     /**
      * Returns the domain prefix.
      *

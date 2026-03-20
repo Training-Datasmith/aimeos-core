@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Simple example implementation of an order plugin.
@@ -21,7 +19,7 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class Example extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Example extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -29,12 +27,11 @@ class Example extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aim
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $p->attach($this->object(), 'addProduct.before');
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -43,9 +40,8 @@ class Example extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aim
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
         return $value;
     }
-
 }

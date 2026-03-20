@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Delivery;
+namespace Aimeos\M_Shop\Service\Provider\Delivery;
 
 /**
  * Manual delivery provider implementation
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Service\Provider\Delivery;
  * @package MShop
  * @subpackage Service
  */
-class Standard extends \Aimeos\MShop\Service\Provider\Delivery\Base implements \Aimeos\MShop\Service\Provider\Delivery\Iface
+class Standard extends \Aimeos\M_Shop\Service\Provider\Delivery\Base implements \Aimeos\M_Shop\Service\Provider\Delivery\Iface
 {
     /**
      * Updates the delivery status
@@ -27,6 +25,6 @@ class Standard extends \Aimeos\MShop\Service\Provider\Delivery\Base implements \
      */
     public function push(iterable $orders): \Aimeos\Map
     {
-        return map($orders)->setStatusDelivery(\Aimeos\MShop\Order\Item\Base::STAT_PENDING);
+        return map($orders)->set_status_delivery(\Aimeos\M_Shop\Order\Item\Base::STAT_PENDING);
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Adds the configured subscription product to the basket for free
@@ -24,26 +22,9 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class FreeProduct extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Free_Product extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
-    private array $beConfig = [
-        'productcode' => [
-            'code' => 'productcode',
-            'internalcode' => 'productcode',
-            'label' => 'SKU of the free product',
-            'default' => '',
-            'required' => true,
-        ],
-        'count' => [
-            'code' => 'count',
-            'internalcode' => 'count',
-            'label' => 'Number of times the product is available for free',
-            'type' => 'int',
-            'default' => 1,
-            'required' => true,
-        ],
-    ];
-
+    private array $be_config = ['productcode' => ['code' => 'productcode', 'internalcode' => 'productcode', 'label' => 'SKU of the free product', 'default' => '', 'required' => true], 'count' => ['code' => 'count', 'internalcode' => 'count', 'label' => 'Number of times the product is available for free', 'type' => 'int', 'default' => 1, 'required' => true]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -51,36 +32,32 @@ class FreeProduct extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements 
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $errors = parent::checkConfigBE($attributes);
-
-        return array_merge($errors, $this->checkConfig($this->beConfig, $attributes));
+        $errors = parent::check_config_be($attributes);
+        return array_merge($errors, $this->check_config($this->be_config, $attributes));
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return $this->getConfigItems($this->beConfig);
+        return $this->get_config_items($this->be_config);
     }
-
     /**
      * Subscribes itself to a publisher
      *
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $p->attach($this->object(), 'addProduct.after');
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -89,34 +66,23 @@ class FreeProduct extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements 
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
-        map([$value])->implements(\Aimeos\MShop\Order\Item\Product\Iface::class, true);
-
-        $code = $this->getConfigValue('productcode');
-        $addresses = $order->getAddress(\Aimeos\MShop\Order\Item\Address\Base::TYPE_PAYMENT);
-
-        if ($value->getProductCode() !== $code || ($address = current($addresses)) === false) {
+        map([$value])->implements(\Aimeos\M_Shop\Order\Item\Product\Iface::class, true);
+        $code = $this->get_config_value('productcode');
+        $addresses = $order->get_address(\Aimeos\M_Shop\Order\Item\Address\Base::TYPE_PAYMENT);
+        if ($value->get_product_code() !== $code || ($address = current($addresses)) === false) {
             return $value;
         }
-
-        $email = $address->getEmail();
-        $count = $this->getConfigValue('count');
-        $status = \Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED;
-
-        $manager = \Aimeos\MShop::create($this->context(), 'order');
-
-        $search = $manager->filter()->add([
-            'order.address.email' => $email,
-            'order.product.prodcode' => $code,
-        ])->add('order.statuspayment', '>=', $status);
-
+        $email = $address->get_email();
+        $count = $this->get_config_value('count');
+        $status = \Aimeos\M_Shop\Order\Item\Base::PAY_AUTHORIZED;
+        $manager = \Aimeos\M_Shop::create($this->context(), 'order');
+        $search = $manager->filter()->add(['order.address.email' => $email, 'order.product.prodcode' => $code])->add('order.statuspayment', '>=', $status);
         $result = $manager->aggregate($search, 'order.address.email', 'order.product.quantity', 'sum');
-
         if (isset($result[$email]) && $result[$email] < $count) {
-            $value->setPrice($value->getPrice()->setRebate($value->getPrice()->getValue())->setValue('0.00'));
+            $value->set_price($value->get_price()->set_rebate($value->get_price()->get_value())->set_value('0.00'));
         }
-
         return $value;
     }
 }

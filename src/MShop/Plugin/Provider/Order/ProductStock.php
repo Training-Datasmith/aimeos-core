@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Checks the products in a basket for sufficient stocklevel
@@ -30,7 +28,7 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class ProductStock extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Product_Stock extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -38,13 +36,12 @@ class ProductStock extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $p->attach($this->object(), 'addProduct.after');
         $p->attach($this->object(), 'check.after');
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -54,53 +51,44 @@ class ProductStock extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @return mixed Modified value parameter
      * @throws \Aimeos\MShop\Plugin\Provider\Exception if checks fail
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
         if (!in_array('order/product', (array) $value)) {
             return $value;
         }
-
-        if (!$order->getProducts()->isEmpty() && ($outOfStock = $this->checkStock($order)) !== []) {
+        if (!$order->get_products()->is_empty() && ($out_of_stock = $this->check_stock($order)) !== []) {
             $msg = $this->context()->translate('mshop', 'Products out of stock');
-            throw new \Aimeos\MShop\Plugin\Provider\Exception($msg, -1, null, [ 'product' => $outOfStock ]);
+            throw new \Aimeos\M_Shop\Plugin\Provider\Exception($msg, -1, null, ['product' => $out_of_stock]);
         }
-
         return $value;
     }
-
     /**
      * Checks if all products in the basket have enough stock
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Shop basket object
      * @return array Associative list of basket product positions as keys and the error codes as values
      */
-    protected function checkStock(\Aimeos\MShop\Order\Item\Iface $order): array
+    protected function check_stock(\Aimeos\M_Shop\Order\Item\Iface $order): array
     {
         $context = $this->context();
-        $siteIds = $context->locale()->getSitePath();
-
-        $manager = \Aimeos\MShop::create($context, 'stock');
+        $site_ids = $context->locale()->get_site_path();
+        $manager = \Aimeos\M_Shop::create($context, 'stock');
         $filter = $manager->filter();
-        $expr = $stockMap = [];
-
-        foreach ($order->getProducts() as $orderProduct) {
+        $expr = $stock_map = [];
+        foreach ($order->get_products() as $order_product) {
             $expr[] = $filter->and([
                 // use stocks from parent sites if none for the site the product is from is available
-                $filter->is('stock.siteid', '==', array_merge($siteIds, [$orderProduct->getSiteId()])),
-                $filter->is('stock.productid', '==', $orderProduct->getProductId()),
-                $filter->is('stock.type', '==', $orderProduct->getStockType()),
+                $filter->is('stock.siteid', '==', array_merge($site_ids, [$order_product->get_site_id()])),
+                $filter->is('stock.productid', '==', $order_product->get_product_id()),
+                $filter->is('stock.type', '==', $order_product->get_stock_type()),
             ]);
         }
-
         $filter->add($filter->or($expr))->slice(0, 0x7fffffff);
-
         foreach ($manager->search($filter) as $item) {
-            $stockMap[$item->getSiteId()][$item->getProductId()][$item->getType()] = $item;
+            $stock_map[$item->get_site_id()][$item->get_product_id()][$item->get_type()] = $item;
         }
-
-        return $this->checkStockLevels($order, $stockMap);
+        return $this->check_stock_levels($order, $stock_map);
     }
-
     /**
      * Checks if the products in the basket have enough stock
      *
@@ -111,43 +99,37 @@ class ProductStock extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @param array $stockMap Multi-dimensional associative list of product ID / stock type as keys and stock level as values
      * @return array Associative list of basket positions as keys and error codes as values
      */
-    protected function checkStockLevels(\Aimeos\MShop\Order\Item\Iface $order, array $stockMap): array
+    protected function check_stock_levels(\Aimeos\M_Shop\Order\Item\Iface $order, array $stock_map): array
     {
-        $outOfStock = [];
-        $products = $order->getProducts();
-        $siteIds = $this->context()->locale()->getSitePath();
-
-        foreach ($products as $pos => $orderProduct) {
+        $out_of_stock = [];
+        $products = $order->get_products();
+        $site_ids = $this->context()->locale()->get_site_path();
+        foreach ($products as $pos => $order_product) {
             $stocklevel = 0;
-            $type = $orderProduct->getStockType();
-            $prodid = $orderProduct->getProductId();
-
-            foreach (array_merge($siteIds, [$orderProduct->getSiteId()]) as $siteid) {
-                if (isset($stockMap[$siteid][$prodid][$type])) {
-                    $stockItem = $stockMap[$siteid][$prodid][$type];
-                    $orderProduct->setTimeFrame($stockItem->getTimeFrame());
-
-                    if (($stocklevel = $stockItem->getStockLevel()) === null) {
+            $type = $order_product->get_stock_type();
+            $prodid = $order_product->get_product_id();
+            foreach (array_merge($site_ids, [$order_product->get_site_id()]) as $siteid) {
+                if (isset($stock_map[$siteid][$prodid][$type])) {
+                    $stock_item = $stock_map[$siteid][$prodid][$type];
+                    $order_product->set_time_frame($stock_item->get_time_frame());
+                    if (($stocklevel = $stock_item->get_stock_level()) === null) {
                         continue 2;
                     }
-
-                    if ($stocklevel >= $orderProduct->getQuantity()) {
-                        $stock = $stockItem->getStockLevel() - $orderProduct->getQuantity();
-                        $stockItem->setStockLevel($stock);
+                    if ($stocklevel >= $order_product->get_quantity()) {
+                        $stock = $stock_item->get_stock_level() - $order_product->get_quantity();
+                        $stock_item->set_stock_level($stock);
                         continue 2;
                     }
                 }
             }
-
-            if ($stocklevel > 0) { // update quantity to actual stock level
-                $order->addProduct($orderProduct->setQuantity($stocklevel), $pos);
+            if ($stocklevel > 0) {
+                // update quantity to actual stock level
+                $order->add_product($order_product->set_quantity($stocklevel), $pos);
             } else {
-                $order->deleteProduct($pos);
+                $order->delete_product($pos);
             }
-
-            $outOfStock[$pos] = 'stock.notenough';
+            $out_of_stock[$pos] = 'stock.notenough';
         }
-
-        return $outOfStock;
+        return $out_of_stock;
     }
 }

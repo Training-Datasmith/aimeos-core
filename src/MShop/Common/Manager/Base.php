@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager;
+namespace Aimeos\M_Shop\Common\Manager;
 
 /**
  * Provides common methods required by most of the manager classes.
@@ -24,59 +22,51 @@ abstract class Base implements \Aimeos\Macro\Iface
     use Methods;
     use Site;
     use DB;
-
     /**
      * Initialization of class.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(private \Aimeos\MShop\ContextIface $context)
+    public function __construct(private \Aimeos\M_Shop\Context_Iface $context)
     {
         $domain = $this->domain();
-
-        $this->setResourceName($this->context->config()->get('mshop/' . $domain . '/manager/resource', 'db-' . $domain));
+        $this->set_resource_name($this->context->config()->get('mshop/' . $domain . '/manager/resource', 'db-' . $domain));
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        foreach ($this->context()->config()->get($this->getConfigKey('submanagers'), []) as $domain) {
-            $this->object()->getSubManager($domain)->clear($siteids);
+        foreach ($this->context()->config()->get($this->get_config_key('submanagers'), []) as $domain) {
+            $this->object()->get_sub_manager($domain)->clear($siteids);
         }
-
-        return $this->clearBase($siteids, $this->getConfigKey('delete', 'mshop/common/manager/delete'));
+        return $this->clear_base($siteids, $this->get_config_key('delete', 'mshop/common/manager/delete'));
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Iface New attribute item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $prefix = $this->prefix();
-        $values[$prefix . 'siteid'] ??= $this->context()->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Common\Item\Base($prefix, $values);
+        $values[$prefix . 'siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Common\Item\Base($prefix, $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->deleteItemsBase($itemIds, $this->getConfigKey('delete', 'mshop/common/manager/delete'));
+        return $this->delete_items_base($item_ids, $this->get_config_key('delete', 'mshop/common/manager/delete'));
     }
-
     /**
      * Creates a search critera object
      *
@@ -86,9 +76,8 @@ abstract class Base implements \Aimeos\Macro\Iface
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase($this->domain());
+        return $this->filter_base($this->domain());
     }
-
     /**
      * Returns the attributes item specified by its ID.
      *
@@ -98,63 +87,28 @@ abstract class Base implements \Aimeos\Macro\Iface
      * @return \Aimeos\MShop\Common\Item\Iface Returns the attribute item of the given id
      * @throws \Aimeos\MShop\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->getItemBase($this->prefix() . 'id', $id, $ref, $default);
+        return $this->get_item_base($this->prefix() . 'id', $id, $ref, $default);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         $prefix = $this->prefix();
-
-        $attr = array_replace($this->createAttributes([
-            $prefix . 'id' => [
-                'internalcode' => 'id',
-                'label' => 'ID',
-                'type' => 'int',
-                'public' => false,
-            ],
-            $prefix . 'siteid' => [
-                'internalcode' => 'siteid',
-                'label' => 'Site ID',
-                'public' => false,
-            ],
-            $prefix . 'ctime' => [
-                'internalcode' => 'ctime',
-                'label' => 'Create date/time',
-                'type' => 'datetime',
-                'public' => false,
-            ],
-            $prefix . 'mtime' => [
-                'internalcode' => 'mtime',
-                'label' => 'Modification date/time',
-                'type' => 'datetime',
-                'public' => false,
-            ],
-            $prefix . 'editor' => [
-                'internalcode' => 'editor',
-                'label' => 'Editor',
-                'public' => false,
-            ],
-        ]), $this->object()->getSaveAttributes());
-
+        $attr = array_replace($this->create_attributes([$prefix . 'id' => ['internalcode' => 'id', 'label' => 'ID', 'type' => 'int', 'public' => false], $prefix . 'siteid' => ['internalcode' => 'siteid', 'label' => 'Site ID', 'public' => false], $prefix . 'ctime' => ['internalcode' => 'ctime', 'label' => 'Create date/time', 'type' => 'datetime', 'public' => false], $prefix . 'mtime' => ['internalcode' => 'mtime', 'label' => 'Modification date/time', 'type' => 'datetime', 'public' => false], $prefix . 'editor' => ['internalcode' => 'editor', 'label' => 'Editor', 'public' => false]]), $this->object()->get_save_attributes());
         if ($withsub) {
-            $domains = $this->context()->config()->get($this->getConfigKey('submanagers'), []);
-
+            $domains = $this->context()->config()->get($this->get_config_key('submanagers'), []);
             foreach ($domains as $domain) {
-                $attr += $this->object()->getSubManager($domain)->getSearchAttributes(true);
+                $attr += $this->object()->get_sub_manager($domain)->get_search_attributes(true);
             }
         }
-
         return $attr;
     }
-
     /**
      * Returns a new manager for attribute extensions
      *
@@ -162,14 +116,12 @@ abstract class Base implements \Aimeos\Macro\Iface
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g Type, List's etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $type = $this->type();
         $manager = trim(join('/', array_slice($type, 1)) . '/' . $manager, '/');
-
-        return $this->getSubManagerBase(current($type), $manager, $name);
+        return $this->get_sub_manager_base(current($type), $manager, $name);
     }
-
     /**
      * Iterates over all matched items and returns the found ones
      *
@@ -177,23 +129,19 @@ abstract class Base implements \Aimeos\Macro\Iface
      * @param string[] $ref List of domains whose items should be fetched too
      * @return \Aimeos\Map|null List of items implementing \Aimeos\MShop\Common\Item\Iface with ids as keys
      */
-    public function iterate(\Aimeos\MShop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
+    public function iterate(\Aimeos\M_Shop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
     {
         if ($cursor->value() === '') {
             return null;
         }
-
-        if (($first = current($this->object()->getSearchAttributes())) === false) {
-            throw new \Aimeos\MShop\Exception(sprintf('No search configuration available for "%1$s"', static::class));
+        if (($first = current($this->object()->get_search_attributes())) === false) {
+            throw new \Aimeos\M_Shop\Exception(sprintf('No search configuration available for "%1$s"', static::class));
         }
-
-        $filter = $cursor->filter()->add($first->getCode(), '>', (int) $cursor->value())->order($first->getCode());
+        $filter = $cursor->filter()->add($first->get_code(), '>', (int) $cursor->value())->order($first->get_code());
         $items = $this->search($filter, $ref);
-        $cursor->setValue($items->lastKey() ?: '');
-
-        return !$items->isEmpty() ? $items : null;
+        $cursor->set_value($items->last_key() ?: '');
+        return !$items->is_empty() ? $items : null;
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -205,15 +153,13 @@ abstract class Base implements \Aimeos\Macro\Iface
     {
         foreach (map($items) as $item) {
             if (method_exists($this, 'saveItem')) {
-                $this->saveItem($item, $fetch);
+                $this->save_item($item, $fetch);
             } else {
-                $this->saveBase($item, $fetch);
+                $this->save_base($item, $fetch);
             }
         }
-
         return is_array($items) ? map($items) : $items;
     }
-
     /**
      * Searches for all items matching the given critera.
      *
@@ -229,7 +175,6 @@ abstract class Base implements \Aimeos\Macro\Iface
          *
          * @see mshop/common/manager/search/ansi
          */
-
         /** mshop/common/manager/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -278,14 +223,12 @@ abstract class Base implements \Aimeos\Macro\Iface
          * @see mshop/common/manager/delete/ansi
          * @see mshop/common/manager/count/ansi
          */
-        $cfgPathSearch = $this->getConfigKey('search', 'mshop/common/manager/search');
-
+        $cfg_path_search = $this->get_config_key('search', 'mshop/common/manager/search');
         /** mshop/common/manager/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see mshop/common/manager/count/ansi
          */
-
         /** mshop/common/manager/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -330,85 +273,73 @@ abstract class Base implements \Aimeos\Macro\Iface
          * @see mshop/common/manager/delete/ansi
          * @see mshop/common/manager/search/ansi
          */
-        $cfgPathCount = $this->getConfigKey('count', 'mshop/common/manager/count');
-
-        $level = $this->getSiteMode();
-        $plugins = $this->searchPlugins();
-        $required = [$this->getSearchKey()];
-        $conn = $this->context()->db($this->getResourceName());
-
-        $attrs = array_filter($this->object()->getSearchAttributes(false), fn (\Aimeos\Base\Criteria\Attribute\Iface $attr): bool => $attr->getType() === 'json');
+        $cfg_path_count = $this->get_config_key('count', 'mshop/common/manager/count');
+        $level = $this->get_site_mode();
+        $plugins = $this->search_plugins();
+        $required = [$this->get_search_key()];
+        $conn = $this->context()->db($this->get_resource_name());
+        $attrs = array_filter($this->object()->get_search_attributes(false), fn(\Aimeos\Base\Criteria\Attribute\Iface $attr): bool => $attr->get_type() === 'json');
         $attrs = array_column($attrs, null, 'code');
-
-        $results = $this->searchItemsBase($conn, $filter, $cfgPathSearch, $cfgPathCount, $required, $total, $level, $plugins);
+        $results = $this->search_items_base($conn, $filter, $cfg_path_search, $cfg_path_count, $required, $total, $level, $plugins);
         $prefix = $this->prefix();
         $map = $items = [];
-
         try {
             while ($row = $results->fetch()) {
                 foreach ($attrs as $code => $attr) {
                     $row[$code] = json_decode($row[$code] ?? '{}', true);
                 }
-
                 $map[$row[$prefix . 'id']] = $row;
             }
         } catch (\Exception $e) {
             $results->finish();
             throw $e;
         }
-
-        foreach ($this->object()->searchRefs($map, $ref) as $id => $row) {
-            if ($item = $this->applyFilter($this->create($row))) {
+        foreach ($this->object()->search_refs($map, $ref) as $id => $row) {
+            if ($item = $this->apply_filter($this->create($row))) {
                 $items[$id] = $item;
             }
         }
-
         return map($items);
     }
-
     /**
      * Starts a database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function begin(): \Aimeos\MShop\Common\Manager\Iface
+    public function begin(): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        $this->context->db($this->getResourceName())->begin();
+        $this->context->db($this->get_resource_name())->begin();
         return $this;
     }
-
     /**
      * Commits the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function commit(): \Aimeos\MShop\Common\Manager\Iface
+    public function commit(): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        $this->context->db($this->getResourceName())->commit();
+        $this->context->db($this->get_resource_name())->commit();
         return $this;
     }
-
     /**
      * Rolls back the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rollback(): \Aimeos\MShop\Common\Manager\Iface
+    public function rollback(): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        $this->context->db($this->getResourceName())->rollback();
+        $this->context->db($this->get_resource_name())->rollback();
         return $this;
     }
-
     /**
      * Returns the context object.
      *
      * @return \Aimeos\MShop\ContextIface Context object
      */
-    protected function context(): \Aimeos\MShop\ContextIface
+    protected function context(): \Aimeos\M_Shop\Context_Iface
     {
         return $this->context;
     }
-
     /**
      * Returns the domain of the manager
      *
@@ -418,24 +349,22 @@ abstract class Base implements \Aimeos\Macro\Iface
     {
         return current($this->type()) ?: '';
     }
-
     /**
      * Returns the site mode constant for inheritance/aggregation
      *
      * @return int Site mode constant (default: SITE_ALL for inheritance and aggregation)
      */
-    protected function getSiteMode(): int
+    protected function get_site_mode(): int
     {
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
-        return $this->context()->config()->get($this->getConfigKey('sitemode', 'mshop/common/manager/sitemode'), $level);
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
+        return $this->context()->config()->get($this->get_config_key('sitemode', 'mshop/common/manager/sitemode'), $level);
     }
-
     /**
      * Returns the search plugins for transforming the search criteria
      *
      * @return \Aimeos\MW\Criteria\Plugin\Iface[] List of search plugins
      */
-    protected function searchPlugins(): array
+    protected function search_plugins(): array
     {
         return [];
     }

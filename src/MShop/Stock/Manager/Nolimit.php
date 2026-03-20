@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Stock
  */
-
-namespace Aimeos\MShop\Stock\Manager;
+namespace Aimeos\M_Shop\Stock\Manager;
 
 /**
  * Stock manager implementation for unlimited stocks
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Stock\Manager;
  * @package MShop
  * @subpackage Stock
  */
-class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MShop\Stock\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Nolimit extends \Aimeos\M_Shop\Stock\Manager\Standard implements \Aimeos\M_Shop\Stock\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Removes old entries from the storage.
@@ -25,11 +23,10 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Decreases the stock level for the given product ID/quantity pairs and type
      *
@@ -37,22 +34,20 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
      * @param string $type Unique code of the stock type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface
+    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Creates a stock item object for the given item id.
      *
@@ -62,12 +57,11 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
      * @return \Aimeos\MShop\Stock\Item\Iface Returns the product stock item of the given id
      * @throws \Aimeos\MShop\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         $values = ['stock.id' => $id, 'stock.type' => 'default'];
         return $this->object()->create($values);
     }
-
     /**
      * Increases the stock level for the given product ID/quantity pairs and type
      *
@@ -75,11 +69,10 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
      * @param string $type Unique code of the type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface
+    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Search for stock items based on the given critera.
      *
@@ -92,41 +85,34 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
     {
         $items = [];
         $item = $this->object()->create(['stock.type' => 'default']);
-
-        foreach ($this->getProductIds($search->getConditions()) as $idx => $prodid) {
-            $items[$idx] = (clone $item)->setProductId($prodid)->setId($idx);
+        foreach ($this->get_product_ids($search->get_conditions()) as $idx => $prodid) {
+            $items[$idx] = (clone $item)->set_product_id($prodid)->set_id($idx);
         }
-
         if ($total !== null) {
             $total = count($items);
         }
-
-        return map(array_splice($items, 0, $search->getLimit()));
+        return map(array_splice($items, 0, $search->get_limit()));
     }
-
     /**
      * Returns the product IDs from the conditions
      *
      * @param \Aimeos\Base\Criteria\Expression\Iface|null $cond Criteria object
      * @return string[] List of product IDs
      */
-    protected function getProductIds(?\Aimeos\Base\Criteria\Expression\Iface $cond = null): array
+    protected function get_product_ids(?\Aimeos\Base\Criteria\Expression\Iface $cond = null): array
     {
         $list = [];
-
         if ($cond instanceof \Aimeos\Base\Criteria\Expression\Combine\Iface) {
-            foreach ($cond->getExpressions() as $expr) {
-                $list = array_merge($list, $this->getProductIds($expr));
+            foreach ($cond->get_expressions() as $expr) {
+                $list = array_merge($list, $this->get_product_ids($expr));
             }
         } elseif ($cond instanceof \Aimeos\Base\Criteria\Expression\Compare\Iface) {
-            if ($cond->getName() === 'stock.productid' && $cond->getOperator() === '==') {
-                $list = array_merge($list, (array) $cond->getValue());
+            if ($cond->get_name() === 'stock.productid' && $cond->get_operator() === '==') {
+                $list = array_merge($list, (array) $cond->get_value());
             }
         }
-
         return $list;
     }
-
     /**
      * Inserts the new stock item
      *
@@ -134,7 +120,7 @@ class Nolimit extends \Aimeos\MShop\Stock\Manager\Standard implements \Aimeos\MS
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Stock\Item\Iface Updated item including the generated ID
      */
-    protected function saveBase(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Stock\Item\Iface
+    protected function save_base(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Stock\Item\Iface
     {
         return $item;
     }

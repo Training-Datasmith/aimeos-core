@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager\Price;
+namespace Aimeos\M_Shop\Index\Manager\Price;
 
 /**
  * MySQL based index price for searching in product tables.
@@ -18,31 +16,21 @@ namespace Aimeos\MShop\Index\Manager\Price;
  * @package MShop
  * @subpackage Index
  */
-class MySQL extends \Aimeos\MShop\Index\Manager\Price\Standard
+class My_Sql extends \Aimeos\M_Shop\Index\Manager\Price\Standard
 {
-    private array $searchConfig = [
-        'index.price.id' => [
-            'code' => 'index.price.id',
-            'internalcode' => 'mindpr."prodid"',
-            'internaldeps' => [ 'LEFT JOIN "mshop_index_price" AS mindpr USE INDEX ("unq_msindpr_pid_sid_cid", "idx_msindpr_sid_cid_val") ON mindpr."prodid" = mpro."id"' ],
-            'label' => 'Product index price ID',
-        ],
-    ];
-
+    private array $search_config = ['index.price.id' => ['code' => 'index.price.id', 'internalcode' => 'mindpr."prodid"', 'internaldeps' => ['LEFT JOIN "mshop_index_price" AS mindpr USE INDEX ("unq_msindpr_pid_sid_cid", "idx_msindpr_sid_cid_val") ON mindpr."prodid" = mpro."id"'], 'label' => 'Product index price ID']];
     /**
      * Returns a list of objects describing the available criterias for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attriubte items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $list = parent::getSearchAttributes($withsub);
-
-        foreach ($this->searchConfig as $key => $fields) {
+        $list = parent::get_search_attributes($withsub);
+        foreach ($this->search_config as $key => $fields) {
             $list[$key] = new \Aimeos\Base\Criteria\Attribute\Standard($fields);
         }
-
         return $list;
     }
 }

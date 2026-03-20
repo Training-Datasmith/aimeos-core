@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Supplier
  */
-
-namespace Aimeos\MShop\Supplier\Manager\Address;
+namespace Aimeos\M_Shop\Supplier\Manager\Address;
 
 /**
  * Implementation for supplier address manager.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Supplier\Manager\Address;
  * @package MShop
  * @subpackage Supplier
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aimeos\MShop\Supplier\Manager\Address\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Address\Base implements \Aimeos\M_Shop\Supplier\Manager\Address\Iface
 {
     /**
      * Creates a new empty item instance
@@ -25,32 +23,21 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Address\Iface New order address item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['supplier.address.siteid'] ??= $this->context()->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Supplier\Item\Address\Standard('supplier.address.', $values);
+        $values['supplier.address.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Supplier\Item\Address\Standard('supplier.address.', $values);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'supplier.address.id' => [
-                'label' => 'Supplier address ID',
-                'internalcode' => 'id',
-                'internaldeps' => ['LEFT JOIN "mshop_supplier_address" AS msupad ON ( msup."id" = msupad."parentid" )'],
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['supplier.address.id' => ['label' => 'Supplier address ID', 'internalcode' => 'id', 'internaldeps' => ['LEFT JOIN "mshop_supplier_address" AS msupad ON ( msup."id" = msupad."parentid" )'], 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -60,7 +47,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
     {
         return 'supplier.address.';
     }
-
     /** mshop/supplier/manager/address/name
      * Class name of the used supplier address manager implementation
      *
@@ -93,7 +79,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/supplier/manager/address/decorators/excludes
      * Excludes decorators added by the "common" option from the supplier address manager
      *
@@ -118,7 +103,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/decorators/global
      * @see mshop/supplier/manager/address/decorators/local
      */
-
     /** mshop/supplier/manager/address/decorators/global
      * Adds a list of globally available decorators only to the supplier address manager
      *
@@ -142,7 +126,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/decorators/excludes
      * @see mshop/supplier/manager/address/decorators/local
      */
-
     /** mshop/supplier/manager/address/decorators/local
      * Adds a list of local decorators only to the supplier address manager
      *
@@ -167,7 +150,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/decorators/excludes
      * @see mshop/supplier/manager/address/decorators/global
      */
-
     /** mshop/supplier/manager/address/submanagers
      * List of manager names that can be instantiated by the supplier address manager
      *
@@ -184,13 +166,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/supplier/manager/address/insert/mysql
      * Inserts a new supplier address record into the database table
      *
      * @see mshop/supplier/manager/address/insert/ansi
      */
-
     /** mshop/supplier/manager/address/insert/ansi
      * Inserts a new supplier address record into the database table
      *
@@ -219,13 +199,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/search/ansi
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/update/mysql
      * Updates an existing supplier address record in the database
      *
      * @see mshop/supplier/manager/address/update/ansi
      */
-
     /** mshop/supplier/manager/address/update/ansi
      * Updates an existing supplier address record in the database
      *
@@ -251,13 +229,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/search/ansi
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/supplier/manager/address/newid/ansi
      */
-
     /** mshop/supplier/manager/address/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -287,13 +263,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/search/ansi
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/supplier/manager/address/delete/ansi
      */
-
     /** mshop/supplier/manager/address/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -317,13 +291,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/search/ansi
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/supplier/manager/address/search/ansi
      */
-
     /** mshop/supplier/manager/address/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -372,13 +344,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/supplier/manager/address/delete/ansi
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/supplier/manager/address/count/ansi
      */
-
     /** mshop/supplier/manager/address/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

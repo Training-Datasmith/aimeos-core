@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Manager;
+namespace Aimeos\M_Shop\Service\Manager;
 
 /**
  * Abstract class for service managers.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Service\Manager;
  * @package MShop
  * @subpackage Service
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base
 {
     /**
      * Returns the service provider which is responsible for the service item.
@@ -28,29 +26,23 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\MShop\Service\Provider\Iface Service provider object
      * @throws \LogicException If provider couldn't be found
      */
-    public function getProvider(\Aimeos\MShop\Service\Item\Iface $item, string $type): \Aimeos\MShop\Service\Provider\Iface
+    public function get_provider(\Aimeos\M_Shop\Service\Item\Iface $item, string $type): \Aimeos\M_Shop\Service\Provider\Iface
     {
         $type = ucwords($type);
         $context = $this->context();
-        $names = explode(',', $item->getProvider());
-
+        $names = explode(',', $item->get_provider());
         if (ctype_alnum($type) === false) {
             throw new \LogicException(sprintf('Invalid characters in type name "%1$s"', $type), 400);
         }
-
         if (($provider = array_shift($names)) === null) {
-            throw new \LogicException(sprintf('Provider in "%1$s" not available', $item->getProvider()), 400);
+            throw new \LogicException(sprintf('Provider in "%1$s" not available', $item->get_provider()), 400);
         }
-
         if (ctype_alnum($provider) === false) {
             throw new \LogicException(sprintf('Invalid characters in provider name "%1$s"', $provider), 400);
         }
-
         $classname = '\Aimeos\MShop\Service\Provider\\' . $type . '\\' . $provider;
-        $interface = \Aimeos\MShop\Service\Provider\Factory\Iface::class;
-
+        $interface = \Aimeos\M_Shop\Service\Provider\Factory\Iface::class;
         $provider = \Aimeos\Utils::create($classname, [$context, $item], $interface);
-
         /** mshop/service/provider/delivery/decorators
          * Adds a list of decorators to all delivery provider objects automatcally
          *
@@ -72,7 +64,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          * @since 2014.03
          * @see mshop/service/provider/payment/decorators
          */
-
         /** mshop/service/provider/payment/decorators
          * Adds a list of decorators to all payment provider objects automatcally
          *
@@ -94,12 +85,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          * @since 2014.03
          * @see mshop/service/provider/delivery/decorators
          */
-        $decorators = $context->config()->get('mshop/service/provider/' . $item->getType() . '/decorators', []);
-
-        $provider = $this->addServiceDecorators($item, $provider, $names);
-        return $this->addServiceDecorators($item, $provider, $decorators);
+        $decorators = $context->config()->get('mshop/service/provider/' . $item->get_type() . '/decorators', []);
+        $provider = $this->add_service_decorators($item, $provider, $names);
+        return $this->add_service_decorators($item, $provider, $decorators);
     }
-
     /**
      * Wraps the named service decorators around the service provider.
      *
@@ -107,26 +96,19 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param \Aimeos\MShop\Service\Provider\Iface $provider Service provider object
      * @param array $names List of decorator names that should be wrapped around the provider object
      */
-    protected function addServiceDecorators(
-        \Aimeos\MShop\Service\Item\Iface $serviceItem,
-        \Aimeos\MShop\Service\Provider\Iface $provider,
-        array $names
-    ): \Aimeos\MShop\Service\Provider\Iface {
+    protected function add_service_decorators(\Aimeos\M_Shop\Service\Item\Iface $service_item, \Aimeos\M_Shop\Service\Provider\Iface $provider, array $names): \Aimeos\M_Shop\Service\Provider\Iface
+    {
         $context = $this->context();
         $classprefix = '\Aimeos\MShop\Service\Provider\Decorator\\';
-
         foreach ($names as $name) {
             if (ctype_alnum($name) === false) {
                 $msg = $context->translate('mshop', 'Invalid characters in class name "%1$s"');
-                throw new \Aimeos\MShop\Service\Exception(sprintf($msg, $name), 400);
+                throw new \Aimeos\M_Shop\Service\Exception(sprintf($msg, $name), 400);
             }
-
             $classname = $classprefix . $name;
-            $interface = \Aimeos\MShop\Service\Provider\Decorator\Iface::class;
-
-            $provider = \Aimeos\Utils::create($classname, [$provider, $context, $serviceItem], $interface);
+            $interface = \Aimeos\M_Shop\Service\Provider\Decorator\Iface::class;
+            $provider = \Aimeos\Utils::create($classname, [$provider, $context, $service_item], $interface);
         }
-
         return $provider;
     }
 }

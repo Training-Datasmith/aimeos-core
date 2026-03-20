@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2017-2026
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Decorator for adding quantity based costs
@@ -22,27 +20,9 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Quantity extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Quantity extends \Aimeos\M_Shop\Service\Provider\Decorator\Base implements \Aimeos\M_Shop\Service\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'quantity.packagesize' => [
-            'code' => 'quantity.packagesize',
-            'internalcode' => 'quantity.packagesize',
-            'label' => 'Number of products in the package',
-            'type' => 'number',
-            'default' => '1',
-            'required' => false,
-        ],
-        'quantity.packagecosts' => [
-            'code' => 'quantity.packagecosts',
-            'internalcode' => 'quantity.packagecosts',
-            'label' => 'Costs per the package',
-            'type' => 'number',
-            'default' => '',
-            'required' => true,
-        ],
-    ];
-
+    private array $be_config = ['quantity.packagesize' => ['code' => 'quantity.packagesize', 'internalcode' => 'quantity.packagesize', 'label' => 'Number of products in the package', 'type' => 'number', 'default' => '1', 'required' => false], 'quantity.packagecosts' => ['code' => 'quantity.packagecosts', 'internalcode' => 'quantity.packagecosts', 'label' => 'Costs per the package', 'type' => 'number', 'default' => '', 'required' => true]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -50,13 +30,11 @@ class Quantity extends \Aimeos\MShop\Service\Provider\Decorator\Base implements 
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      *    known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $error = $this->getProvider()->checkConfigBE($attributes);
-
-        return $error + $this->checkConfig($this->beConfig, $attributes);
+        $error = $this->get_provider()->check_config_be($attributes);
+        return $error + $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider
      *
@@ -65,11 +43,10 @@ class Quantity extends \Aimeos\MShop\Service\Provider\Decorator\Base implements 
      *
      * @return array List of attribute definitions implementing MW_Common_Critera_Attribute_Interface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return array_replace(parent::getConfigBE(), $this->getConfigItems($this->beConfig));
+        return array_replace(parent::get_config_be(), $this->get_config_items($this->be_config));
     }
-
     /**
      * Returns the price when using the provider.
      *
@@ -77,28 +54,24 @@ class Quantity extends \Aimeos\MShop\Service\Provider\Decorator\Base implements 
      * @param array $options Selected options by customer from frontend
      * @return \Aimeos\MShop\Price\Item\Iface Price item containing the price, shipping, rebate
      */
-    public function calcPrice(\Aimeos\MShop\Order\Item\Iface $basket, array $options = []): \Aimeos\MShop\Price\Item\Iface
+    public function calc_price(\Aimeos\M_Shop\Order\Item\Iface $basket, array $options = []): \Aimeos\M_Shop\Price\Item\Iface
     {
         $sum = 0;
-        $price = $this->getProvider()->calcPrice($basket, $options);
-
-        foreach ($basket->getProducts() as $orderProduct) {
-            $qty = $orderProduct->getQuantity();
-
-            if (!($products = $orderProduct->getProducts())->isEmpty()) {
-                foreach ($products as $prodItem) { // calculate bundled products
-                    $sum += $qty * $prodItem->getQuantity();
+        $price = $this->get_provider()->calc_price($basket, $options);
+        foreach ($basket->get_products() as $order_product) {
+            $qty = $order_product->get_quantity();
+            if (!($products = $order_product->get_products())->is_empty()) {
+                foreach ($products as $prod_item) {
+                    // calculate bundled products
+                    $sum += $qty * $prod_item->get_quantity();
                 }
             } else {
                 $sum += $qty;
             }
         }
-
-        $size = $this->getConfigValue([ 'quantity.packagesize' ], 1);
-        $costs = $this->getConfigValue([ 'quantity.packagecosts' ], 0.00);
-
+        $size = $this->get_config_value(['quantity.packagesize'], 1);
+        $costs = $this->get_config_value(['quantity.packagecosts'], 0.0);
         $value = ceil($sum / $size) * $costs;
-
-        return $price->setCosts($price->getCosts() + $value);
+        return $price->set_costs($price->get_costs() + $value);
     }
 }

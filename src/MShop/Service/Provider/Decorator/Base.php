@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Base decorator methods for service provider.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-abstract class Base extends \Aimeos\MShop\Service\Provider\Base
+abstract class Base extends \Aimeos\M_Shop\Service\Provider\Base
 {
     /**
      * Initializes a new service provider object using the given context object.
@@ -27,14 +25,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
      */
-    public function __construct(
-        private \Aimeos\MShop\Service\Provider\Iface $provider,
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Service\Item\Iface $serviceItem
-    ) {
-        parent::__construct($context, $serviceItem);
+    public function __construct(private \Aimeos\M_Shop\Service\Provider\Iface $provider, \Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Service\Item\Iface $service_item)
+    {
+        parent::__construct($context, $service_item);
     }
-
     /**
      * Returns the price when using the provider.
      * Usually, this is the lowest price that is available in the service item but can also be a calculated based on
@@ -44,11 +38,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param array $options Selected options by customer from frontend
      * @return \Aimeos\MShop\Price\Item\Iface Price item containing the price, shipping, rebate
      */
-    public function calcPrice(\Aimeos\MShop\Order\Item\Iface $basket, array $options = []): \Aimeos\MShop\Price\Item\Iface
+    public function calc_price(\Aimeos\M_Shop\Order\Item\Iface $basket, array $options = []): \Aimeos\M_Shop\Price\Item\Iface
     {
-        return $this->provider->calcPrice($basket, $options);
+        return $this->provider->calc_price($basket, $options);
     }
-
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -56,11 +49,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        return $this->provider->checkConfigBE($attributes);
+        return $this->provider->check_config_be($attributes);
     }
-
     /**
      * Checks the frontend configuration attributes for validity.
      *
@@ -68,22 +60,20 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigFE(array $attributes): array
+    public function check_config_fe(array $attributes): array
     {
-        return $this->provider->checkConfigFE($attributes);
+        return $this->provider->check_config_fe($attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return $this->provider->getConfigBE();
+        return $this->provider->get_config_be();
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the frontend.
@@ -91,11 +81,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigFE(\Aimeos\MShop\Order\Item\Iface $basket): array
+    public function get_config_fe(\Aimeos\M_Shop\Order\Item\Iface $basket): array
     {
-        return $this->provider->getConfigFE($basket);
+        return $this->provider->get_config_fe($basket);
     }
-
     /**
      * Injects additional global configuration for the backend.
      *
@@ -110,14 +99,12 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      *
      * @param array $config Associative list of config keys and their value
      */
-    public function injectGlobalConfigBE(array $config): \Aimeos\MShop\Service\Provider\Iface
+    public function inject_global_config_be(array $config): \Aimeos\M_Shop\Service\Provider\Iface
     {
-        parent::injectGlobalConfigBE($config);
-
-        $this->provider->injectGlobalConfigBE($config);
+        parent::inject_global_config_be($config);
+        $this->provider->inject_global_config_be($config);
         return $this;
     }
-
     /**
      * Checks if payment provider can be used based on the basket content.
      * Checks for country, currency, address, scoring, etc. should be implemented in separate decorators
@@ -125,44 +112,40 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return bool True if payment provider can be used, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $basket): bool
     {
-        return $this->provider->isAvailable($basket);
+        return $this->provider->is_available($basket);
     }
-
     /**
      * Checks what features the payment provider implements.
      *
      * @param int $what Constant from abstract class
      * @return bool True if feature is available in the payment provider, false if not
      */
-    public function isImplemented(int $what): bool
+    public function is_implemented(int $what): bool
     {
-        return $this->provider->isImplemented($what);
+        return $this->provider->is_implemented($what);
     }
-
     /**
      * Cancels the authorization for the given order if supported.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function cancel(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function cancel(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
         return $this->provider->cancel($order);
     }
-
     /**
      * Captures the money later on request for the given order if supported.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function capture(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function capture(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
         return $this->provider->capture($order);
     }
-
     /**
      * Processes the order
      *
@@ -170,11 +153,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param array $params Request parameter if available
      * @return \Aimeos\MShop\Common\Helper\Form\Standard|null Form object or null
      */
-    public function process(\Aimeos\MShop\Order\Item\Iface $order, array $params = []): ?\Aimeos\MShop\Common\Helper\Form\Iface
+    public function process(\Aimeos\M_Shop\Order\Item\Iface $order, array $params = []): ?\Aimeos\M_Shop\Common\Helper\Form\Iface
     {
         return $this->provider->process($order, $params);
     }
-
     /**
      * Sends the details of all orders to the ERP system for further processing
      *
@@ -185,18 +167,16 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
     {
         return $this->provider->push($orders);
     }
-
     /**
      * Refunds the money for the given order if supported.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function refund(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function refund(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
         return $this->provider->refund($order);
     }
-
     /**
      * Executes the payment again for the given order if supported.
      *
@@ -205,22 +185,20 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function repay(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function repay(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
         return $this->provider->repay($order);
     }
-
     /**
      * Queries for status updates for the given order if supported.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function query(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function query(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
         return $this->provider->query($order);
     }
-
     /**
      * Sets the payment attributes in the given service.
      *
@@ -228,13 +206,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param array $attributes Attribute key/value pairs entered by the customer during the checkout process
      * @return \Aimeos\MShop\Order\Item\Service\Iface Order service item with attributes added
      */
-    public function setConfigFE(
-        \Aimeos\MShop\Order\Item\Service\Iface $orderServiceItem,
-        array $attributes
-    ): \Aimeos\MShop\Order\Item\Service\Iface {
-        return $this->provider->setConfigFE($orderServiceItem, $attributes);
+    public function set_config_fe(\Aimeos\M_Shop\Order\Item\Service\Iface $order_service_item, array $attributes): \Aimeos\M_Shop\Order\Item\Service\Iface
+    {
+        return $this->provider->set_config_fe($order_service_item, $attributes);
     }
-
     /**
      * Looks for new update files and updates the orders for which status updates were received.
      * If batch processing of files isn't supported, this method can be empty.
@@ -242,11 +217,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @return bool True if the update was successful, false if async updates are not supported
      * @throws \Aimeos\MShop\Service\Exception If updating one of the orders failed
      */
-    public function updateAsync(): bool
+    public function update_async(): bool
     {
-        return $this->provider->updateAsync();
+        return $this->provider->update_async();
     }
-
     /**
      * Updates the order status sent by payment gateway notifications
      *
@@ -254,13 +228,10 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @param \Psr\Http\Message\ResponseInterface $response Response object
      * @return \Psr\Http\Message\ResponseInterface Response object
      */
-    public function updatePush(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Psr\Http\Message\ResponseInterface $response
-    ): \Psr\Http\Message\ResponseInterface {
-        return $this->provider->updatePush($request, $response);
+    public function update_push(\Psr\Http\Message\Server_Request_Interface $request, \Psr\Http\Message\Response_Interface $response): \Psr\Http\Message\Response_Interface
+    {
+        return $this->provider->update_push($request, $response);
     }
-
     /**
      * Updates the orders for whose status updates have been received by the confirmation page
      *
@@ -269,23 +240,19 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item
      * @throws \Aimeos\MShop\Service\Exception If updating the orders failed
      */
-    public function updateSync(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Aimeos\MShop\Order\Item\Iface $orderItem
-    ): \Aimeos\MShop\Order\Item\Iface {
-        return $this->provider->updateSync($request, $orderItem);
+    public function update_sync(\Psr\Http\Message\Server_Request_Interface $request, \Aimeos\M_Shop\Order\Item\Iface $order_item): \Aimeos\M_Shop\Order\Item\Iface
+    {
+        return $this->provider->update_sync($request, $order_item);
     }
-
     /**
      * Returns the provider object.
      *
      * @return \Aimeos\MShop\Service\Provider\Iface Service provider object
      */
-    protected function getProvider(): \Aimeos\MShop\Service\Provider\Iface
+    protected function get_provider(): \Aimeos\M_Shop\Service\Provider\Iface
     {
         return $this->provider;
     }
-
     /**
      * Passes unknown methods to wrapped objects.
      *
@@ -296,6 +263,6 @@ abstract class Base extends \Aimeos\MShop\Service\Provider\Base
      */
     public function __call(string $name, array $param)
     {
-        return @call_user_func_array([ $this->provider, $name ], $param);
+        return @call_user_func_array([$this->provider, $name], $param);
     }
 }

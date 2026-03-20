@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Cursor;
+namespace Aimeos\M_Shop\Common\Cursor;
 
 /**
  * Default implementation for manager iterators
@@ -21,7 +19,6 @@ class Standard implements Iface
 {
     private \Aimeos\Base\Criteria\Iface $filter;
     private $value;
-
     /**
      * Initializes the object
      *
@@ -32,7 +29,6 @@ class Standard implements Iface
     {
         $this->filter = $filter;
     }
-
     /**
      * Returns the filter criteria object
      *
@@ -42,18 +38,16 @@ class Standard implements Iface
     {
         return clone $this->filter;
     }
-
     /**
      * Sets the new cursor value
      *
      * @return mixed $value Cursor value
      */
-    public function setValue($value): \Aimeos\MShop\Common\Cursor\Iface
+    public function set_value($value): \Aimeos\M_Shop\Common\Cursor\Iface
     {
         $this->value = $value;
         return $this;
     }
-
     /**
      * Returns the cursor value
      *

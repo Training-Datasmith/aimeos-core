@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Coupon
  */
-
-namespace Aimeos\MShop\Coupon\Manager\Code;
+namespace Aimeos\M_Shop\Coupon\Manager\Code;
 
 /**
  * Default coupon manager interface for creating and handling coupons.
@@ -17,53 +15,21 @@ namespace Aimeos\MShop\Coupon\Manager\Code;
  * @package MShop
  * @subpackage Coupon
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Coupon\Manager\Code\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Coupon\Manager\Code\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'coupon.code.parentid' => [
-            'label' => 'Coupon ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'coupon.code.code' => [
-            'label' => 'Code value',
-            'internalcode' => 'code',
-        ],
-        'coupon.code.count' => [
-            'label' => 'Code quantity',
-            'internalcode' => 'count',
-        ],
-        'coupon.code.datestart' => [
-            'label' => 'Code start date/time',
-            'internalcode' => 'start',
-            'type' => 'datetime',
-        ],
-        'coupon.code.dateend' => [
-            'label' => 'Code end date/time',
-            'internalcode' => 'end',
-            'type' => 'datetime',
-        ],
-        'coupon.code.ref' => [
-            'label' => 'Code reference',
-            'internalcode' => 'ref',
-        ],
-    ];
-
+    private array $search_config = ['coupon.code.parentid' => ['label' => 'Coupon ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'coupon.code.code' => ['label' => 'Code value', 'internalcode' => 'code'], 'coupon.code.count' => ['label' => 'Code quantity', 'internalcode' => 'count'], 'coupon.code.datestart' => ['label' => 'Code start date/time', 'internalcode' => 'start', 'type' => 'datetime'], 'coupon.code.dateend' => ['label' => 'Code end date/time', 'internalcode' => 'end', 'type' => 'datetime'], 'coupon.code.ref' => ['label' => 'Code reference', 'internalcode' => 'ref']];
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Coupon\Item\Code\Iface New coupon code item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $values['.date'] = $this->context()->datetime();
-        $values['coupon.code.siteid'] ??= $this->context()->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Coupon\Item\Code\Standard('coupon.code.', $values);
+        $values['coupon.code.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Coupon\Item\Code\Standard('coupon.code.', $values);
     }
-
     /**
      * Decreases the counter of the coupon code.
      *
@@ -71,11 +37,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $amount Amount the coupon count should be decreased
      * @return \Aimeos\MShop\Coupon\Manager\Code\Iface Manager object for chaining method calls
      */
-    public function decrease(string $code, int $amount): \Aimeos\MShop\Coupon\Manager\Code\Iface
+    public function decrease(string $code, int $amount): \Aimeos\M_Shop\Coupon\Manager\Code\Iface
     {
         return $this->increase($code, -$amount);
     }
-
     /**
      * Creates a filter object.
      *
@@ -86,30 +51,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
         $object = parent::filter();
-
         if ($default) {
             $date = $this->context()->datetime();
-            $expr = [
-                $object->or([
-                    $object->compare('==', 'coupon.code.count', null),
-                    $object->compare('>', 'coupon.code.count', 0),
-                ]),
-                $object->or([
-                    $object->compare('==', 'coupon.code.datestart', null),
-                    $object->compare('<=', 'coupon.code.datestart', $date),
-                ]),
-                $object->or([
-                    $object->compare('==', 'coupon.code.dateend', null),
-                    $object->compare('>=', 'coupon.code.dateend', $date),
-                ]),
-            ];
-
+            $expr = [$object->or([$object->compare('==', 'coupon.code.count', null), $object->compare('>', 'coupon.code.count', 0)]), $object->or([$object->compare('==', 'coupon.code.datestart', null), $object->compare('<=', 'coupon.code.datestart', $date)]), $object->or([$object->compare('==', 'coupon.code.dateend', null), $object->compare('>=', 'coupon.code.dateend', $date)])];
             $object->add($object->and($expr));
         }
-
         return $object;
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -120,45 +68,29 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['coupon.code.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['coupon.code.code' => $code], $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'coupon.code.id' => [
-                'label' => 'Code ID',
-                'internaldeps' => ['LEFT JOIN "mshop_coupon_code" AS mcouco ON ( mcou."id" = mcouco."parentid" )'],
-                'internalcode' => 'id',
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['coupon.code.id' => ['label' => 'Code ID', 'internaldeps' => ['LEFT JOIN "mshop_coupon_code" AS mcouco ON ( mcou."id" = mcouco."parentid" )'], 'internalcode' => 'id', 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Increases the counter of the coupon code.
      *
@@ -166,26 +98,21 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $amount Amount the coupon count should be increased
      * @return \Aimeos\MShop\Coupon\Manager\Code\Iface Manager object for chaining method calls
      */
-    public function increase(string $code, int $amount): \Aimeos\MShop\Coupon\Manager\Code\Iface
+    public function increase(string $code, int $amount): \Aimeos\M_Shop\Coupon\Manager\Code\Iface
     {
         $context = $this->context();
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_PATH;
-
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_PATH;
         $search = $this->object()->filter();
-        $search->setConditions($search->compare('==', 'coupon.code.siteid', $context->locale()->getSites($level)));
-
+        $search->set_conditions($search->compare('==', 'coupon.code.siteid', $context->locale()->get_sites($level)));
         $translations = ['coupon.code.siteid' => 'siteid'];
         $types = ['coupon.code.siteid' => \Aimeos\Base\Criteria\SQL::type('string')];
-        $conditions = $search->getConditionSource($types, $translations);
-
-        $conn = $context->db($this->getResourceName());
-
+        $conditions = $search->get_condition_source($types, $translations);
+        $conn = $context->db($this->get_resource_name());
         /** mshop/coupon/manager/code/counter/mysql
          * Increases or decreases the counter of the coupon code record matched by the given code
          *
          * @see mshop/coupon/manager/code/counter/ansi
          */
-
         /** mshop/coupon/manager/code/counter/ansi
          * Increases or decreases the counter of the coupon code record matched by the given code
          *
@@ -215,18 +142,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/coupon/manager/code/count/ansi
          */
         $path = 'mshop/coupon/manager/code/counter';
-        $stmt = $conn->create(str_replace(':cond', $conditions, $this->getSqlConfig($path)));
-
+        $stmt = $conn->create(str_replace(':cond', $conditions, $this->get_sql_config($path)));
         $stmt->bind(1, $amount, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind(2, $context->datetime()); // mtime
+        $stmt->bind(2, $context->datetime());
+        // mtime
         $stmt->bind(3, $context->editor());
         $stmt->bind(4, $code);
-
         $stmt->execute()->finish();
-
         return $this;
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -236,7 +160,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'coupon.code.';
     }
-
     /** mshop/coupon/manager/code/name
      * Class name of the used coupon code manager implementation
      *
@@ -269,7 +192,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/coupon/manager/code/decorators/excludes
      * Excludes decorators added by the "common" option from the coupon code manager
      *
@@ -294,7 +216,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/decorators/global
      * @see mshop/coupon/manager/code/decorators/local
      */
-
     /** mshop/coupon/manager/code/decorators/global
      * Adds a list of globally available decorators only to the coupon code manager
      *
@@ -318,7 +239,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/decorators/excludes
      * @see mshop/coupon/manager/code/decorators/local
      */
-
     /** mshop/coupon/manager/code/decorators/local
      * Adds a list of local decorators only to the coupon code manager
      *
@@ -343,7 +263,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/decorators/excludes
      * @see mshop/coupon/manager/code/decorators/global
      */
-
     /** mshop/coupon/manager/code/submanagers
      * List of manager names that can be instantiated by the coupon code manager
      *
@@ -360,13 +279,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/coupon/manager/code/insert/mysql
      * Inserts a new coupon code record into the database table
      *
      * @see mshop/coupon/manager/code/insert/ansi
      */
-
     /** mshop/coupon/manager/code/insert/ansi
      * Inserts a new coupon code record into the database table
      *
@@ -396,13 +313,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/count/ansi
      * @see mshop/coupon/manager/code/counter/ansi
      */
-
     /** mshop/coupon/manager/code/update/mysql
      * Updates an existing coupon code record in the database
      *
      * @see mshop/coupon/manager/code/update/ansi
      */
-
     /** mshop/coupon/manager/code/update/ansi
      * Updates an existing coupon code record in the database
      *
@@ -429,13 +344,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/count/ansi
      * @see mshop/coupon/manager/code/counter/ansi
      */
-
     /** mshop/coupon/manager/code/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/coupon/manager/code/newid/ansi
      */
-
     /** mshop/coupon/manager/code/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -466,13 +379,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/count/ansi
      * @see mshop/coupon/manager/code/counter/ansi
      */
-
     /** mshop/coupon/manager/code/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/coupon/manager/code/delete/ansi
      */
-
     /** mshop/coupon/manager/code/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -497,13 +408,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/count/ansi
      * @see mshop/coupon/manager/code/counter/ansi
      */
-
     /** mshop/coupon/manager/code/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/coupon/manager/code/search/ansi
      */
-
     /** mshop/coupon/manager/code/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -553,13 +462,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/coupon/manager/code/count/ansi
      * @see mshop/coupon/manager/code/counter/ansi
      */
-
     /** mshop/coupon/manager/code/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/coupon/manager/code/count/ansi
      */
-
     /** mshop/coupon/manager/code/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

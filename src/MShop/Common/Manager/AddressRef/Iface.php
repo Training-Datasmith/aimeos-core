@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\AddressRef;
+namespace Aimeos\M_Shop\Common\Manager\Address_Ref;
 
 /**
  * Interface for all manager implementations using address items
@@ -25,5 +23,5 @@ interface Iface
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Address\Iface New address item object
      */
-    public function createAddressItem(array $values = []): \Aimeos\MShop\Common\Item\Address\Iface;
+    public function create_address_item(array $values = []): \Aimeos\M_Shop\Common\Item\Address\Iface;
 }

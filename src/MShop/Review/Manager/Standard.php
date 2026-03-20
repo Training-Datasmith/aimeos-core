@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  * @package MShop
  * @subpackage Review
  */
-
-namespace Aimeos\MShop\Review\Manager;
+namespace Aimeos\M_Shop\Review\Manager;
 
 /**
  * Default review manager implementation
@@ -17,51 +15,9 @@ namespace Aimeos\MShop\Review\Manager;
  * @package MShop
  * @subpackage Review
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Review\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Review\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'review.customerid' => [
-            'label' => 'Customer ID',
-            'internalcode' => 'customerid',
-            'public' => false,
-        ],
-        'review.orderproductid' => [
-            'label' => 'Order product ID',
-            'internalcode' => 'ordprodid',
-            'public' => false,
-        ],
-        'review.domain' => [
-            'label' => 'Domain',
-            'internalcode' => 'domain',
-        ],
-        'review.refid' => [
-            'label' => 'ID from the referenced domain',
-            'internalcode' => 'refid',
-        ],
-        'review.name' => [
-            'label' => 'Name',
-            'internalcode' => 'name',
-        ],
-        'review.comment' => [
-            'label' => 'Comment',
-            'internalcode' => 'comment',
-        ],
-        'review.response' => [
-            'label' => 'Response',
-            'internalcode' => 'response',
-        ],
-        'review.rating' => [
-            'label' => 'Rating',
-            'internalcode' => 'rating',
-            'type' => 'int',
-        ],
-        'review.status' => [
-            'label' => 'Review status',
-            'internalcode' => 'status',
-            'type' => 'int',
-        ],
-    ];
-
+    private array $search_config = ['review.customerid' => ['label' => 'Customer ID', 'internalcode' => 'customerid', 'public' => false], 'review.orderproductid' => ['label' => 'Order product ID', 'internalcode' => 'ordprodid', 'public' => false], 'review.domain' => ['label' => 'Domain', 'internalcode' => 'domain'], 'review.refid' => ['label' => 'ID from the referenced domain', 'internalcode' => 'refid'], 'review.name' => ['label' => 'Name', 'internalcode' => 'name'], 'review.comment' => ['label' => 'Comment', 'internalcode' => 'comment'], 'review.response' => ['label' => 'Response', 'internalcode' => 'response'], 'review.rating' => ['label' => 'Rating', 'internalcode' => 'rating', 'type' => 'int'], 'review.status' => ['label' => 'Review status', 'internalcode' => 'status', 'type' => 'int']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -78,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/review/manager/aggregate/ansi
          */
-
         /** mshop/review/manager/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -122,22 +77,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/review/manager/count/ansi
          */
         $cfgkey = 'mshop/review/manager/aggregate' . ($type === 'rate' ? 'rate' : '');
-
-        return $this->aggregateBase($search, $key, $cfgkey, [], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, [], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Review\Item\Iface New review item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['review.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Review\Item\Standard('review.', $values);
+        $values['review.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Review\Item\Standard('review.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -147,19 +99,17 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('review', $default);
+        return $this->filter_base('review', $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -169,7 +119,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'review.';
     }
-
     /** mshop/review/manager/name
      * Class name of the used review manager implementation
      *
@@ -202,7 +151,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2020.10
      */
-
     /** mshop/review/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the review manager
      *
@@ -227,7 +175,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/decorators/global
      * @see mshop/review/manager/decorators/local
      */
-
     /** mshop/review/manager/decorators/global
      * Adds a list of globally available decorators only to the review manager
      *
@@ -251,7 +198,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/decorators/excludes
      * @see mshop/review/manager/decorators/local
      */
-
     /** mshop/review/manager/decorators/local
      * Adds a list of local decorators only to the review manager
      *
@@ -275,7 +221,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/decorators/excludes
      * @see mshop/review/manager/decorators/global
      */
-
     /** mshop/review/manager/resource
      * Name of the database connection resource to use
      *
@@ -287,13 +232,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/review/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/review/manager/delete/ansi
      */
-
     /** mshop/review/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -317,7 +260,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/search/ansi
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/submanagers
      * List of manager names that can be instantiated by the review manager
      *
@@ -334,13 +276,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2020.10
      */
-
     /** mshop/review/manager/insert/mysql
      * Inserts a new review record into the database table
      *
      * @see mshop/review/manager/insert/ansi
      */
-
     /** mshop/review/manager/insert/ansi
      * Inserts a new review record into the database table
      *
@@ -369,13 +309,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/search/ansi
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/update/mysql
      * Updates an existing review record in the database
      *
      * @see mshop/review/manager/update/ansi
      */
-
     /** mshop/review/manager/update/ansi
      * Updates an existing review record in the database
      *
@@ -401,13 +339,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/search/ansi
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/review/manager/newid/ansi
      */
-
     /** mshop/review/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -437,7 +373,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/search/ansi
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -466,13 +401,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/review/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/review/manager/search/ansi
      */
-
     /** mshop/review/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -519,13 +452,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/review/manager/delete/ansi
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/review/manager/count/ansi
      */
-
     /** mshop/review/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

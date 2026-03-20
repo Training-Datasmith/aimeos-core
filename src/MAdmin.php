@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  */
-
 namespace Aimeos;
 
 /**
@@ -15,12 +13,11 @@ namespace Aimeos;
  *
  * @package MAdmin
  */
-class MAdmin
+class M_Admin
 {
-    private static ?\Aimeos\MShop\ContextIface $context = null;
+    private static ?\Aimeos\M_Shop\Context_Iface $context = null;
     private static bool $cache = true;
     private static array $objects = [];
-
     /**
      * Enables or disables caching of class instances and clears cache
      *
@@ -32,7 +29,6 @@ class MAdmin
         self::$context = null;
         self::$objects = [];
     }
-
     /**
      * Creates the required manager specified by the given path of manager names
      *
@@ -50,48 +46,35 @@ class MAdmin
      * @return \Aimeos\MShop\Common\Manager\Iface MAdmin manager object
      * @throws \Aimeos\MAdmin\Exception If the given path is invalid or the manager wasn't found
      */
-    public static function create(
-        \Aimeos\MShop\ContextIface $context,
-        string $path,
-        ?string $name = null
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    public static function create(\Aimeos\M_Shop\Context_Iface $context, string $path, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         if (empty($path)) {
             throw new \LogicException('Manager path is empty', 400);
         }
-
         if (preg_match('/^[a-z0-9\/]+$/', $path) !== 1) {
             throw new \LogicException(sprintf('Invalid component path "%1$s"', $path, 400));
         }
-
         if (self::$context !== null && self::$context !== $context) {
-            self::$objects = []; // clear cached objects on context change
+            self::$objects = [];
+            // clear cached objects on context change
         }
         self::$context = $context;
-
         $parts = explode('/', $path);
-
         if (($domain = array_shift($parts)) === null) {
             throw new \LogicException(sprintf('Manager path is empty', $path), 400);
         }
-
         if (empty($name)) {
             $name = $context->config()->get('madmin/' . $domain . '/manager/name', 'Standard');
         }
-
-        $classname = '\\Aimeos\\MAdmin\\' . ucfirst($domain) . '\\Manager\\' . $name;
-
+        $classname = '\Aimeos\MAdmin\\' . ucfirst($domain) . '\Manager\\' . $name;
         if (self::$cache === false || !isset(self::$objects[$classname])) {
-            $iface = '\\Aimeos\\MAdmin\\' . ucfirst($domain) . '\\Manager\\Iface';
-
-            $manager = self::createManager($context, $classname, interface_exists($iface) ? $iface : null);
-            $manager = self::addManagerDecorators($context, $manager, $domain);
-
+            $iface = '\Aimeos\MAdmin\\' . ucfirst($domain) . '\Manager\Iface';
+            $manager = self::create_manager($context, $classname, interface_exists($iface) ? $iface : null);
+            $manager = self::add_manager_decorators($context, $manager, $domain);
             self::$objects[$classname] = $manager;
         }
-
         return self::$objects[$classname];
     }
-
     /**
      * Injects a manager object for the given path of manager names
      *
@@ -101,11 +84,10 @@ class MAdmin
      * @param string $classname Full name of the class for which the object should be returned
      * @param \Aimeos\MShop\Common\Manager\Iface|null $object Manager object for the given manager path or null to clear
      */
-    public static function inject(string $classname, ?\Aimeos\MShop\Common\Manager\Iface $object = null): void
+    public static function inject(string $classname, ?\Aimeos\M_Shop\Common\Manager\Iface $object = null): void
     {
         self::$objects['\\' . ltrim($classname, '\\')] = $object;
     }
-
     /**
      * Adds the decorators to the manager object.
      *
@@ -116,28 +98,19 @@ class MAdmin
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      * @throws \LogicException If class isn't found
      */
-    protected static function addDecorators(
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Common\Manager\Iface $manager,
-        array $decorators,
-        string $classprefix
-    ): \Aimeos\MShop\Common\Manager\Iface {
-        $interface = \Aimeos\MShop\Common\Manager\Decorator\Iface::class;
-
+    protected static function add_decorators(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Common\Manager\Iface $manager, array $decorators, string $classprefix): \Aimeos\M_Shop\Common\Manager\Iface
+    {
+        $interface = \Aimeos\M_Shop\Common\Manager\Decorator\Iface::class;
         foreach ($decorators as $name) {
             if (ctype_alnum($name) === false) {
                 $classname = is_string($name) ? $classprefix . $name : '<not a string>';
                 throw new \LogicException(sprintf('Invalid class name "%1$s"', $classname), 400);
             }
-
             $classname = $classprefix . $name;
-
             $manager = \Aimeos\Utils::create($classname, [$manager, $context], $interface);
         }
-
         return $manager;
     }
-
     /**
      * Adds the decorators to the manager object.
      *
@@ -146,21 +119,15 @@ class MAdmin
      * @param string $domain Domain name in lower case, e.g. "product"
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected static function addManagerDecorators(
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Common\Manager\Iface $manager,
-        string $domain
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    protected static function add_manager_decorators(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Common\Manager\Iface $manager, string $domain): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         $config = $context->config();
-
         $classprefix = '\Aimeos\MShop\\' . ucfirst($domain) . '\Manager\Decorator\\';
         $decorators = array_reverse($config->get('madmin/' . $domain . '/manager/decorators/local', []));
-        $manager = self::addDecorators($context, $manager, $decorators, $classprefix);
-
+        $manager = self::add_decorators($context, $manager, $decorators, $classprefix);
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
         $decorators = array_reverse($config->get('madmin/' . $domain . '/manager/decorators/global', []));
-        $manager = self::addDecorators($context, $manager, $decorators, $classprefix);
-
+        $manager = self::add_decorators($context, $manager, $decorators, $classprefix);
         /** madmin/common/manager/decorators/default
          * Configures the list of decorators applied to all admin managers
          *
@@ -184,18 +151,14 @@ class MAdmin
          */
         $decorators = array_reverse($config->get('madmin/common/manager/decorators/default', []));
         $excludes = $config->get('madmin/' . $domain . '/manager/decorators/excludes', []);
-
         foreach ($decorators as $key => $name) {
             if (in_array($name, $excludes)) {
                 unset($decorators[$key]);
             }
         }
-
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-
-        return self::addDecorators($context, $manager, $decorators, $classprefix);
+        return self::add_decorators($context, $manager, $decorators, $classprefix);
     }
-
     /**
      * Creates a manager object.
      *
@@ -204,11 +167,8 @@ class MAdmin
      * @param string $interface Name of the manager interface
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected static function createManager(
-        \Aimeos\MShop\ContextIface $context,
-        string $classname,
-        ?string $interface
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    protected static function create_manager(\Aimeos\M_Shop\Context_Iface $context, string $classname, ?string $interface): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         return self::$objects[$classname] ?? \Aimeos\Utils::create($classname, [$context], $interface);
     }
 }

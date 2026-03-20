@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Factory;
+namespace Aimeos\M_Shop\Plugin\Provider\Factory;
 
 /**
  * Base class for plugin provider implementations
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Plugin\Provider\Factory;
  * @package MShop
  * @subpackage Plugin
  */
-abstract class Base extends \Aimeos\MShop\Plugin\Provider\Base
+abstract class Base extends \Aimeos\M_Shop\Plugin\Provider\Base
 {
 }

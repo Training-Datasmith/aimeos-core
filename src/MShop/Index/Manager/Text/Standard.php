@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -8,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager\Text;
+namespace Aimeos\M_Shop\Index\Manager\Text;
 
 /**
  * Submanager for text.
@@ -17,72 +16,27 @@ namespace Aimeos\MShop\Index\Manager\Text;
  * @package MShop
  * @subpackage Index
  */
-class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MShop\Index\Manager\Text\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Index\Manager\Db_Base implements \Aimeos\M_Shop\Index\Manager\Text\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'index.text.id' => [
-            'code' => 'index.text.id',
-            'internalcode' => 'mindte."prodid"',
-            'internaldeps' => [ 'LEFT JOIN "mshop_index_text" AS mindte ON mindte."prodid" = mpro."id"' ],
-            'label' => 'Product index text ID',
-        ],
-        'index.text:url' => [
-            'code' => 'index.text:url()',
-            'internalcode' => ':site AND mindte."url"',
-            'label' => 'Product URL',
-            'public' => false,
-        ],
-        'index.text:name' => [
-            'code' => 'index.text:name()',
-            'internalcode' => ':site AND mindte."langid" = $1 AND mindte."name"',
-            'label' => 'Product name, parameter(<language ID>)',
-            'public' => false,
-        ],
-        'sort:index.text:name' => [
-            'code' => 'sort:index.text:name()',
-            'internalcode' => 'mindte."name"',
-            'label' => 'Sort by product name, parameter(<language ID>)',
-            'public' => false,
-        ],
-        'index.text:relevance' => [
-            'code' => 'index.text:relevance()',
-            'internalcode' => ':site AND mindte."langid" = $1 AND POSITION( $2 IN mindte."content" )',
-            'label' => 'Product texts, parameter(<language ID>,<search term>)',
-            'type' => 'float',
-            'public' => false,
-        ],
-        'sort:index.text:relevance' => [
-            'code' => 'sort:index.text:relevance()',
-            'internalcode' => '-POSITION( $2 IN mindte."content" ) * mpro."boost"',
-            'label' => 'Product texts, parameter(<language ID>,<search term>)',
-            'type' => 'float',
-            'public' => false,
-        ],
-    ];
-
-    private ?array $languageIds = null;
-    private ?array $subManagers = null;
-
+    private array $search_config = ['index.text.id' => ['code' => 'index.text.id', 'internalcode' => 'mindte."prodid"', 'internaldeps' => ['LEFT JOIN "mshop_index_text" AS mindte ON mindte."prodid" = mpro."id"'], 'label' => 'Product index text ID'], 'index.text:url' => ['code' => 'index.text:url()', 'internalcode' => ':site AND mindte."url"', 'label' => 'Product URL', 'public' => false], 'index.text:name' => ['code' => 'index.text:name()', 'internalcode' => ':site AND mindte."langid" = $1 AND mindte."name"', 'label' => 'Product name, parameter(<language ID>)', 'public' => false], 'sort:index.text:name' => ['code' => 'sort:index.text:name()', 'internalcode' => 'mindte."name"', 'label' => 'Sort by product name, parameter(<language ID>)', 'public' => false], 'index.text:relevance' => ['code' => 'index.text:relevance()', 'internalcode' => ':site AND mindte."langid" = $1 AND POSITION( $2 IN mindte."content" )', 'label' => 'Product texts, parameter(<language ID>,<search term>)', 'type' => 'float', 'public' => false], 'sort:index.text:relevance' => ['code' => 'sort:index.text:relevance()', 'internalcode' => '-POSITION( $2 IN mindte."content" ) * mpro."boost"', 'label' => 'Product texts, parameter(<language ID>,<search term>)', 'type' => 'float', 'public' => false]];
+    private ?array $language_ids = null;
+    private ?array $sub_managers = null;
     /**
      * Initializes the manager instance.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $context->config()->get('mshop/index/manager/sitemode', $level);
-
-        $this->searchConfig['index.text:relevance']['function'] = $this->getFunctionRelevance();
-
+        $this->search_config['index.text:relevance']['function'] = $this->get_function_relevance();
         foreach (['index.text:name', 'index.text:url', 'index.text:relevance'] as $key) {
-            $expr = $this->siteString('mindte."siteid"', $level);
-            $this->searchConfig[$key]['internalcode'] = str_replace(':site', $expr, $this->searchConfig[$key]['internalcode']);
+            $expr = $this->site_string('mindte."siteid"', $level);
+            $this->search_config[$key]['internalcode'] = str_replace(':site', $expr, $this->search_config[$key]['internalcode']);
         }
     }
-
     /**
      * Counts the number products that are available for the values of the given key.
      *
@@ -96,20 +50,17 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
     {
         return [];
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::clear($siteids);
-
-        return $this->clearBase($siteids, 'mshop/index/manager/text/delete');
+        return $this->clear_base($siteids, 'mshop/index/manager/text/delete');
     }
-
     /**
      * Removes all entries not touched after the given timestamp in the index.
      * This can be a long lasting operation.
@@ -117,14 +68,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string $timestamp Timestamp in ISO format (YYYY-MM-DD HH:mm:ss)
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function cleanup(string $timestamp): \Aimeos\MShop\Index\Manager\Iface
+    public function cleanup(string $timestamp): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/text/cleanup/mysql
          * Deletes the index text records that haven't been touched
          *
          * @see mshop/index/manager/text/cleanup/ansi
          */
-
         /** mshop/index/manager/text/cleanup/ansi
          * Deletes the index text records that haven't been touched
          *
@@ -149,23 +99,21 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/search/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        return $this->cleanupBase($timestamp, 'mshop/index/manager/text/cleanup');
+        return $this->cleanup_base($timestamp, 'mshop/index/manager/text/cleanup');
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|\Aimeos\Map|array|string $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/text/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see mshop/index/manager/text/delete/ansi
          */
-
         /** mshop/index/manager/text/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -189,19 +137,17 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/search/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        return $this->deleteItemsBase($itemIds, 'mshop/index/manager/text/delete', true, 'prodid');
+        return $this->delete_items_base($item_ids, 'mshop/index/manager/text/delete', true, 'prodid');
     }
-
     /**
      * Returns a list of objects describing the available criterias for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return array List of items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $list = parent::getSearchAttributes($withsub);
-
+        $list = parent::get_search_attributes($withsub);
         /** mshop/index/manager/text/submanagers
          * List of manager names that can be instantiated by the index text manager
          *
@@ -219,10 +165,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @since 2014.03
          */
         $path = 'mshop/index/manager/text/submanagers';
-
-        return $list + $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $list + $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for product extensions.
      *
@@ -230,7 +174,7 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/text/name
          * Class name of the used index text manager implementation
@@ -264,7 +208,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @param string Last part of the class name
          * @since 2014.03
          */
-
         /** mshop/index/manager/text/decorators/excludes
          * Excludes decorators added by the "common" option from the index text manager
          *
@@ -289,7 +232,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/decorators/global
          * @see mshop/index/manager/text/decorators/local
          */
-
         /** mshop/index/manager/text/decorators/global
          * Adds a list of globally available decorators only to the index text manager
          *
@@ -314,7 +256,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/decorators/excludes
          * @see mshop/index/manager/text/decorators/local
          */
-
         /** mshop/index/manager/text/decorators/local
          * Adds a list of local decorators only to the index text manager
          *
@@ -339,10 +280,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/decorators/excludes
          * @see mshop/index/manager/text/decorators/global
          */
-
-        return $this->getSubManagerBase('index', 'text/' . $manager, $name);
+        return $this->get_sub_manager_base('index', 'text/' . $manager, $name);
     }
-
     /**
      * Optimizes the index if necessary.
      * Execution of this operation can take a very long time and shouldn't be
@@ -350,14 +289,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      *
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function optimize(): \Aimeos\MShop\Index\Manager\Iface
+    public function optimize(): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/text/optimize/mysql
          * Optimizes the stored text data for retrieving the records faster
          *
          * @see mshop/index/manager/text/optimize/ansi
          */
-
         /** mshop/index/manager/text/optimize/ansi
          * Optimizes the stored text data for retrieving the records faster
          *
@@ -379,9 +317,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/search/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        return $this->optimizeBase('mshop/index/manager/text/optimize');
+        return $this->optimize_base('mshop/index/manager/text/optimize');
     }
-
     /**
      * Rebuilds the index text for searching products or specified list of products.
      * This can be a long lasting operation.
@@ -389,23 +326,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param \Aimeos\MShop\Product\Item\Iface[] $items Associative list of product IDs as keys and items as values
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function rebuild(iterable $items = []): \Aimeos\MShop\Index\Manager\Iface
+    public function rebuild(iterable $items = []): \Aimeos\M_Shop\Index\Manager\Iface
     {
-        if (($items = map($items))->isEmpty()) {
+        if (($items = map($items))->is_empty()) {
             return $this;
         }
-
-        $items->implements(\Aimeos\MShop\Product\Item\Iface::class, true);
-
+        $items->implements(\Aimeos\M_Shop\Product\Item\Iface::class, true);
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         /** mshop/index/manager/text/insert/mysql
          * Inserts a new text record into the product index database
          *
          * @see mshop/index/manager/text/insert/ansi
          */
-
         /** mshop/index/manager/text/insert/ansi
          * Inserts a new text record into the product index database
          *
@@ -435,31 +368,26 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/search/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        $stmt = $this->getCachedStatement($conn, 'mshop/index/manager/text/insert');
-
+        $stmt = $this->get_cached_statement($conn, 'mshop/index/manager/text/insert');
         foreach ($items as $item) {
-            $this->saveTexts($stmt, $item);
+            $this->save_texts($stmt, $item);
         }
-
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->rebuild($items);
         }
-
         return $this;
     }
-
     /**
      * Removes the products from the product index.
      *
      * @param iterable|string $ids Product ID or list of IDs
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function remove($ids): \Aimeos\MShop\Index\Manager\Iface
+    public function remove($ids): \Aimeos\M_Shop\Index\Manager\Iface
     {
         parent::remove($ids)->delete($ids);
         return $this;
     }
-
     /**
      * Searches for items matching the given criteria.
      *
@@ -475,7 +403,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          *
          * @see mshop/index/manager/text/search/ansi
          */
-
         /** mshop/index/manager/text/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -525,14 +452,12 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/optimize/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        $cfgPathSearch = 'mshop/index/manager/text/search';
-
+        $cfg_path_search = 'mshop/index/manager/text/search';
         /** mshop/index/manager/text/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see mshop/index/manager/text/count/ansi
          */
-
         /** mshop/index/manager/text/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -578,61 +503,51 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/text/search/ansi
          * @see mshop/index/manager/text/text/ansi
          */
-        $cfgPathCount = 'mshop/index/manager/text/count';
-
-        return $this->searchItemsIndexBase($search, $ref, $total, $cfgPathSearch, $cfgPathCount);
+        $cfg_path_count = 'mshop/index/manager/text/count';
+        return $this->search_items_index_base($search, $ref, $total, $cfg_path_search, $cfg_path_count);
     }
-
     /**
      * Returns the search function for searching by relevance
      *
      * @return \Closure Relevance search function
      */
-    protected function getFunctionRelevance()
+    protected function get_function_relevance()
     {
         return function ($source, array $params): array {
-
             if (isset($params[1])) {
                 $params[1] = mb_strtolower($params[1]);
             }
-
             return $params;
         };
     }
-
     /**
      * Returns the language IDs available for the current site
      *
      * @return string[] List of ISO language codes
      */
-    protected function getLanguageIds(): array
+    protected function get_language_ids(): array
     {
-        if (!isset($this->languageIds)) {
+        if (!isset($this->language_ids)) {
             $list = [];
-            $manager = \Aimeos\MShop::create($this->context(), 'locale');
+            $manager = \Aimeos\M_Shop::create($this->context(), 'locale');
             $items = $manager->search($manager->filter(true)->slice(0, 10000));
-
             foreach ($items as $item) {
-                $list[$item->getLanguageId()] = null;
+                $list[$item->get_language_id()] = null;
             }
-
-            $this->languageIds = array_keys($list);
+            $this->language_ids = array_keys($list);
         }
-
-        return $this->languageIds;
+        return $this->language_ids;
     }
-
     /**
      * Saves the text items referenced indirectly by products
      *
      * @param \Aimeos\Base\DB\Statement\Iface $stmt Prepared SQL statement with place holders
      * @param \Aimeos\MShop\Product\Item\Iface $item Product item containing associated text items
      */
-    protected function saveTexts(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\MShop\Product\Item\Iface $item)
+    protected function save_texts(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\M_Shop\Product\Item\Iface $item)
     {
         $texts = [];
         $config = $this->context()->config();
-
         /** mshop/index/manager/text/types
          * List of text types that should be added to the product index
          *
@@ -646,7 +561,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @since 2019.04
          */
         $types = $config->get('mshop/index/manager/text/types');
-
         /** mshop/index/manager/text/attribute-types
          * List of attribute types that should be added to the product index
          *
@@ -658,46 +572,36 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @param array|string|null Type name or list of type names, null for all
          * @since 2020.10
          */
-        $attrTypes = $config->get('mshop/index/manager/text/attribute-types', ['variant', 'default']);
-
-        foreach ($item->getRefItems('text', 'url', 'default') as $text) {
-            $texts[$text->getLanguageId()]['url'] = \Aimeos\Base\Str::slug($text->getContent());
+        $attr_types = $config->get('mshop/index/manager/text/attribute-types', ['variant', 'default']);
+        foreach ($item->get_ref_items('text', 'url', 'default') as $text) {
+            $texts[$text->get_language_id()]['url'] = \Aimeos\Base\Str::slug($text->get_content());
         }
-
-        foreach ($item->getRefItems('text', 'name', 'default') as $text) {
-            $texts[$text->getLanguageId()]['name'] = $text->getContent();
+        foreach ($item->get_ref_items('text', 'name', 'default') as $text) {
+            $texts[$text->get_language_id()]['name'] = $text->get_content();
         }
-
-        $products = $item->getRefItems('product', null, 'default')->unshift($item);
-
+        $products = $item->get_ref_items('product', null, 'default')->unshift($item);
         foreach ($products as $product) {
-            foreach ($this->getLanguageIds() as $langId) {
-                $texts[$langId]['content'][] = $product->getCode();
-                $texts[$langId]['content'][] = $product->getName();
+            foreach ($this->get_language_ids() as $lang_id) {
+                $texts[$lang_id]['content'][] = $product->get_code();
+                $texts[$lang_id]['content'][] = $product->get_name();
             }
-
-            foreach ($product->getRefItems('text', $types) as $text) {
-                $texts[$text->getLanguageId()]['content'][] = $text->getContent();
+            foreach ($product->get_ref_items('text', $types) as $text) {
+                $texts[$text->get_language_id()]['content'][] = $text->get_content();
             }
-
-            foreach ($this->getLanguageIds() as $langId) {
-                foreach ($product->getRefItems('catalog') as $catItem) {
-                    $texts[$langId]['content'][] = $catItem->getName();
+            foreach ($this->get_language_ids() as $lang_id) {
+                foreach ($product->get_ref_items('catalog') as $cat_item) {
+                    $texts[$lang_id]['content'][] = $cat_item->get_name();
                 }
-
-                foreach ($product->getRefItems('supplier') as $supItem) {
-                    $texts[$langId]['content'][] = $supItem->getName();
+                foreach ($product->get_ref_items('supplier') as $sup_item) {
+                    $texts[$lang_id]['content'][] = $sup_item->get_name();
                 }
-
-                foreach ($product->getRefItems('attribute', null, $attrTypes) as $attrItem) {
-                    $texts[$langId]['content'][] = $attrItem ->getName();
+                foreach ($product->get_ref_items('attribute', null, $attr_types) as $attr_item) {
+                    $texts[$lang_id]['content'][] = $attr_item->get_name();
                 }
             }
         }
-
-        $this->saveTextMap($stmt, $item, $texts);
+        $this->save_text_map($stmt, $item, $texts);
     }
-
     /**
      * Saves the mapped texts for the given item
      *
@@ -705,32 +609,27 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param \Aimeos\MShop\Product\Item\Iface $item Product item containing associated text items
      * @param array $map Associative list of text types as keys and content as value
      */
-    protected function saveTextMap(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\MShop\Product\Item\Iface $item, array $texts)
+    protected function save_text_map(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\M_Shop\Product\Item\Iface $item, array $texts)
     {
         $context = $this->context();
         $date = $context->datetime();
-        $siteid = $context->locale()->getSiteId();
-
-        foreach ($texts as $langId => $map) {
-            if ($langId == '') {
+        $siteid = $context->locale()->get_site_id();
+        foreach ($texts as $lang_id => $map) {
+            if ($lang_id == '') {
                 continue;
             }
-
-            $url = $map['url'] ?? $item->getName('url', $langId);
-
+            $url = $map['url'] ?? $item->get_name('url', $lang_id);
             if (isset($texts['']['content'])) {
                 $map['content'] = array_merge($map['content'], $texts['']['content']);
             }
-
             if (!isset($map['name'])) {
-                $map['name'] = $texts['']['name'] ?? $item->getLabel();
+                $map['name'] = $texts['']['name'] ?? $item->get_label();
             }
-
-            $content = ' ' . join(' ', $map['content']); // extra space for SQL POSITION() > 0
-            $this->saveText($stmt, $item->getId(), $siteid, $langId, $url, $map['name'], $content, $date);
+            $content = ' ' . join(' ', $map['content']);
+            // extra space for SQL POSITION() > 0
+            $this->save_text($stmt, $item->get_id(), $siteid, $lang_id, $url, $map['name'], $content, $date);
         }
     }
-
     /**
      * Saves the text record with given set of parameters.
      *
@@ -743,42 +642,33 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string $content Text content to store
      * @param string $date Current timestamp in "YYYY-MM-DD HH:mm:ss" format
      */
-    protected function saveText(
-        \Aimeos\Base\DB\Statement\Iface $stmt,
-        string $id,
-        string $siteid,
-        string $lang,
-        string $url,
-        string $name,
-        string $content,
-        string $date
-    ) {
+    protected function save_text(\Aimeos\Base\DB\Statement\Iface $stmt, string $id, string $siteid, string $lang, string $url, string $name, string $content, string $date)
+    {
         $stmt->bind(1, $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         $stmt->bind(2, $lang);
         $stmt->bind(3, $url);
         $stmt->bind(4, $name);
-        $stmt->bind(5, mb_strtolower(strip_tags($content))); // for case insensitive searches
-        $stmt->bind(6, $date); //mtime
+        $stmt->bind(5, mb_strtolower(strip_tags($content)));
+        // for case insensitive searches
+        $stmt->bind(6, $date);
+        //mtime
         $stmt->bind(7, $siteid);
-
         try {
             $stmt->execute()->finish();
         } catch (\Aimeos\Base\DB\Exception) {
-            ;
-        } // Ignore duplicates
+        }
+        // Ignore duplicates
     }
-
     /**
      * Returns the list of sub-managers available for the index attribute manager.
      *
      * @return \Aimeos\MShop\Index\Manager\Iface[] Associative list of the sub-domain as key and the manager object as value
      */
-    protected function getSubManagers(): array
+    protected function get_sub_managers(): array
     {
-        if ($this->subManagers === null) {
-            $this->subManagers = [];
+        if ($this->sub_managers === null) {
+            $this->sub_managers = [];
             $config = $this->context()->config();
-
             /** mshop/index/manager/text/submanagers
              * A list of sub-manager names used for indexing associated items to texts
              *
@@ -797,12 +687,10 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
              */
             foreach ($config->get('mshop/index/manager/text/submanagers', []) as $domain) {
                 $name = $config->get('mshop/index/manager/text/' . $domain . '/name');
-                $this->subManagers[$domain] = $this->object()->getSubManager($domain, $name);
+                $this->sub_managers[$domain] = $this->object()->get_sub_manager($domain, $name);
             }
-
-            return $this->subManagers;
+            return $this->sub_managers;
         }
-
-        return $this->subManagers;
+        return $this->sub_managers;
     }
 }

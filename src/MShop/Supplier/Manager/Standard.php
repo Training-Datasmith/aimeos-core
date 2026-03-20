@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Supplier
  */
-
-namespace Aimeos\MShop\Supplier\Manager;
+namespace Aimeos\M_Shop\Supplier\Manager;
 
 /**
  * Class \Aimeos\MShop\Supplier\Manager\Standard.
@@ -17,53 +15,44 @@ namespace Aimeos\MShop\Supplier\Manager;
  * @package MShop
  * @subpackage Supplier
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Supplier\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Supplier\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $cacheTags = [];
-
+    private array $cache_tags = [];
     /**
      * Commits the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function commit(): \Aimeos\MShop\Common\Manager\Iface
+    public function commit(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::commit();
-
-        $this->context()->cache()->deleteByTags($this->cacheTags);
-        $this->cacheTags = [];
-
+        $this->context()->cache()->delete_by_tags($this->cache_tags);
+        $this->cache_tags = [];
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Supplier\Item\Iface New supplier item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['supplier.siteid'] ??= $this->context()->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Supplier\Item\Standard('supplier.', $values);
+        $values['supplier.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Supplier\Item\Standard('supplier.', $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $items List of item objects or IDs of the items
      * @return \Aimeos\MShop\Supplier\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::delete($items);
-
-        $this->cacheTags = array_merge($this->cacheTags, map($items)->cast()->prefix('supplier-')->all());
-
+        $this->cache_tags = array_merge($this->cache_tags, map($items)->cast()->prefix('supplier-')->all());
         return $this;
     }
-
     /**
      * Creates a filter object.
      *
@@ -73,9 +62,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('supplier', $default);
+        return $this->filter_base('supplier', $default);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -86,16 +74,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Supplier\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase([ 'supplier.code' => $code ], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['supplier.code' => $code], $ref, $default);
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -106,49 +88,22 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function save($items, bool $fetch = true)
     {
         $items = parent::save($items, $fetch);
-
-        if (($ids = map($items)->getId()->filter())->count() === map($items)->count()) {
-            $this->cacheTags = array_merge($this->cacheTags, map($ids)->prefix('supplier-')->all());
+        if (($ids = map($items)->get_id()->filter())->count() === map($items)->count()) {
+            $this->cache_tags = array_merge($this->cache_tags, map($ids)->prefix('supplier-')->all());
         } else {
-            $this->cacheTags[] = 'supplier';
+            $this->cache_tags[] = 'supplier';
         }
-
         return $items;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'supplier.label' => [
-                'code' => 'supplier.label',
-                'internalcode' => 'label',
-                'label' => 'Label',
-            ],
-            'supplier.code' => [
-                'code' => 'supplier.code',
-                'internalcode' => 'code',
-                'label' => 'Code',
-            ],
-            'supplier.position' => [
-                'code' => 'supplier.position',
-                'internalcode' => 'pos',
-                'label' => 'Position',
-                'type' => 'int',
-            ],
-            'supplier.status' => [
-                'code' => 'supplier.status',
-                'internalcode' => 'status',
-                'label' => 'Status',
-                'type' => 'int',
-            ],
-        ]);
+        return $this->create_attributes(['supplier.label' => ['code' => 'supplier.label', 'internalcode' => 'label', 'label' => 'Label'], 'supplier.code' => ['code' => 'supplier.code', 'internalcode' => 'code', 'label' => 'Code'], 'supplier.position' => ['code' => 'supplier.position', 'internalcode' => 'pos', 'label' => 'Position', 'type' => 'int'], 'supplier.status' => ['code' => 'supplier.status', 'internalcode' => 'status', 'label' => 'Status', 'type' => 'int']]);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -158,7 +113,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'supplier.';
     }
-
     /** mshop/supplier/manager/resource
      * Name of the database connection resource to use
      *
@@ -170,7 +124,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/supplier/manager/name
      * Class name of the used supplier manager implementation
      *
@@ -203,7 +156,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/supplier/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the supplier manager
      *
@@ -228,7 +180,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/decorators/global
      * @see mshop/supplier/manager/decorators/local
      */
-
     /** mshop/supplier/manager/decorators/global
      * Adds a list of globally available decorators only to the supplier manager
      *
@@ -252,7 +203,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/decorators/excludes
      * @see mshop/supplier/manager/decorators/local
      */
-
     /** mshop/supplier/manager/decorators/local
      * Adds a list of local decorators only to the supplier manager
      *
@@ -276,7 +226,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/decorators/excludes
      * @see mshop/supplier/manager/decorators/global
      */
-
     /** mshop/supplier/manager/submanagers
      * List of manager names that can be instantiated by the supplier manager
      *
@@ -293,13 +242,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/supplier/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/supplier/manager/delete/ansi
      */
-
     /** mshop/supplier/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -323,13 +270,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/search/ansi
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/insert/mysql
      * Inserts a new supplier record into the database table
      *
      * @see mshop/supplier/manager/insert/ansi
      */
-
     /** mshop/supplier/manager/insert/ansi
      * Inserts a new supplier record into the database table
      *
@@ -358,13 +303,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/search/ansi
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/update/mysql
      * Updates an existing supplier record in the database
      *
      * @see mshop/supplier/manager/update/ansi
      */
-
     /** mshop/supplier/manager/update/ansi
      * Updates an existing supplier record in the database
      *
@@ -390,13 +333,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/search/ansi
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/supplier/manager/newid/ansi
      */
-
     /** mshop/supplier/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -426,7 +367,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/search/ansi
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -455,13 +395,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/supplier/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/supplier/manager/search/ansi
      */
-
     /** mshop/supplier/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -510,13 +448,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/supplier/manager/delete/ansi
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/supplier/manager/count/ansi
      */
-
     /** mshop/supplier/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

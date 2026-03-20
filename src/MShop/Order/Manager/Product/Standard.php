@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Product;
+namespace Aimeos\M_Shop\Order\Manager\Product;
 
 /**
  * Default order product manager.
@@ -17,134 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Product;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Product\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Product\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.product.parentid' => [
-            'code' => 'order.product.parentid',
-            'internalcode' => 'parentid',
-            'label' => 'Product base ID',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.product.orderaddressid' => [
-            'code' => 'order.product.orderaddressid',
-            'internalcode' => 'ordaddrid',
-            'label' => 'Address ID for the product',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.product.orderproductid' => [
-            'code' => 'order.product.orderproductid',
-            'internalcode' => 'ordprodid',
-            'label' => 'Product parent ID',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.product.parentproductid' => [
-            'code' => 'order.product.parentproductid',
-            'internalcode' => 'parentprodid',
-            'label' => 'Parent product ID',
-        ],
-        'order.product.productid' => [
-            'code' => 'order.product.productid',
-            'internalcode' => 'prodid',
-            'label' => 'Product original ID',
-        ],
-        'order.product.name' => [
-            'code' => 'order.product.name',
-            'internalcode' => 'name',
-            'label' => 'Product name',
-        ],
-        'order.product.description' => [
-            'code' => 'order.product.description',
-            'internalcode' => 'description',
-            'label' => 'Product description',
-        ],
-        'order.product.prodcode' => [
-            'code' => 'order.product.prodcode',
-            'internalcode' => 'prodcode',
-            'label' => 'Product code',
-        ],
-        'order.product.type' => [
-            'code' => 'order.product.type',
-            'internalcode' => 'type',
-            'label' => 'Product type',
-        ],
-        'order.product.vendor' => [
-            'code' => 'order.product.vendor',
-            'internalcode' => 'vendor',
-            'label' => 'Product vendor',
-        ],
-        'order.product.stocktype' => [
-            'code' => 'order.product.stocktype',
-            'internalcode' => 'stocktype',
-            'label' => 'Product stock type',
-        ],
-        'order.product.timeframe' => [
-            'code' => 'order.product.timeframe',
-            'internalcode' => 'timeframe',
-            'label' => 'Delivery time frame',
-        ],
-        'order.product.quantity' => [
-            'code' => 'order.product.quantity',
-            'internalcode' => 'quantity',
-            'label' => 'Product quantity',
-            'type' => 'float',
-        ],
-        'order.product.scale' => [
-            'code' => 'order.product.scale',
-            'internalcode' => 'scale',
-            'label' => 'Product quantity scale',
-            'type' => 'float',
-        ],
-        'order.product.qtyopen' => [
-            'code' => 'order.product.qtyopen',
-            'internalcode' => 'qtyopen',
-            'label' => 'Product quantity not yet delivered',
-            'type' => 'float',
-        ],
-        'order.product.position' => [
-            'code' => 'order.product.position',
-            'internalcode' => 'pos',
-            'label' => 'Product position',
-            'type' => 'int',
-        ],
-        'order.product.statuspayment' => [
-            'code' => 'order.product.statuspayment',
-            'internalcode' => 'statuspayment',
-            'label' => 'Product payment status',
-            'type' => 'int',
-        ],
-        'order.product.statusdelivery' => [
-            'code' => 'order.product.statusdelivery',
-            'internalcode' => 'statusdelivery',
-            'label' => 'Product delivery status',
-            'type' => 'int',
-        ],
-        'order.product.mediaurl' => [
-            'code' => 'order.product.mediaurl',
-            'internalcode' => 'mediaurl',
-            'label' => 'Product media url',
-        ],
-        'order.product.target' => [
-            'code' => 'order.product.target',
-            'internalcode' => 'target',
-            'label' => 'Product url target',
-        ],
-        'order.product.notes' => [
-            'code' => 'order.product.notes',
-            'internalcode' => 'notes',
-            'label' => 'Product notes',
-        ],
-        'order.product.flags' => [
-            'code' => 'order.product.flags',
-            'internalcode' => 'flags',
-            'label' => 'Product flags',
-            'type' => 'int',
-        ],
-    ];
-
+    private array $search_config = ['order.product.parentid' => ['code' => 'order.product.parentid', 'internalcode' => 'parentid', 'label' => 'Product base ID', 'type' => 'int', 'public' => false], 'order.product.orderaddressid' => ['code' => 'order.product.orderaddressid', 'internalcode' => 'ordaddrid', 'label' => 'Address ID for the product', 'type' => 'int', 'public' => false], 'order.product.orderproductid' => ['code' => 'order.product.orderproductid', 'internalcode' => 'ordprodid', 'label' => 'Product parent ID', 'type' => 'int', 'public' => false], 'order.product.parentproductid' => ['code' => 'order.product.parentproductid', 'internalcode' => 'parentprodid', 'label' => 'Parent product ID'], 'order.product.productid' => ['code' => 'order.product.productid', 'internalcode' => 'prodid', 'label' => 'Product original ID'], 'order.product.name' => ['code' => 'order.product.name', 'internalcode' => 'name', 'label' => 'Product name'], 'order.product.description' => ['code' => 'order.product.description', 'internalcode' => 'description', 'label' => 'Product description'], 'order.product.prodcode' => ['code' => 'order.product.prodcode', 'internalcode' => 'prodcode', 'label' => 'Product code'], 'order.product.type' => ['code' => 'order.product.type', 'internalcode' => 'type', 'label' => 'Product type'], 'order.product.vendor' => ['code' => 'order.product.vendor', 'internalcode' => 'vendor', 'label' => 'Product vendor'], 'order.product.stocktype' => ['code' => 'order.product.stocktype', 'internalcode' => 'stocktype', 'label' => 'Product stock type'], 'order.product.timeframe' => ['code' => 'order.product.timeframe', 'internalcode' => 'timeframe', 'label' => 'Delivery time frame'], 'order.product.quantity' => ['code' => 'order.product.quantity', 'internalcode' => 'quantity', 'label' => 'Product quantity', 'type' => 'float'], 'order.product.scale' => ['code' => 'order.product.scale', 'internalcode' => 'scale', 'label' => 'Product quantity scale', 'type' => 'float'], 'order.product.qtyopen' => ['code' => 'order.product.qtyopen', 'internalcode' => 'qtyopen', 'label' => 'Product quantity not yet delivered', 'type' => 'float'], 'order.product.position' => ['code' => 'order.product.position', 'internalcode' => 'pos', 'label' => 'Product position', 'type' => 'int'], 'order.product.statuspayment' => ['code' => 'order.product.statuspayment', 'internalcode' => 'statuspayment', 'label' => 'Product payment status', 'type' => 'int'], 'order.product.statusdelivery' => ['code' => 'order.product.statusdelivery', 'internalcode' => 'statusdelivery', 'label' => 'Product delivery status', 'type' => 'int'], 'order.product.mediaurl' => ['code' => 'order.product.mediaurl', 'internalcode' => 'mediaurl', 'label' => 'Product media url'], 'order.product.target' => ['code' => 'order.product.target', 'internalcode' => 'target', 'label' => 'Product url target'], 'order.product.notes' => ['code' => 'order.product.notes', 'internalcode' => 'notes', 'label' => 'Product notes'], 'order.product.flags' => ['code' => 'order.product.flags', 'internalcode' => 'flags', 'label' => 'Product flags', 'type' => 'int']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -161,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/product/aggregate/ansi
          */
-
         /** mshop/order/manager/product/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -204,7 +76,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/product/search/ansi
          * @see mshop/order/manager/product/count/ansi
          */
-
         /** mshop/order/manager/product/aggregateavg/mysql
          * Computes the average of all values grouped by the key column and matched by the given criteria
          *
@@ -213,7 +84,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/product/aggregateavg/ansi
          * @see mshop/order/manager/product/aggregate/mysql
          */
-
         /** mshop/order/manager/product/aggregateavg/ansi
          * Computes the average of all values grouped by the key column and matched by the given criteria
          *
@@ -221,7 +91,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2017.10
          * @see mshop/order/manager/product/aggregate/ansi
          */
-
         /** mshop/order/manager/product/aggregatesum/mysql
          * Computes the sum of all values grouped by the key column and matched by the given criteria
          *
@@ -230,7 +99,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/product/aggregatesum/ansi
          * @see mshop/order/manager/product/aggregate/mysql
          */
-
         /** mshop/order/manager/product/aggregatesum/ansi
          * Computes the sum of all values grouped by the key column and matched by the given criteria
          *
@@ -238,37 +106,32 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2017.10
          * @see mshop/order/manager/product/aggregate/ansi
          */
-
         $cfgkey = 'mshop/order/manager/product/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.product'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.product'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Product\Iface New order product item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $context = $this->context();
-        $values['.price'] ??= \Aimeos\MShop::create($context, 'price')->create();
-        $values['order.product.siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Order\Item\Product\Standard('order.product.', $values);
+        $values['.price'] ??= \Aimeos\M_Shop::create($context, 'price')->create();
+        $values['order.product.siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Product\Standard('order.product.', $values);
     }
-
     /**
      * Creates a new order product attribute item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Product\Attribute\Iface New order product attribute item object
      */
-    public function createAttributeItem(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create_attribute_item(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->object()->getSubManager('attribute')->create($values);
+        return $this->object()->get_sub_manager('attribute')->create($values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -279,101 +142,32 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
         $filter = parent::filter($default)->order('order.product.id');
-
         if ($site === true) {
-            $level = \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE;
-            $filter->add($this->siteCondition('order.product.siteid', $level));
+            $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_SUBTREE;
+            $filter->add($this->site_condition('order.product.siteid', $level));
         }
-
         return $filter;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.product.id' => [
-                'code' => 'order.product.id',
-                'internalcode' => 'id',
-                'internaldeps' => ['LEFT JOIN "mshop_order_product" AS mordpr ON ( mord."id" = mordpr."parentid" )'],
-                'label' => 'Order product ID',
-                'type' => 'int',
-                'public' => false,
-            ],
-            'order.product.currencyid' => [
-                'code' => 'order.product.currencyid',
-                'internalcode' => 'currencyid',
-                'label' => 'Product currencyid code',
-            ],
-            'order.product.price' => [
-                'code' => 'order.product.price',
-                'internalcode' => 'price',
-                'label' => 'Product price',
-                'type' => 'decimal',
-            ],
-            'order.product.costs' => [
-                'code' => 'order.product.costs',
-                'internalcode' => 'costs',
-                'label' => 'Product shipping',
-                'type' => 'decimal',
-            ],
-            'order.product.rebate' => [
-                'code' => 'order.product.rebate',
-                'internalcode' => 'rebate',
-                'label' => 'Product rebate',
-                'type' => 'decimal',
-            ],
-            'order.product.taxrates' => [
-                'code' => 'order.product.taxrates',
-                'internalcode' => 'taxrate',
-                'label' => 'Product taxrates',
-                'type' => 'json',
-            ],
-            'order.product.taxvalue' => [
-                'code' => 'order.product.taxvalue',
-                'internalcode' => 'tax',
-                'label' => 'Product tax value',
-                'type' => 'decimal',
-            ],
-            'order.product.taxflag' => [
-                'code' => 'order.product.taxflag',
-                'internalcode' => 'taxflag',
-                'label' => 'Product tax flag (0=net, 1=gross)',
-                'type' => 'int',
-            ],
-            'agg:order.product:count' => [
-                'code' => 'agg:order.product:count()',
-                'internalcode' => '( SELECT COUNT(*) FROM mshop_order_product AS mordpr_count
-					WHERE mordpr."parentid" = mordpr_count."parentid" AND mordpr_count."prodid" = $1 )',
-                'label' => 'Order base product count, parameter(<product IDs>)',
-                'type' => 'int',
-                'public' => false,
-            ],
-            'agg:order.product:total' => [
-                'code' => 'agg:order.product:total()',
-                'internalcode' => 'mordpr."quantity" * ( mordpr."price" + mordpr."costs" )',
-                'label' => 'Product price total',
-                'type' => 'float',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.product.id' => ['code' => 'order.product.id', 'internalcode' => 'id', 'internaldeps' => ['LEFT JOIN "mshop_order_product" AS mordpr ON ( mord."id" = mordpr."parentid" )'], 'label' => 'Order product ID', 'type' => 'int', 'public' => false], 'order.product.currencyid' => ['code' => 'order.product.currencyid', 'internalcode' => 'currencyid', 'label' => 'Product currencyid code'], 'order.product.price' => ['code' => 'order.product.price', 'internalcode' => 'price', 'label' => 'Product price', 'type' => 'decimal'], 'order.product.costs' => ['code' => 'order.product.costs', 'internalcode' => 'costs', 'label' => 'Product shipping', 'type' => 'decimal'], 'order.product.rebate' => ['code' => 'order.product.rebate', 'internalcode' => 'rebate', 'label' => 'Product rebate', 'type' => 'decimal'], 'order.product.taxrates' => ['code' => 'order.product.taxrates', 'internalcode' => 'taxrate', 'label' => 'Product taxrates', 'type' => 'json'], 'order.product.taxvalue' => ['code' => 'order.product.taxvalue', 'internalcode' => 'tax', 'label' => 'Product tax value', 'type' => 'decimal'], 'order.product.taxflag' => ['code' => 'order.product.taxflag', 'internalcode' => 'taxflag', 'label' => 'Product tax flag (0=net, 1=gross)', 'type' => 'int'], 'agg:order.product:count' => ['code' => 'agg:order.product:count()', 'internalcode' => '( SELECT COUNT(*) FROM mshop_order_product AS mordpr_count
+					WHERE mordpr."parentid" = mordpr_count."parentid" AND mordpr_count."prodid" = $1 )', 'label' => 'Order base product count, parameter(<product IDs>)', 'type' => 'int', 'public' => false], 'agg:order.product:total' => ['code' => 'agg:order.product:total()', 'internalcode' => 'mordpr."quantity" * ( mordpr."price" + mordpr."costs" )', 'label' => 'Product price total', 'type' => 'float', 'public' => false]]));
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -384,16 +178,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function save($items, bool $fetch = true)
     {
         foreach (map($items) as $item) {
-            $this->saveBase($item, $item->getProducts()->isEmpty() ? $fetch : true);
-
-            foreach ($item->getProducts() as $subItem) {
-                $this->saveBase($subItem->setOrderProductId($item->getId()), $fetch);
+            $this->save_base($item, $item->get_products()->is_empty() ? $fetch : true);
+            foreach ($item->get_products() as $sub_item) {
+                $this->save_base($sub_item->set_order_product_id($item->get_id()), $fetch);
             }
         }
-
         return $items;
     }
-
     /**
      * Saves the dependent items of the item
      *
@@ -401,25 +192,21 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Common\Item\Iface Updated item
      */
-    public function saveRefs(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    public function save_refs(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $attrItems = $item->getAttributeItems();
-
-        foreach ($attrItems as $attrItem) {
-            if ($attrItem->getParentId() != $item->getId()) {
-                $attrItem->setId(null); // create new property item if copied
+        $attr_items = $item->get_attribute_items();
+        foreach ($attr_items as $attr_item) {
+            if ($attr_item->get_parent_id() != $item->get_id()) {
+                $attr_item->set_id(null);
+                // create new property item if copied
             }
-
-            $attrItem->setParentId($item->getId());
+            $attr_item->set_parent_id($item->get_id());
         }
-
-        $manager = $this->object()->getSubManager('attribute');
-        $manager->delete($item->getAttributeItemsDeleted());
-        $manager->save($attrItems, $fetch);
-
+        $manager = $this->object()->get_sub_manager('attribute');
+        $manager->delete($item->get_attribute_items_deleted());
+        $manager->save($attr_items, $fetch);
         return $item;
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -427,37 +214,23 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
-        $manager = \Aimeos\MShop::create($this->context(), 'price');
-        $attributes = $this->getAttributeItems(array_keys($entries));
-
-        if ($this->hasRef($ref, 'product')) {
+        $manager = \Aimeos\M_Shop::create($this->context(), 'price');
+        $attributes = $this->get_attribute_items(array_keys($entries));
+        if ($this->has_ref($ref, 'product')) {
             $ids = map($entries)->col('order.product.productid');
             $ids->merge(map($entries)->col('order.product.parentproductid'));
-            $prodItems = $this->getProductItems($ids->filter()->all(), $ref);
+            $prod_items = $this->get_product_items($ids->filter()->all(), $ref);
         }
-
         foreach ($entries as $id => $row) {
-            $entries[$id]['.price'] = $manager->create([
-                'price.currencyid' => $row['order.product.currencyid'],
-                'price.taxrates' => $row['order.product.taxrates'],
-                'price.value' => $row['order.product.price'],
-                'price.costs' => $row['order.product.costs'],
-                'price.rebate' => $row['order.product.rebate'],
-                'price.taxflag' => $row['order.product.taxflag'],
-                'price.taxvalue' => $row['order.product.taxvalue'],
-                'price.siteid' => $row['order.product.siteid'],
-            ]);
-
-            $entries[$id]['.parentproduct'] = $prodItems[$row['order.product.parentproductid']] ?? null;
-            $entries[$id]['.product'] = $prodItems[$row['order.product.productid']] ?? null;
+            $entries[$id]['.price'] = $manager->create(['price.currencyid' => $row['order.product.currencyid'], 'price.taxrates' => $row['order.product.taxrates'], 'price.value' => $row['order.product.price'], 'price.costs' => $row['order.product.costs'], 'price.rebate' => $row['order.product.rebate'], 'price.taxflag' => $row['order.product.taxflag'], 'price.taxvalue' => $row['order.product.taxvalue'], 'price.siteid' => $row['order.product.siteid']]);
+            $entries[$id]['.parentproduct'] = $prod_items[$row['order.product.parentproductid']] ?? null;
+            $entries[$id]['.product'] = $prod_items[$row['order.product.productid']] ?? null;
             $entries[$id]['.attributes'] = $attributes[$id] ?? map();
         }
-
         return $entries;
     }
-
     /**
      * Binds additional values to the statement before execution.
      *
@@ -466,21 +239,18 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $idx Current bind index
      * @return \Aimeos\Base\DB\Statement\Iface Database statement object with bound values
      */
-    protected function bind(\Aimeos\MShop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
+    protected function bind(\Aimeos\M_Shop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
     {
-        $price = $item->getPrice();
-
-        $stmt->bind($idx++, $price->getCurrencyId());
-        $stmt->bind($idx++, $price->getValue());
-        $stmt->bind($idx++, $price->getCosts());
-        $stmt->bind($idx++, $price->getRebate());
-        $stmt->bind($idx++, $price->getTaxValue());
-        $stmt->bind($idx++, json_encode($price->getTaxRates(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $price->getTaxFlag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
+        $price = $item->get_price();
+        $stmt->bind($idx++, $price->get_currency_id());
+        $stmt->bind($idx++, $price->get_value());
+        $stmt->bind($idx++, $price->get_costs());
+        $stmt->bind($idx++, $price->get_rebate());
+        $stmt->bind($idx++, $price->get_tax_value());
+        $stmt->bind($idx++, json_encode($price->get_tax_rates(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $price->get_tax_flag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         return $stmt;
     }
-
     /**
      * Fetches attribute items connected with order product item.
      *
@@ -488,14 +258,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @return \Aimeos\Map Associative list of order product IDs as keys and order product attribute items
      *  implementing \Aimeos\MShop\Order\Item\Product\Attribute\Iface as values
      */
-    protected function getAttributeItems(array $ids): \Aimeos\Map
+    protected function get_attribute_items(array $ids): \Aimeos\Map
     {
-        $manager = $this->getSubmanager('attribute');
+        $manager = $this->get_submanager('attribute');
         $search = $manager->filter()->add('order.product.attribute.parentid', '==', $ids)->slice(0, 0x7fffffff);
-
-        return $manager->search($search)->groupBy('order.product.attribute.parentid');
+        return $manager->search($search)->group_by('order.product.attribute.parentid');
     }
-
     /**
      * Fetches product items connected with order product item.
      *
@@ -503,28 +271,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @return \Aimeos\Map Associative list of order product IDs as keys and order product attribute items
      *  implementing \Aimeos\MShop\Order\Item\Product\Attribute\Iface as values
      */
-    protected function getProductItems(array $ids, array $ref): \Aimeos\Map
+    protected function get_product_items(array $ids, array $ref): \Aimeos\Map
     {
-        $manager = \Aimeos\MShop::create($this->context(), 'product');
+        $manager = \Aimeos\M_Shop::create($this->context(), 'product');
         $search = $manager->filter()->add('product.id', '==', array_unique($ids))->slice(0, 0x7fffffff);
-
         return $manager->search($search, $ref);
     }
-
     /**
      * Checks if the item is modified
      *
      * @param \Aimeos\MShop\Common\Item\Iface $item Item object
      * @return bool True if the item is modified, false if not
      */
-    protected function isModified(\Aimeos\MShop\Common\Item\Iface $item): bool
+    protected function is_modified(\Aimeos\M_Shop\Common\Item\Iface $item): bool
     {
-        if ($item->isModified()) {
+        if ($item->is_modified()) {
             return true;
         }
-        return (bool) $item->getPrice()->isModified();
+        return (bool) $item->get_price()->is_modified();
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -534,13 +299,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.product.';
     }
-
     /** mshop/order/manager/product/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/product/delete/ansi
      */
-
     /** mshop/order/manager/product/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -564,7 +327,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/search/ansi
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/submanagers
      * List of manager names that can be instantiated by the order base product manager
      *
@@ -581,7 +343,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/product/name
      * Class name of the used order base product manager implementation
      *
@@ -614,7 +375,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/product/decorators/excludes
      * Excludes decorators added by the "common" option from the order base product manager
      *
@@ -639,7 +399,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/decorators/global
      * @see mshop/order/manager/product/decorators/local
      */
-
     /** mshop/order/manager/product/decorators/global
      * Adds a list of globally available decorators only to the order base product manager
      *
@@ -664,7 +423,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/decorators/excludes
      * @see mshop/order/manager/product/decorators/local
      */
-
     /** mshop/order/manager/product/decorators/local
      * Adds a list of local decorators only to the order base product manager
      *
@@ -689,13 +447,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/decorators/excludes
      * @see mshop/order/manager/product/decorators/global
      */
-
     /** mshop/order/manager/product/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/product/insert/ansi
      */
-
     /** mshop/order/manager/product/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -724,13 +480,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/search/ansi
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/product/update/ansi
      */
-
     /** mshop/order/manager/product/update/ansi
      * Updates an existing order record in the database
      *
@@ -756,13 +510,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/search/ansi
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/product/newid/ansi
      */
-
     /** mshop/order/manager/product/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -792,13 +544,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/search/ansi
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/product/search/ansi
      */
-
     /** mshop/order/manager/product/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -847,13 +597,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/delete/ansi
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/product/count/ansi
      */
-
     /** mshop/order/manager/product/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

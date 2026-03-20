@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Stock
  */
-
-namespace Aimeos\MShop\Stock\Manager;
+namespace Aimeos\M_Shop\Stock\Manager;
 
 /**
  * Default stock manager implementation.
@@ -17,45 +15,20 @@ namespace Aimeos\MShop\Stock\Manager;
  * @package MShop
  * @subpackage Stock
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Stock\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Stock\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'stock.type' => [
-            'label' => 'Type',
-            'internalcode' => 'type',
-        ],
-        'stock.productid' => [
-            'label' => 'Product ID',
-            'internalcode' => 'prodid',
-        ],
-        'stock.stocklevel' => [
-            'label' => 'Stock level',
-            'internalcode' => 'stocklevel',
-            'type' => 'float',
-        ],
-        'stock.dateback' => [
-            'label' => 'Back in stock date/time',
-            'internalcode' => 'backdate',
-            'type' => 'datetime',
-        ],
-        'stock.timeframe' => [
-            'label' => 'Delivery time frame',
-            'internalcode' => 'timeframe',
-        ],
-    ];
-
+    private array $search_config = ['stock.type' => ['label' => 'Type', 'internalcode' => 'type'], 'stock.productid' => ['label' => 'Product ID', 'internalcode' => 'prodid'], 'stock.stocklevel' => ['label' => 'Stock level', 'internalcode' => 'stocklevel', 'type' => 'float'], 'stock.dateback' => ['label' => 'Back in stock date/time', 'internalcode' => 'backdate', 'type' => 'datetime'], 'stock.timeframe' => ['label' => 'Delivery time frame', 'internalcode' => 'timeframe']];
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Stock\Item\Iface New stock item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['stock.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Stock\Item\Standard('stock.', $values);
+        $values['stock.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Stock\Item\Standard('stock.', $values);
     }
-
     /**
      * Decreases the stock level for the given product codes/quantity pairs and type
      *
@@ -63,27 +36,22 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string $type Unique code of the stock type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface
+    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface
     {
         $context = $this->context();
         $translations = ['stock.siteid' => '"siteid"'];
         $types = ['stock.siteid' => \Aimeos\Base\Criteria\SQL::type('string')];
-
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $context->config()->get('mshop/stock/manager/sitemode', $level);
-
         $search = $this->object()->filter();
-        $search->setConditions($this->siteCondition('stock.siteid', $level));
-        $conditions = $search->getConditionSource($types, $translations);
-
-        $conn = $context->db($this->getResourceName());
-
+        $search->set_conditions($this->site_condition('stock.siteid', $level));
+        $conditions = $search->get_condition_source($types, $translations);
+        $conn = $context->db($this->get_resource_name());
         /** mshop/stock/manager/stocklevel/mysql
          * Increases or decreases the stock level for the given product and type code
          *
          * @see mshop/stock/manager/stocklevel/ansi
          */
-
         /** mshop/stock/manager/stocklevel/ansi
          * Increases or decreases the stock level for the given product and type code
          *
@@ -112,32 +80,27 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/stock/manager/count/ansi
          */
         $path = 'mshop/stock/manager/stocklevel';
-
         foreach ($pairs as $prodid => $qty) {
-            $stmt = $conn->create(str_replace(':cond', $conditions, $this->getSqlConfig($path)));
-
+            $stmt = $conn->create(str_replace(':cond', $conditions, $this->get_sql_config($path)));
             $stmt->bind(1, $qty, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-            $stmt->bind(2, $context->datetime()); //mtime
+            $stmt->bind(2, $context->datetime());
+            //mtime
             $stmt->bind(3, $context->editor());
             $stmt->bind(4, $prodid);
             $stmt->bind(5, $type);
-
             $stmt->execute()->finish();
         }
-
         return $this;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Increases the stock level for the given product codes/quantity pairs and type
      *
@@ -145,15 +108,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string $type Unique code of the type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface
+    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface
     {
         foreach ($pairs as $prodid => $qty) {
             $pairs[$prodid] = -$qty;
         }
-
         return $this->object()->decrease($pairs, $type);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -163,7 +124,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'stock.';
     }
-
     /** mshop/stock/manager/name
      * Class name of the used stock manager implementation
      *
@@ -196,7 +156,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2020.10
      */
-
     /** mshop/stock/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the stock manager
      *
@@ -221,7 +180,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/decorators/global
      * @see mshop/stock/manager/decorators/local
      */
-
     /** mshop/stock/manager/decorators/global
      * Adds a list of globally available decorators only to the stock manager
      *
@@ -245,7 +203,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/decorators/excludes
      * @see mshop/stock/manager/decorators/local
      */
-
     /** mshop/stock/manager/decorators/local
      * Adds a list of local decorators only to the stock manager
      *
@@ -269,7 +226,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/decorators/excludes
      * @see mshop/stock/manager/decorators/global
      */
-
     /** mshop/stock/manager/resource
      * Name of the database connection resource to use
      *
@@ -281,13 +237,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/stock/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/stock/manager/delete/ansi
      */
-
     /** mshop/stock/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -311,7 +265,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/search/ansi
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/submanagers
      * List of manager names that can be instantiated by the stock manager
      *
@@ -328,13 +281,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2020.10
      */
-
     /** mshop/stock/manager/insert/mysql
      * Inserts a new stock record into the database table
      *
      * @see mshop/stock/manager/insert/ansi
      */
-
     /** mshop/stock/manager/insert/ansi
      * Inserts a new stock record into the database table
      *
@@ -363,13 +314,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/search/ansi
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/update/mysql
      * Updates an existing stock record in the database
      *
      * @see mshop/stock/manager/update/ansi
      */
-
     /** mshop/stock/manager/update/ansi
      * Updates an existing stock record in the database
      *
@@ -395,13 +344,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/search/ansi
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/stock/manager/newid/ansi
      */
-
     /** mshop/stock/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -431,7 +378,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/search/ansi
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -460,13 +406,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/stock/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/stock/manager/search/ansi
      */
-
     /** mshop/stock/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -513,13 +457,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/stock/manager/delete/ansi
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/stock/manager/count/ansi
      */
-
     /** mshop/stock/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

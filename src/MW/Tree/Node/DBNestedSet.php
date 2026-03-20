@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,7 +8,6 @@ declare(strict_types=1);
  * @package MW
  * @subpackage Tree
  */
-
 namespace Aimeos\MW\Tree\Node;
 
 /**
@@ -20,19 +18,18 @@ namespace Aimeos\MW\Tree\Node;
  * @property integer $left Left number of the nested set item
  * @property integer $right Right number of the nested set item
  */
-class DBNestedSet extends Standard
+class Db_Nested_Set extends Standard
 {
     /**
      * Tests if a node has children.
      *
      * @return bool True if node has children, false if not
      */
-    public function hasChildren(): bool
+    public function has_children(): bool
     {
         if (isset($this->right) && isset($this->left) && $this->right > $this->left + 1) {
             return true;
         }
-
         return false;
     }
 }

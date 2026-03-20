@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2025-2026
  * @package MShop
  * @subpackage Type
  */
-
-namespace Aimeos\MShop\Type\Manager;
+namespace Aimeos\M_Shop\Type\Manager;
 
 /**
  * Default type manager implementation.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Type\Manager;
  * @package MShop
  * @subpackage Type
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Type\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Type\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Creates a new empty item instance
@@ -25,18 +23,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Type\Item\Iface New type item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $prefix = $this->prefix();
         $locale = $this->context()->locale();
-
-        $values['.language'] = $locale->getLanguageId();
+        $values['.language'] = $locale->get_language_id();
         $values[$prefix . 'domain'] ??= $this->for();
-        $values[$prefix . 'siteid'] ??= $locale->getSiteId();
-
-        return new \Aimeos\MShop\Type\Item\Standard($prefix, $values);
+        $values[$prefix . 'siteid'] ??= $locale->get_site_id();
+        return new \Aimeos\M_Shop\Type\Item\Standard($prefix, $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -47,15 +42,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
         $prefix = $this->prefix();
-        $filter = $this->filterBase(substr($prefix, 0, -1), $default);
-
+        $filter = $this->filter_base(substr($prefix, 0, -1), $default);
         if ($prefix !== 'type.') {
             $filter->add($prefix . 'domain', '==', $this->for());
         }
-
         return $filter;
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -66,63 +58,22 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
         $prefix = $this->prefix();
-
-        return $this->findBase([
-            $prefix . 'domain' => $domain ?? $this->for(),
-            $prefix . 'code' => $code,
-        ], $ref, $default);
+        return $this->find_base([$prefix . 'domain' => $domain ?? $this->for(), $prefix . 'code' => $code], $ref, $default);
     }
-
     /**
      * Returns the attributes that can be used for saving.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSaveAttributes(bool $withsub = true): array
+    public function get_save_attributes(bool $withsub = true): array
     {
         $prefix = $this->prefix();
-
-        return $this->createAttributes([
-            $prefix . 'label' => [
-                'internalcode' => 'label',
-                'label' => 'Type label',
-            ],
-            $prefix . 'code' => [
-                'internalcode' => 'code',
-                'label' => 'Type code',
-            ],
-            $prefix . 'domain' => [
-                'internalcode' => 'domain',
-                'label' => 'Type domain',
-            ],
-            $prefix . 'position' => [
-                'internalcode' => 'pos',
-                'label' => 'Type position',
-                'type' => 'int',
-            ],
-            $prefix . 'status' => [
-                'internalcode' => 'status',
-                'label' => 'Type status',
-                'type' => 'int',
-            ],
-            $prefix . 'i18n' => [
-                'internalcode' => 'i18n',
-                'label' => 'Type localization',
-                'type' => 'json',
-                'public' => false,
-            ],
-        ]);
+        return $this->create_attributes([$prefix . 'label' => ['internalcode' => 'label', 'label' => 'Type label'], $prefix . 'code' => ['internalcode' => 'code', 'label' => 'Type code'], $prefix . 'domain' => ['internalcode' => 'domain', 'label' => 'Type domain'], $prefix . 'position' => ['internalcode' => 'pos', 'label' => 'Type position', 'type' => 'int'], $prefix . 'status' => ['internalcode' => 'status', 'label' => 'Type status', 'type' => 'int'], $prefix . 'i18n' => ['internalcode' => 'i18n', 'label' => 'Type localization', 'type' => 'json', 'public' => false]]);
     }
-
     /**
      * Returns the domain and sub-domains the items are for.
      *
@@ -132,7 +83,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return join('/', array_slice($this->type(), 0, -1)) ?: 'type';
     }
-
     /**
      * Returns the prefix used for the item keys.
      *
@@ -142,7 +92,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return join('.', $this->type()) . '.';
     }
-
     /**
      * Returns the name of the used table
      *
@@ -152,7 +101,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'mshop_type';
     }
-
     /** mshop/type/manager/name
      * Class name of the used type manager implementation
      *
@@ -185,7 +133,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2025.01
      */
-
     /** mshop/type/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the type manager
      *
@@ -210,7 +157,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/decorators/global
      * @see mshop/type/manager/decorators/local
      */
-
     /** mshop/type/manager/decorators/global
      * Adds a list of globally available decorators only to the type manager
      *
@@ -234,7 +180,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/decorators/excludes
      * @see mshop/type/manager/decorators/local
      */
-
     /** mshop/type/manager/decorators/local
      * Adds a list of local decorators only to the type manager
      *
@@ -258,7 +203,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/decorators/excludes
      * @see mshop/type/manager/decorators/global
      */
-
     /** mshop/type/manager/resource
      * Name of the database connection resource to use
      *
@@ -270,13 +214,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/type/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/type/manager/delete/ansi
      */
-
     /** mshop/type/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -300,7 +242,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/search/ansi
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/submanagers
      * List of manager names that can be instantiated by the type manager
      *
@@ -317,13 +258,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2025.01
      */
-
     /** mshop/type/manager/insert/mysql
      * Inserts a new type record into the database table
      *
      * @see mshop/type/manager/insert/ansi
      */
-
     /** mshop/type/manager/insert/ansi
      * Inserts a new type record into the database table
      *
@@ -352,13 +291,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/search/ansi
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/update/mysql
      * Updates an existing type record in the database
      *
      * @see mshop/type/manager/update/ansi
      */
-
     /** mshop/type/manager/update/ansi
      * Updates an existing type record in the database
      *
@@ -384,13 +321,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/search/ansi
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/type/manager/newid/ansi
      */
-
     /** mshop/type/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -420,7 +355,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/search/ansi
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -449,13 +383,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/type/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/type/manager/search/ansi
      */
-
     /** mshop/type/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -502,13 +434,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/type/manager/delete/ansi
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/type/manager/count/ansi
      */
-
     /** mshop/type/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

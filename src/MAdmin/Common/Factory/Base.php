@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Common
  */
-
-namespace Aimeos\MAdmin\Common\Factory;
+namespace Aimeos\M_Admin\Common\Factory;
 
 /**
  * Common methods for all factories.
@@ -18,7 +16,7 @@ namespace Aimeos\MAdmin\Common\Factory;
  * @package MShop
  * @subpackage Common
  */
-abstract class Base extends \Aimeos\MShop\Common\Factory\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Factory\Base
 {
     /**
      * Adds the decorators to the manager object.
@@ -28,13 +26,9 @@ abstract class Base extends \Aimeos\MShop\Common\Factory\Base
      * @param string $domain Domain name in lower case, e.g. "product"
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected static function addManagerDecorators(
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Common\Manager\Iface $manager,
-        string $domain
-    ): \Aimeos\MShop\Common\Manager\Iface {
+    protected static function add_manager_decorators(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Common\Manager\Iface $manager, string $domain): \Aimeos\M_Shop\Common\Manager\Iface
+    {
         $config = $context->config();
-
         /** madmin/common/manager/decorators/default
          * Configures the list of decorators applied to all admin managers
          *
@@ -58,23 +52,18 @@ abstract class Base extends \Aimeos\MShop\Common\Factory\Base
          */
         $decorators = $config->get('madmin/common/manager/decorators/default', []);
         $excludes = $config->get('madmin/' . $domain . '/manager/decorators/excludes', []);
-
         foreach ($decorators as $key => $name) {
             if (in_array($name, $excludes)) {
                 unset($decorators[$key]);
             }
         }
-
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
-        $manager = self::addDecorators($context, $manager, $decorators, $classprefix);
-
+        $manager = self::add_decorators($context, $manager, $decorators, $classprefix);
         $classprefix = '\Aimeos\MShop\Common\Manager\Decorator\\';
         $decorators = $config->get('madmin/' . $domain . '/manager/decorators/global', []);
-        $manager = self::addDecorators($context, $manager, $decorators, $classprefix);
-
+        $manager = self::add_decorators($context, $manager, $decorators, $classprefix);
         $classprefix = '\Aimeos\MShop\\' . ucfirst($domain) . '\Manager\Decorator\\';
         $decorators = $config->get('madmin/' . $domain . '/manager/decorators/local', []);
-
-        return self::addDecorators($context, $manager, $decorators, $classprefix);
+        return self::add_decorators($context, $manager, $decorators, $classprefix);
     }
 }

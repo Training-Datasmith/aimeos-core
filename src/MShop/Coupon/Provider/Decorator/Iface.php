@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Coupon
  */
-
-namespace Aimeos\MShop\Coupon\Provider\Decorator;
+namespace Aimeos\M_Shop\Coupon\Provider\Decorator;
 
 /**
  * Coupon decorator interface.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Coupon\Provider\Decorator;
  * @package MShop
  * @subpackage Coupon
  */
-interface Iface extends \Aimeos\MShop\Coupon\Provider\Iface
+interface Iface extends \Aimeos\M_Shop\Coupon\Provider\Iface
 {
     /**
      * Initializes the coupon provider.
@@ -28,10 +26,5 @@ interface Iface extends \Aimeos\MShop\Coupon\Provider\Iface
      * @param \Aimeos\MShop\Coupon\Item\Iface $item Coupon item to set
      * @param string $code Coupon code entered by the customer
      */
-    public function __construct(
-        \Aimeos\MShop\Coupon\Provider\Iface $provider,
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Coupon\Item\Iface $item,
-        string $code
-    );
+    public function __construct(\Aimeos\M_Shop\Coupon\Provider\Iface $provider, \Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Coupon\Item\Iface $item, string $code);
 }

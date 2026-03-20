@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Attribute
  */
-
-namespace Aimeos\MShop\Attribute\Manager;
+namespace Aimeos\M_Shop\Attribute\Manager;
 
 /**
  * Default attribute manager for creating and handling attributes.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Attribute\Manager;
  * @package MShop
  * @subpackage Attribute
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Attribute\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Attribute\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Creates a new empty item instance
@@ -25,12 +23,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Attribute\Item\Iface New attribute item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['attribute.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Attribute\Item\Standard('attribute.', $values);
+        $values['attribute.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Attribute\Item\Standard('attribute.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -40,9 +37,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('attribute', $default);
+        return $this->filter_base('attribute', $default);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -53,63 +49,20 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Attribute\Item\Iface Attribute item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        $find = [
-            'attribute.code' => $code,
-            'attribute.domain' => $domain,
-            'attribute.type' => $type,
-        ];
-        return $this->findBase($find, $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        $find = ['attribute.code' => $code, 'attribute.domain' => $domain, 'attribute.type' => $type];
+        return $this->find_base($find, $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'attribute.key' => [
-                'label' => 'Unique key',
-                'internalcode' => 'key',
-                'public' => false,
-            ],
-            'attribute.type' => [
-                'label' => 'Type',
-                'internalcode' => 'type',
-            ],
-            'attribute.label' => [
-                'label' => 'Label',
-                'internalcode' => 'label',
-            ],
-            'attribute.code' => [
-                'label' => 'Code',
-                'internalcode' => 'code',
-            ],
-            'attribute.domain' => [
-                'label' => 'Domain',
-                'internalcode' => 'domain',
-            ],
-            'attribute.position' => [
-                'label' => 'Position',
-                'internalcode' => 'pos',
-                'type' => 'int',
-            ],
-            'attribute.status' => [
-                'label' => 'Status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-        ]);
+        return $this->create_attributes(['attribute.key' => ['label' => 'Unique key', 'internalcode' => 'key', 'public' => false], 'attribute.type' => ['label' => 'Type', 'internalcode' => 'type'], 'attribute.label' => ['label' => 'Label', 'internalcode' => 'label'], 'attribute.code' => ['label' => 'Code', 'internalcode' => 'code'], 'attribute.domain' => ['label' => 'Domain', 'internalcode' => 'domain'], 'attribute.position' => ['label' => 'Position', 'internalcode' => 'pos', 'type' => 'int'], 'attribute.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int']]);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -119,7 +72,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'attribute.';
     }
-
     /** mshop/attribute/manager/resource
      * Name of the database connection resource to use
      *
@@ -131,7 +83,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/attribute/manager/submanagers
      * List of manager names that can be instantiated by the attribute manager
      *
@@ -148,7 +99,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/attribute/manager/name
      * Class name of the used attribute manager implementation
      *
@@ -181,7 +131,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/attribute/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the attribute manager
      *
@@ -206,7 +155,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/decorators/global
      * @see mshop/attribute/manager/decorators/local
      */
-
     /** mshop/attribute/manager/decorators/global
      * Adds a list of globally available decorators only to the attribute manager
      *
@@ -229,7 +177,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/decorators/excludes
      * @see mshop/attribute/manager/decorators/local
      */
-
     /** mshop/attribute/manager/decorators/local
      * Adds a list of local decorators only to the attribute manager
      *
@@ -253,13 +200,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/decorators/excludes
      * @see mshop/attribute/manager/decorators/global
      */
-
     /** mshop/attribute/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/attribute/manager/delete/ansi
      */
-
     /** mshop/attribute/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -283,13 +228,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/search/ansi
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/insert/mysql
      * Inserts a new attribute record into the database table
      *
      * @see mshop/attribute/manager/insert/ansi
      */
-
     /** mshop/attribute/manager/insert/ansi
      * Inserts a new attribute record into the database table
      *
@@ -318,13 +261,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/search/ansi
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/update/mysql
      * Updates an existing attribute record in the database
      *
      * @see mshop/attribute/manager/update/ansi
      */
-
     /** mshop/attribute/manager/update/ansi
      * Updates an existing attribute record in the database
      *
@@ -350,13 +291,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/search/ansi
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/attribute/manager/newid/ansi
      */
-
     /** mshop/attribute/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -386,7 +325,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/search/ansi
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -415,13 +353,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/attribute/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/attribute/manager/search/ansi
      */
-
     /** mshop/attribute/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -470,13 +406,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/delete/ansi
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/attribute/manager/count/ansi
      */
-
     /** mshop/attribute/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *
@@ -520,5 +454,5 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/attribute/manager/newid/ansi
      * @see mshop/attribute/manager/delete/ansi
      * @see mshop/attribute/manager/search/ansi
- */
+     */
 }

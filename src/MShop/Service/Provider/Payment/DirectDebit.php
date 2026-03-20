@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2013
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Payment;
+namespace Aimeos\M_Shop\Service\Provider\Payment;
 
 /**
  * Payment provider for direct debit orders.
@@ -18,39 +16,9 @@ namespace Aimeos\MShop\Service\Provider\Payment;
  * @package MShop
  * @subpackage Service
  */
-class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements \Aimeos\MShop\Service\Provider\Payment\Iface
+class Direct_Debit extends \Aimeos\M_Shop\Service\Provider\Payment\Base implements \Aimeos\M_Shop\Service\Provider\Payment\Iface
 {
-    private array $feConfig = [
-        'directdebit.accountowner' => [
-            'code' => 'directdebit.accountowner',
-            'internalcode' => 'accountowner',
-            'label' => 'Account owner',
-            'default' => '',
-            'required' => true,
-        ],
-        'directdebit.accountno' => [
-            'code' => 'directdebit.accountno',
-            'internalcode' => 'accountno',
-            'label' => 'Account number',
-            'default' => '',
-            'required' => true,
-        ],
-        'directdebit.bankcode' => [
-            'code' => 'directdebit.bankcode',
-            'internalcode' => 'bankcode',
-            'label' => 'Bank code',
-            'default' => '',
-            'required' => true,
-        ],
-        'directdebit.bankname' => [
-            'code' => 'directdebit.bankname',
-            'internalcode' => 'bankname',
-            'label' => 'Bank name',
-            'default' => '',
-            'required' => true,
-        ],
-    ];
-
+    private array $fe_config = ['directdebit.accountowner' => ['code' => 'directdebit.accountowner', 'internalcode' => 'accountowner', 'label' => 'Account owner', 'default' => '', 'required' => true], 'directdebit.accountno' => ['code' => 'directdebit.accountno', 'internalcode' => 'accountno', 'label' => 'Account number', 'default' => '', 'required' => true], 'directdebit.bankcode' => ['code' => 'directdebit.bankcode', 'internalcode' => 'bankcode', 'label' => 'Bank code', 'default' => '', 'required' => true], 'directdebit.bankname' => ['code' => 'directdebit.bankname', 'internalcode' => 'bankname', 'label' => 'Bank name', 'default' => '', 'required' => true]];
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the frontend.
@@ -58,23 +26,19 @@ class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigFE(\Aimeos\MShop\Order\Item\Iface $basket): array
+    public function get_config_fe(\Aimeos\M_Shop\Order\Item\Iface $basket): array
     {
-        $feconfig = $this->feConfig;
-
+        $feconfig = $this->fe_config;
         try {
-            $address = $basket->getAddress(\Aimeos\MShop\Order\Item\Address\Base::TYPE_PAYMENT, 0);
-
-            if (($fn = $address->getFirstname()) !== '' && ($ln = $address->getLastname()) !== '') {
+            $address = $basket->get_address(\Aimeos\M_Shop\Order\Item\Address\Base::TYPE_PAYMENT, 0);
+            if (($fn = $address->get_firstname()) !== '' && ($ln = $address->get_lastname()) !== '') {
                 $feconfig['directdebit.accountowner']['default'] = $fn . ' ' . $ln;
             }
-        } catch (\Aimeos\MShop\Order\Exception) {
-            ;
-        } // If address isn't available
-
-        return $this->getConfigItems($feconfig);
+        } catch (\Aimeos\M_Shop\Order\Exception) {
+        }
+        // If address isn't available
+        return $this->get_config_items($feconfig);
     }
-
     /**
      * Checks the frontend configuration attributes for validity.
      *
@@ -82,11 +46,10 @@ class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid resp. null for attributes whose values are OK
      */
-    public function checkConfigFE(array $attributes): array
+    public function check_config_fe(array $attributes): array
     {
-        return $this->checkConfig($this->feConfig, $attributes);
+        return $this->check_config($this->fe_config, $attributes);
     }
-
     /**
      * Sets the payment attributes in the given service.
      *
@@ -94,28 +57,21 @@ class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements
      * @param array $attributes Attribute key/value pairs entered by the customer during the checkout process
      * @return \Aimeos\MShop\Order\Item\Service\Iface Order service item with attributes added
      */
-    public function setConfigFE(
-        \Aimeos\MShop\Order\Item\Service\Iface $orderServiceItem,
-        array $attributes
-    ): \Aimeos\MShop\Order\Item\Service\Iface {
-        $orderServiceItem->addAttributeItems($this->attributes($attributes));
-
-        if (($attrItem = $orderServiceItem->getAttributeItem('directdebit.accountno')) !== null) {
-            $attrList = [$attrItem->getCode() => $attrItem->getValue()];
-            $orderServiceItem->addAttributeItems($this->attributes($attrList, 'hidden'));
-
-            if (is_string($value = $attrItem->getValue())) {
+    public function set_config_fe(\Aimeos\M_Shop\Order\Item\Service\Iface $order_service_item, array $attributes): \Aimeos\M_Shop\Order\Item\Service\Iface
+    {
+        $order_service_item->add_attribute_items($this->attributes($attributes));
+        if (($attr_item = $order_service_item->get_attribute_item('directdebit.accountno')) !== null) {
+            $attr_list = [$attr_item->get_code() => $attr_item->get_value()];
+            $order_service_item->add_attribute_items($this->attributes($attr_list, 'hidden'));
+            if (is_string($value = $attr_item->get_value())) {
                 $len = strlen($value);
-                $xstr = ($len > 3 ? str_repeat('X', $len - 3) : '');
-
-                $attrItem->setValue($xstr . substr($value, -3));
-                $orderServiceItem->setAttributeItem($attrItem);
+                $xstr = $len > 3 ? str_repeat('X', $len - 3) : '';
+                $attr_item->set_value($xstr . substr($value, -3));
+                $order_service_item->set_attribute_item($attr_item);
             }
         }
-
-        return $orderServiceItem;
+        return $order_service_item;
     }
-
     /**
      * Executes the payment again for the given order if supported.
      * This requires support of the payment gateway and token based payment
@@ -123,11 +79,10 @@ class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item
      */
-    public function repay(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface
+    public function repay(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
     {
-        return $order->setStatusPayment(\Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED);
+        return $order->set_status_payment(\Aimeos\M_Shop\Order\Item\Base::PAY_AUTHORIZED);
     }
-
     /**
      * Updates the orders for whose status updates have been received by the confirmation page
      *
@@ -136,14 +91,11 @@ class DirectDebit extends \Aimeos\MShop\Service\Provider\Payment\Base implements
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item
      * @throws \Aimeos\MShop\Service\Exception If updating the orders failed
      */
-    public function updateSync(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Aimeos\MShop\Order\Item\Iface $order
-    ): \Aimeos\MShop\Order\Item\Iface {
-        if ($order->getStatusPayment() < 0) {
-            $order->setStatusPayment(\Aimeos\MShop\Order\Item\Base::PAY_AUTHORIZED);
+    public function update_sync(\Psr\Http\Message\Server_Request_Interface $request, \Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface
+    {
+        if ($order->get_status_payment() < 0) {
+            $order->set_status_payment(\Aimeos\M_Shop\Order\Item\Base::PAY_AUTHORIZED);
         }
-
         return $order;
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Decorator;
+namespace Aimeos\M_Shop\Common\Manager\Decorator;
 
 /**
  * Provides a decorator for lazy loading
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Common\Manager\Decorator;
  * @package MShop
  * @subpackage Common
  */
-class Lazy extends \Aimeos\MShop\Common\Manager\Decorator\Base
+class Lazy extends \Aimeos\M_Shop\Common\Manager\Decorator\Base
 {
     /**
      * Searches for all items matching the given critera.
@@ -31,12 +29,10 @@ class Lazy extends \Aimeos\MShop\Common\Manager\Decorator\Base
     {
         if ($total === null) {
             $search = clone $search;
-
             return map(function () use ($search, $ref, &$total) {
-                return $this->getManager()->search($search, $ref, $total)->all();
+                return $this->get_manager()->search($search, $ref, $total)->all();
             });
         }
-
-        return $this->getManager()->search($search, $ref, $total);
+        return $this->get_manager()->search($search, $ref, $total);
     }
 }

@@ -1,25 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Media
  */
+namespace Aimeos\M_Shop\Media\Manager;
 
-namespace Aimeos\MShop\Media\Manager;
-
-use Psr\Http\Message\UploadedFileInterface;
-
+use Psr\Http\Message\Uploaded_File_Interface;
 /**
  * Generic interface for media managers.
  *
  * @package MShop
  * @subpackage Media
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
     /**
      * Copies the media item and the referenced files
@@ -27,8 +24,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @param \Aimeos\MShop\Media\Item\Iface $item Media item whose files should be copied
      * @return \Aimeos\MShop\Media\Item\Iface Copied media item with new files
      */
-    public function copy(\Aimeos\MShop\Media\Item\Iface $item): \Aimeos\MShop\Media\Item\Iface;
-
+    public function copy(\Aimeos\M_Shop\Media\Item\Iface $item): \Aimeos\M_Shop\Media\Item\Iface;
     /**
      * Rescales the original file to preview files referenced by the media item
      *
@@ -41,8 +37,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @param bool $force True to enforce creating new preview images
      * @return \Aimeos\MShop\Media\Item\Iface Rescaled media item
      */
-    public function scale(\Aimeos\MShop\Media\Item\Iface $item, bool $force = false): \Aimeos\MShop\Media\Item\Iface;
-
+    public function scale(\Aimeos\M_Shop\Media\Item\Iface $item, bool $force = false): \Aimeos\M_Shop\Media\Item\Iface;
     /**
      * Stores the uploaded file and returns the updated item
      *
@@ -51,5 +46,5 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @param \Psr\Http\Message\UploadedFileInterface|null $preview Uploaded preview image
      * @return \Aimeos\MShop\Media\Item\Iface Updated media item including file and preview paths
      */
-    public function upload(\Aimeos\MShop\Media\Item\Iface $item, UploadedFileInterface $file, ?UploadedFileInterface $preview = null): \Aimeos\MShop\Media\Item\Iface;
+    public function upload(\Aimeos\M_Shop\Media\Item\Iface $item, Uploaded_File_Interface $file, ?Uploaded_File_Interface $preview = null): \Aimeos\M_Shop\Media\Item\Iface;
 }

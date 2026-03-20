@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2014-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\Property;
+namespace Aimeos\M_Shop\Common\Item\Property;
 
 /**
  * Default property item implementation.
@@ -17,13 +15,11 @@ namespace Aimeos\MShop\Common\Item\Property;
  * @package MShop
  * @subpackage Common
  */
-class Standard extends \Aimeos\MShop\Common\Item\Base implements \Aimeos\MShop\Common\Item\Property\Iface
+class Standard extends \Aimeos\M_Shop\Common\Item\Base implements \Aimeos\M_Shop\Common\Item\Property\Iface
 {
-    use \Aimeos\MShop\Common\Item\TypeRef\Traits;
-
+    use \Aimeos\M_Shop\Common\Item\Type_Ref\Traits;
     private ?string $langid;
     private string $prefix;
-
     /**
      * Initializes the property item object with the given values
      *
@@ -33,96 +29,84 @@ class Standard extends \Aimeos\MShop\Common\Item\Base implements \Aimeos\MShop\C
     public function __construct(string $prefix, array $values = [])
     {
         parent::__construct($prefix, $values, str_replace('.', '/', rtrim($prefix, '.')));
-
         $this->langid = $values['.languageid'] ?? null;
         $this->prefix = $prefix;
     }
-
     /**
      * Returns the unique key of the property item
      *
      * @return string Unique key consisting of type/language/value
      */
-    public function getKey(): string
+    public function get_key(): string
     {
-        return substr($this->getType() . '|' . ($this->getLanguageId() ?: 'null') . '|' . $this->getValue(), 0, 255);
+        return substr($this->get_type() . '|' . ($this->get_language_id() ?: 'null') . '|' . $this->get_value(), 0, 255);
     }
-
     /**
      * Returns the language ID of the property item.
      *
      * @return string|null Language ID of the property item
      */
-    public function getLanguageId(): ?string
+    public function get_language_id(): ?string
     {
         return $this->get($this->prefix . 'languageid');
     }
-
     /**
      *  Sets the language ID of the property item.
      *
      * @param string|null $id Language ID of the property item
      * @return \Aimeos\MShop\Common\Item\Property\Iface Common property item for chaining method calls
      */
-    public function setLanguageId(?string $id): \Aimeos\MShop\Common\Item\Property\Iface
+    public function set_language_id(?string $id): \Aimeos\M_Shop\Common\Item\Property\Iface
     {
         return $this->set($this->prefix . 'languageid', \Aimeos\Utils::language($id));
     }
-
     /**
      * Returns the parent id of the property item
      *
      * @return string|null Parent ID of the property item
      */
-    public function getParentId(): ?string
+    public function get_parent_id(): ?string
     {
         return $this->get($this->prefix . 'parentid');
     }
-
     /**
      * Sets the new parent ID of the property item
      *
      * @param string|null $id Parent ID of the property item
      * @return \Aimeos\MShop\Common\Item\Property\Iface Common property item for chaining method calls
      */
-    public function setParentId(?string $id): \Aimeos\MShop\Common\Item\Iface
+    public function set_parent_id(?string $id): \Aimeos\M_Shop\Common\Item\Iface
     {
         return $this->set($this->prefix . 'parentid', $id);
     }
-
     /**
      * Returns the value of the property item.
      *
      * @return string Value of the property item
      */
-    public function getValue(): string
+    public function get_value(): string
     {
         return $this->get($this->prefix . 'value', '');
     }
-
     /**
      * Sets the new value of the property item.
      *
      * @param string $value Value of the property item
      * @return \Aimeos\MShop\Common\Item\Property\Iface Common property item for chaining method calls
      */
-    public function setValue(?string $value): \Aimeos\MShop\Common\Item\Property\Iface
+    public function set_value(?string $value): \Aimeos\M_Shop\Common\Item\Property\Iface
     {
         return $this->set($this->prefix . 'value', (string) $value);
     }
-
     /**
      * Tests if the item is available based on status, time, language and currency
      *
      * @return bool True if available, false if not
      */
-    public function isAvailable(): bool
+    public function is_available(): bool
     {
-        return parent::isAvailable() && ($this->langid === null
-            || $this->getLanguageId() === $this->langid
-            || $this->getLanguageId() === null);
+        return parent::is_available() && ($this->langid === null || $this->get_language_id() === $this->langid || $this->get_language_id() === null);
     }
-
     /*
      * Sets the item values from the given array and removes that entries from the list
      *
@@ -130,49 +114,46 @@ class Standard extends \Aimeos\MShop\Common\Item\Base implements \Aimeos\MShop\C
      * @param bool True to set private properties too, false for public only
      * @return \Aimeos\MShop\Common\Item\Property\Iface Property item for chaining method calls
      */
-    public function fromArray(array &$list, bool $private = false): \Aimeos\MShop\Common\Item\Iface
+    public function from_array(array &$list, bool $private = false): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $item = parent::fromArray($list, $private);
-
+        $item = parent::from_array($list, $private);
         foreach ($list as $key => $value) {
             switch ($key) {
-                case $this->prefix . 'parentid': !$private ?: $item->setParentId($value);
+                case $this->prefix . 'parentid':
+                    !$private ?: $item->set_parent_id($value);
                     break;
-                case $this->prefix . 'languageid': $item->setLanguageId($value);
+                case $this->prefix . 'languageid':
+                    $item->set_language_id($value);
                     break;
-                case $this->prefix . 'value': $item->setValue($value);
+                case $this->prefix . 'value':
+                    $item->set_value($value);
                     break;
-                case $this->prefix . 'type': $item->setType($value);
+                case $this->prefix . 'type':
+                    $item->set_type($value);
                     break;
-                default: continue 2;
+                default:
+                    continue 2;
             }
-
             unset($list[$key]);
         }
-
         return $item;
     }
-
     /**
      * Returns the item values as array.
      *
      * @param bool True to return private properties, false for public only
      * @return array Associative list of item properties and their values
      */
-    public function toArray(bool $private = false): array
+    public function to_array(bool $private = false): array
     {
-        $list = parent::toArray($private);
-
-        $list[$this->prefix . 'languageid'] = $this->getLanguageId();
-        $list[$this->prefix . 'value'] = $this->getValue();
-        $list[$this->prefix . 'type'] = $this->getType();
-
+        $list = parent::to_array($private);
+        $list[$this->prefix . 'languageid'] = $this->get_language_id();
+        $list[$this->prefix . 'value'] = $this->get_value();
+        $list[$this->prefix . 'type'] = $this->get_type();
         if ($private === true) {
-            $list[$this->prefix . 'key'] = $this->getKey();
-            $list[$this->prefix . 'parentid'] = $this->getParentId();
+            $list[$this->prefix . 'key'] = $this->get_key();
+            $list[$this->prefix . 'parentid'] = $this->get_parent_id();
         }
-
         return $list;
     }
-
 }

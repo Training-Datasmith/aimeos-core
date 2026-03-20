@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Subscription
  */
-
-namespace Aimeos\MShop\Subscription\Manager;
+namespace Aimeos\M_Shop\Subscription\Manager;
 
 /**
  * Default subscription manager implementation
@@ -17,65 +15,17 @@ namespace Aimeos\MShop\Subscription\Manager;
  * @package MShop
  * @subpackage Subscription
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Subscription\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Subscription\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'subscription.orderid' => [
-            'label' => 'Order ID',
-            'internalcode' => 'orderid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'subscription.ordprodid' => [
-            'label' => 'Order product ID',
-            'internalcode' => 'ordprodid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'subscription.datenext' => [
-            'label' => 'Next renewal date/time',
-            'internalcode' => 'next',
-            'type' => 'datetime',
-        ],
-        'subscription.dateend' => [
-            'label' => 'End of subscription',
-            'internalcode' => 'end',
-            'type' => 'datetime',
-        ],
-        'subscription.interval' => [
-            'label' => 'Renewal interval',
-            'internalcode' => 'interval',
-        ],
-        'subscription.reason' => [
-            'label' => 'Subscription end reason',
-            'internalcode' => 'reason',
-            'type' => 'int',
-        ],
-        'subscription.period' => [
-            'label' => 'Subscription period count',
-            'internalcode' => 'period',
-            'type' => 'int',
-        ],
-        'subscription.productid' => [
-            'label' => 'Subscription product ID',
-            'internalcode' => 'productid',
-        ],
-        'subscription.status' => [
-            'label' => 'Subscription status',
-            'internalcode' => 'status',
-            'type' => 'int',
-        ],
-    ];
-
+    private array $search_config = ['subscription.orderid' => ['label' => 'Order ID', 'internalcode' => 'orderid', 'type' => 'int', 'public' => false], 'subscription.ordprodid' => ['label' => 'Order product ID', 'internalcode' => 'ordprodid', 'type' => 'int', 'public' => false], 'subscription.datenext' => ['label' => 'Next renewal date/time', 'internalcode' => 'next', 'type' => 'datetime'], 'subscription.dateend' => ['label' => 'End of subscription', 'internalcode' => 'end', 'type' => 'datetime'], 'subscription.interval' => ['label' => 'Renewal interval', 'internalcode' => 'interval'], 'subscription.reason' => ['label' => 'Subscription end reason', 'internalcode' => 'reason', 'type' => 'int'], 'subscription.period' => ['label' => 'Subscription period count', 'internalcode' => 'period', 'type' => 'int'], 'subscription.productid' => ['label' => 'Subscription product ID', 'internalcode' => 'productid'], 'subscription.status' => ['label' => 'Subscription status', 'internalcode' => 'status', 'type' => 'int']];
     /**
      * Creates the manager that will use the given context object.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         /** mshop/subscription/manager/resource
          * Name of the database connection resource to use
          *
@@ -87,9 +37,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @param string Database connection name
          * @since 2023.04
          */
-        $this->setResourceName($context->config()->get('mshop/subscription/manager/resource', 'db-order'));
+        $this->set_resource_name($context->config()->get('mshop/subscription/manager/resource', 'db-order'));
     }
-
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -106,7 +55,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/subscription/manager/aggregate/ansi
          */
-
         /** mshop/subscription/manager/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -149,23 +97,20 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/subscription/manager/search/ansi
          * @see mshop/subscription/manager/count/ansi
          */
-
         $cfgkey = 'mshop/subscription/manager/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['subscription'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['subscription'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Subscription\Item\Iface New subscription item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['subscription.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Subscription\Item\Standard('subscription.', $values);
+        $values['subscription.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Subscription\Item\Standard('subscription.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -175,43 +120,36 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('subscription', $default);
-
+        $filter = $this->filter_base('subscription', $default);
         if ($site) {
-            $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
-            $filter->add($this->siteCondition('order.product.siteid', $level));
+            $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
+            $filter->add($this->site_condition('order.product.siteid', $level));
         }
-
         return $filter;
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $list = parent::getSearchAttributes($withsub);
-
+        $list = parent::get_search_attributes($withsub);
         if ($withsub) {
-            $list += \Aimeos\MShop::create($this->context(), 'order')->getSearchAttributes($withsub);
+            $list += \Aimeos\M_Shop::create($this->context(), 'order')->get_search_attributes($withsub);
         }
-
         return $list;
     }
-
     /**
      * Searches for subscriptions based on the given criteria.
      *
@@ -223,7 +161,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function search(\Aimeos\Base\Criteria\Iface $search, array $ref = [], ?int &$total = null): \Aimeos\Map
     {
         $context = $this->context();
-
         /** mshop/subscription/manager/sitemode
          * Mode how items from levels below or above in the site tree are handled
          *
@@ -252,15 +189,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2018.04
          * @see mshop/locale/manager/sitelevel
          */
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_SUBTREE;
         $level = $context->config()->get('mshop/subscription/manager/sitemode', $level);
-
         /** mshop/subscription/manager/search/mysql
          * Retrieves the records matched by the given criteria in the database
          *
          * @see mshop/subscription/manager/search/ansi
          */
-
         /** mshop/subscription/manager/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -307,14 +242,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/subscription/manager/delete/ansi
          * @see mshop/subscription/manager/count/ansi
          */
-        $cfgPathSearch = 'mshop/subscription/manager/search';
-
+        $cfg_path_search = 'mshop/subscription/manager/search';
         /** mshop/subscription/manager/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see mshop/subscription/manager/count/ansi
          */
-
         /** mshop/subscription/manager/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -359,16 +292,14 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/subscription/manager/delete/ansi
          * @see mshop/subscription/manager/search/ansi
          */
-        $cfgPathCount = 'mshop/subscription/manager/count';
-
+        $cfg_path_count = 'mshop/subscription/manager/count';
         $items = [];
         $required = ['subscription', 'order'];
-        $conn = $context->db($this->getResourceName());
-        $results = $this->searchItemsBase($conn, $search, $cfgPathSearch, $cfgPathCount, $required, $total, $level);
-
+        $conn = $context->db($this->get_resource_name());
+        $results = $this->search_items_base($conn, $search, $cfg_path_search, $cfg_path_count, $required, $total, $level);
         try {
             while ($row = $results->fetch()) {
-                if ($item = $this->applyFilter($this->create($row))) {
+                if ($item = $this->apply_filter($this->create($row))) {
                     $items[$row['subscription.id']] = $item;
                 }
             }
@@ -376,21 +307,17 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
             $results->finish();
             throw $e;
         }
-
         if (in_array('order', $ref)) {
             $ids = array_column($items, 'subscription.orderid');
-            $manager = \Aimeos\MShop::create($context, 'order');
+            $manager = \Aimeos\M_Shop::create($context, 'order');
             $search = $manager->filter()->add('order.id', '==', $ids)->slice(0, count($ids));
-            $orderItems = $manager->search($search, $ref);
-
+            $order_items = $manager->search($search, $ref);
             foreach ($items as $item) {
-                $item->set('.orderitem', $orderItems[$item['subscription.orderid']] ?? null);
+                $item->set('.orderitem', $order_items[$item['subscription.orderid']] ?? null);
             }
         }
-
         return map($items);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -400,7 +327,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'subscription.';
     }
-
     /**
      * Creates a one-time subscription in the storage from the given invoice object.
      *
@@ -408,19 +334,16 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Subscription\Item\Iface Updated item including the generated ID
      */
-    protected function saveBase(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Subscription\Item\Iface
+    protected function save_base(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Subscription\Item\Iface
     {
-        if ($item->getOrderProductId() === null) {
-            throw new \Aimeos\MShop\Subscription\Exception('Required order product ID is missing');
+        if ($item->get_order_product_id() === null) {
+            throw new \Aimeos\M_Shop\Subscription\Exception('Required order product ID is missing');
         }
-
-        if ($orderItem = $item->getOrderItem()) {
-            \Aimeos\MShop::create($this->context(), 'order')->save($orderItem);
+        if ($order_item = $item->get_order_item()) {
+            \Aimeos\M_Shop::create($this->context(), 'order')->save($order_item);
         }
-
-        return parent::saveBase($item, $fetch);
+        return parent::save_base($item, $fetch);
     }
-
     /** mshop/subscription/manager/name
      * Class name of the used subscription manager implementation
      *
@@ -453,7 +376,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2018.04
      */
-
     /** mshop/subscription/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the subscription manager
      *
@@ -478,7 +400,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/decorators/global
      * @see mshop/subscription/manager/decorators/local
      */
-
     /** mshop/subscription/manager/decorators/global
      * Adds a list of globally available decorators only to the subscription manager
      *
@@ -502,7 +423,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/decorators/excludes
      * @see mshop/subscription/manager/decorators/local
      */
-
     /** mshop/subscription/manager/decorators/local
      * Adds a list of local decorators only to the subscription manager
      *
@@ -526,13 +446,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/decorators/excludes
      * @see mshop/subscription/manager/decorators/global
      */
-
     /** mshop/subscription/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/subscription/manager/delete/ansi
      */
-
     /** mshop/subscription/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -556,7 +474,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/search/ansi
      * @see mshop/subscription/manager/count/ansi
      */
-
     /** mshop/subscription/manager/submanagers
      * List of manager names that can be instantiated by the subscription manager
      *
@@ -573,13 +490,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2018.04
      */
-
     /** mshop/subscription/manager/insert/mysql
      * Inserts a new subscription record into the database table
      *
      * @see mshop/subscription/manager/insert/ansi
      */
-
     /** mshop/subscription/manager/insert/ansi
      * Inserts a new subscription record into the database table
      *
@@ -608,13 +523,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/search/ansi
      * @see mshop/subscription/manager/count/ansi
      */
-
     /** mshop/subscription/manager/update/mysql
      * Updates an existing subscription record in the database
      *
      * @see mshop/subscription/manager/update/ansi
      */
-
     /** mshop/subscription/manager/update/ansi
      * Updates an existing subscription record in the database
      *
@@ -640,13 +553,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/subscription/manager/search/ansi
      * @see mshop/subscription/manager/count/ansi
      */
-
     /** mshop/subscription/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/subscription/manager/newid/ansi
      */
-
     /** mshop/subscription/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *

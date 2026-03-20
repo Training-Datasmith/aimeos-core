@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Factory;
+namespace Aimeos\M_Shop\Common\Factory;
 
 /**
  * Generic interface for all factories.
@@ -27,5 +25,5 @@ interface Iface
      * @param string|null $name Manager name (from configuration or "Standard" if null)
      * @return \Aimeos\MShop\Common\Manager\Iface New manager object
      */
-    public static function create(\Aimeos\MShop\ContextIface $context, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface;
+    public static function create(\Aimeos\M_Shop\Context_Iface $context, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface;
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Product
  */
-
-namespace Aimeos\MShop\Product\Manager;
+namespace Aimeos\M_Shop\Product\Manager;
 
 /**
  * Default product manager.
@@ -17,56 +15,46 @@ namespace Aimeos\MShop\Product\Manager;
  * @package MShop
  * @subpackage Product
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Product\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Product\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $cacheTags = [];
-
+    private array $cache_tags = [];
     /**
      * Commits the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function commit(): \Aimeos\MShop\Common\Manager\Iface
+    public function commit(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::commit();
-
-        $this->context()->cache()->deleteByTags($this->cacheTags);
-        $this->cacheTags = [];
-
+        $this->context()->cache()->delete_by_tags($this->cache_tags);
+        $this->cache_tags = [];
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Product\Item\Iface New product item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $context = $this->context();
-
         $values['.date'] = $context->datetime();
-        $values['product.siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Product\Item\Standard('product.', $values);
+        $values['product.siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Product\Item\Standard('product.', $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $items List of item objects or IDs of the items
      * @return \Aimeos\MShop\Product\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::delete($items);
-
-        $this->cacheTags = array_merge($this->cacheTags, map($items)->copy()->cast()->prefix('product-')->all());
-
+        $this->cache_tags = array_merge($this->cache_tags, map($items)->copy()->cast()->prefix('product-')->all());
         return $this;
     }
-
     /**
      * Creates a filter object.
      *
@@ -76,22 +64,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('product', $default);
-
+        $filter = $this->filter_base('product', $default);
         if ($default !== false) {
             $date = $this->context()->datetime();
-
-            $start = [
-                $filter->compare('<=', 'product.datestart', $date),
-                $filter->compare('==', 'product.datestart', null),
-                $filter->compare('==', 'product.type', 'event'),
-            ];
-
-            $end = [
-                $filter->compare('>=', 'product.dateend', $date),
-                $filter->compare('==', 'product.dateend', null),
-            ];
-
+            $start = [$filter->compare('<=', 'product.datestart', $date), $filter->compare('==', 'product.datestart', null), $filter->compare('==', 'product.type', 'event')];
+            $end = [$filter->compare('>=', 'product.dateend', $date), $filter->compare('==', 'product.dateend', null)];
             /** mshop/product/manager/strict-events
              * Hide events automatically if they are over
              *
@@ -109,16 +86,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
             if (!$this->context()->config()->get('mshop/product/manager/strict-events', true)) {
                 $end[] = $filter->compare('==', 'product.type', 'event');
             }
-
-            $filter->add($filter->and([
-                $filter->or($start),
-                $filter->or($end),
-            ]));
+            $filter->add($filter->and([$filter->or($start), $filter->or($end)]));
         }
-
         return $filter;
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -129,100 +100,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['product.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['product.code' => $code], $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'product.type' => [
-                'label' => 'Type',
-                'internalcode' => 'type',
-            ],
-            'product.label' => [
-                'label' => 'Label',
-                'internalcode' => 'label',
-            ],
-            'product.code' => [
-                'label' => 'SKU',
-                'internalcode' => 'code',
-            ],
-            'product.url' => [
-                'label' => 'URL segment',
-                'internalcode' => 'url',
-            ],
-            'product.dataset' => [
-                'label' => 'Data set',
-                'internalcode' => 'dataset',
-            ],
-            'product.datestart' => [
-                'label' => 'Start date/time',
-                'internalcode' => 'start',
-                'type' => 'datetime',
-            ],
-            'product.dateend' => [
-                'label' => 'End date/time',
-                'internalcode' => 'end',
-                'type' => 'datetime',
-            ],
-            'product.instock' => [
-                'label' => 'Product in stock',
-                'internalcode' => 'instock',
-                'type' => 'int',
-            ],
-            'product.status' => [
-                'label' => 'Status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-            'product.scale' => [
-                'label' => 'Quantity scale',
-                'internalcode' => 'scale',
-                'type' => 'float',
-            ],
-            'product.boost' => [
-                'label' => 'Boost factor',
-                'internalcode' => 'boost',
-                'type' => 'float',
-            ],
-            'product.config' => [
-                'label' => 'Configuration',
-                'internalcode' => 'config',
-                'type' => 'json',
-                'public' => false,
-            ],
-            'product.target' => [
-                'label' => 'URL target',
-                'internalcode' => 'target',
-                'public' => false,
-            ],
-            'product.rating' => [
-                'label' => 'Rating value',
-                'internalcode' => 'rating',
-                'type' => 'decimal',
-                'public' => false,
-            ],
-            'product.ratings' => [
-                'label' => 'Number of ratings',
-                'internalcode' => 'ratings',
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]);
+        return $this->create_attributes(['product.type' => ['label' => 'Type', 'internalcode' => 'type'], 'product.label' => ['label' => 'Label', 'internalcode' => 'label'], 'product.code' => ['label' => 'SKU', 'internalcode' => 'code'], 'product.url' => ['label' => 'URL segment', 'internalcode' => 'url'], 'product.dataset' => ['label' => 'Data set', 'internalcode' => 'dataset'], 'product.datestart' => ['label' => 'Start date/time', 'internalcode' => 'start', 'type' => 'datetime'], 'product.dateend' => ['label' => 'End date/time', 'internalcode' => 'end', 'type' => 'datetime'], 'product.instock' => ['label' => 'Product in stock', 'internalcode' => 'instock', 'type' => 'int'], 'product.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int'], 'product.scale' => ['label' => 'Quantity scale', 'internalcode' => 'scale', 'type' => 'float'], 'product.boost' => ['label' => 'Boost factor', 'internalcode' => 'boost', 'type' => 'float'], 'product.config' => ['label' => 'Configuration', 'internalcode' => 'config', 'type' => 'json', 'public' => false], 'product.target' => ['label' => 'URL target', 'internalcode' => 'target', 'public' => false], 'product.rating' => ['label' => 'Rating value', 'internalcode' => 'rating', 'type' => 'decimal', 'public' => false], 'product.ratings' => ['label' => 'Number of ratings', 'internalcode' => 'ratings', 'type' => 'int', 'public' => false]]);
     }
-
     /**
      * Updates the rating of the item
      *
@@ -231,17 +121,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $ratings Total number of ratings for the item
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rate(string $id, string $rating, int $ratings): \Aimeos\MShop\Common\Manager\Iface
+    public function rate(string $id, string $rating, int $ratings): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         /** mshop/product/manager/rate/mysql
          * Updates the rating of the product in the database
          *
          * @see mshop/product/manager/rate/ansi
          */
-
         /** mshop/product/manager/rate/ansi
          * Updates the rating of the product in the database
          *
@@ -267,19 +155,14 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/product/manager/stock/ansi
          */
         $path = 'mshop/product/manager/rate';
-
-        $stmt = $this->getCachedStatement($conn, $path, $this->getSqlConfig($path));
-
+        $stmt = $this->get_cached_statement($conn, $path, $this->get_sql_config($path));
         $stmt->bind(1, $rating);
         $stmt->bind(2, $ratings, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind(3, $context->locale()->getSiteId());
+        $stmt->bind(3, $context->locale()->get_site_id());
         $stmt->bind(4, (int) $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
         $stmt->execute()->finish();
-
         return $this;
     }
-
     /**
      * Updates if the product is in stock
      *
@@ -287,17 +170,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $value "0" or "1" if product is in stock or not
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function stock(string $id, int $value): \Aimeos\MShop\Common\Manager\Iface
+    public function stock(string $id, int $value): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         /** mshop/product/manager/stock/mysql
          * Updates the rating of the product in the database
          *
          * @see mshop/product/manager/stock/ansi
          */
-
         /** mshop/product/manager/stock/ansi
          * Updates the rating of the product in the database
          *
@@ -323,18 +204,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/product/manager/rate/ansi
          */
         $path = 'mshop/product/manager/stock';
-
-        $stmt = $this->getCachedStatement($conn, $path, $this->getSqlConfig($path));
-
+        $stmt = $this->get_cached_statement($conn, $path, $this->get_sql_config($path));
         $stmt->bind(1, $value, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind(2, $context->locale()->getSiteId());
+        $stmt->bind(2, $context->locale()->get_site_id());
         $stmt->bind(3, (int) $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
         $stmt->execute()->finish();
-
         return $this;
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -345,16 +221,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     public function save($items, bool $fetch = true)
     {
         $items = parent::save($items, $fetch);
-
-        if (($ids = map($items)->getId()->filter())->count() === map($items)->count()) {
-            $this->cacheTags = array_merge($this->cacheTags, map($ids)->prefix('product-')->all());
+        if (($ids = map($items)->get_id()->filter())->count() === map($items)->count()) {
+            $this->cache_tags = array_merge($this->cache_tags, map($ids)->prefix('product-')->all());
         } else {
-            $this->cacheTags[] = 'product';
+            $this->cache_tags[] = 'product';
         }
-
         return $items;
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -362,19 +235,16 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
-        if ($this->hasRef($ref, 'stock')) {
-            $entries = $this->searchStocks($entries);
+        if ($this->has_ref($ref, 'stock')) {
+            $entries = $this->search_stocks($entries);
         }
-
-        if ($this->hasRef($ref, 'parent') || $this->hasRef($ref, 'product/parent')) {
-            return $this->searchParents($entries);
+        if ($this->has_ref($ref, 'parent') || $this->has_ref($ref, 'product/parent')) {
+            return $this->search_parents($entries);
         }
-
         return $entries;
     }
-
     /**
      * Binds additional values to the statement before execution.
      *
@@ -383,15 +253,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $idx Current bind index
      * @return \Aimeos\Base\DB\Statement\Iface Database statement object with bound values
      */
-    protected function bind(\Aimeos\MShop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
+    protected function bind(\Aimeos\M_Shop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
     {
-        if ($item->getId() !== null) {
+        if ($item->get_id() !== null) {
             $stmt->bind($idx++, $item->get('product.ctime') ?: $this->context()->datetime());
         }
-
         return $stmt;
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -401,62 +269,46 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'product.';
     }
-
     /**
      * Adds the parent products to the product entries
      *
      * @param array $entries Associative list of product IDs as keys and product entries as values
      * @return array Associative list of product IDs as keys and product entries as values
      */
-    protected function searchParents(array $entries): array
+    protected function search_parents(array $entries): array
     {
         $context = $this->context();
-        $manager = \Aimeos\MShop::create($context, 'product/lists');
-
-        $filter = $manager->filter(true)->slice(0, 0x7fffffff)->add([
-            'product.lists.domain' => 'product',
-            'product.lists.type' => 'default',
-            'product.lists.refid' => array_keys($entries),
-        ]);
-
-        $listItems = $manager->search($filter);
-
-        $manager = \Aimeos\MShop::create($context, 'product');
-        $filter = $manager->filter(true)->slice(0, 0x7fffffff)->add('product.id', '==', $listItems->getParentId());
+        $manager = \Aimeos\M_Shop::create($context, 'product/lists');
+        $filter = $manager->filter(true)->slice(0, 0x7fffffff)->add(['product.lists.domain' => 'product', 'product.lists.type' => 'default', 'product.lists.refid' => array_keys($entries)]);
+        $list_items = $manager->search($filter);
+        $manager = \Aimeos\M_Shop::create($context, 'product');
+        $filter = $manager->filter(true)->slice(0, 0x7fffffff)->add('product.id', '==', $list_items->get_parent_id());
         $items = $manager->search($filter);
-
-        foreach ($listItems as $listItem) {
-            if ($items->has($listItem->getParentId())) {
-                $entries[$listItem->getRefId()]['.parent'][$listItem->getParentId()] = $items->get($listItem->getParentId());
+        foreach ($list_items as $list_item) {
+            if ($items->has($list_item->get_parent_id())) {
+                $entries[$list_item->get_ref_id()]['.parent'][$list_item->get_parent_id()] = $items->get($list_item->get_parent_id());
             }
         }
-
         return $entries;
     }
-
     /**
      * Adds the stock items to the product entries
      *
      * @param array $entries Associative list of product IDs as keys and product entries as values
      * @return array Associative list of product IDs as keys and product entries as values
      */
-    protected function searchStocks(array $entries): array
+    protected function search_stocks(array $entries): array
     {
-        $manager = \Aimeos\MShop::create($this->context(), 'stock');
-        $filter = $manager->filter(true)->slice(0, 0x7fffffff)
-            ->add('stock.productid', '==', array_keys($entries));
-
+        $manager = \Aimeos\M_Shop::create($this->context(), 'stock');
+        $filter = $manager->filter(true)->slice(0, 0x7fffffff)->add('stock.productid', '==', array_keys($entries));
         if (isset($ref['stock']) && is_array($ref['stock'])) {
             $filter->add('stock.type', '==', $ref['stock']);
         }
-
-        foreach ($manager->search($filter) as $stockId => $stockItem) {
-            $entries[$stockItem->getProductId()]['.stock'][$stockId] = $stockItem;
+        foreach ($manager->search($filter) as $stock_id => $stock_item) {
+            $entries[$stock_item->get_product_id()]['.stock'][$stock_id] = $stock_item;
         }
-
         return $entries;
     }
-
     /** mshop/product/manager/resource
      * Name of the database connection resource to use
      *
@@ -468,7 +320,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/product/manager/name
      * Class name of the used product manager implementation
      *
@@ -501,7 +352,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2014.03
      */
-
     /** mshop/product/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the product manager
      *
@@ -526,7 +376,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/decorators/global
      * @see mshop/product/manager/decorators/local
      */
-
     /** mshop/product/manager/decorators/global
      * Adds a list of globally available decorators only to the product manager
      *
@@ -550,7 +399,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/decorators/excludes
      * @see mshop/product/manager/decorators/local
      */
-
     /** mshop/product/manager/decorators/local
      * Adds a list of local decorators only to the product manager
      *
@@ -574,7 +422,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/decorators/excludes
      * @see mshop/product/manager/decorators/global
      */
-
     /** mshop/product/manager/submanagers
      * List of manager names that can be instantiated by the product manager
      *
@@ -591,13 +438,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2014.03
      */
-
     /** mshop/product/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/product/manager/delete/ansi
      */
-
     /** mshop/product/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -623,13 +468,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/rate/ansi
      * @see mshop/product/manager/stock/ansi
      */
-
     /** mshop/product/manager/insert/mysql
      * Inserts a new product record into the database table
      *
      * @see mshop/product/manager/insert/ansi
      */
-
     /** mshop/product/manager/insert/ansi
      * Inserts a new product record into the database table
      *
@@ -660,13 +503,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/rate/ansi
      * @see mshop/product/manager/stock/ansi
      */
-
     /** mshop/product/manager/update/mysql
      * Updates an existing product record in the database
      *
      * @see mshop/product/manager/update/ansi
      */
-
     /** mshop/product/manager/update/ansi
      * Updates an existing product record in the database
      *
@@ -694,13 +535,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/rate/ansi
      * @see mshop/product/manager/stock/ansi
      */
-
     /** mshop/product/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/product/manager/newid/ansi
      */
-
     /** mshop/product/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -732,7 +571,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/rate/ansi
      * @see mshop/product/manager/stock/ansi
      */
-
     /** mshop/product/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -761,13 +599,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/product/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/product/manager/search/ansi
      */
-
     /** mshop/product/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -818,13 +654,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/product/manager/rate/ansi
      * @see mshop/product/manager/stock/ansi
      */
-
     /** mshop/product/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/product/manager/count/ansi
      */
-
     /** mshop/product/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

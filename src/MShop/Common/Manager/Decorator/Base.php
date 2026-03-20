@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Decorator;
+namespace Aimeos\M_Shop\Common\Manager\Decorator;
 
 /**
  * Provides common methods for manager decorators.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Common\Manager\Decorator;
  * @package MShop
  * @subpackage Common
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Common\Manager\Decorator\Iface
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Common\Manager\Decorator\Iface
 {
     /**
      * Initializes the manager decorator.
@@ -25,11 +23,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param \Aimeos\MShop\Common\Manager\Iface $manager Manager object
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      */
-    public function __construct(private \Aimeos\MShop\Common\Manager\Iface $manager, \Aimeos\MShop\ContextIface $context)
+    public function __construct(private \Aimeos\M_Shop\Common\Manager\Iface $manager, \Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
     }
-
     /**
      * Passes unknown methods to wrapped objects.
      *
@@ -42,18 +39,16 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return call_user_func_array([$this->manager, $name], $param);
     }
-
     /**
      * Adds a filter callback for an item type
      *
      * @param string $iface Interface name of the item to apply the filter to
      * @param \Closure $fcn Anonymous function receiving the item to check as first parameter
      */
-    public function addFilter(string $iface, \Closure $fcn): void
+    public function add_filter(string $iface, \Closure $fcn): void
     {
-        $this->manager->addFilter($iface, $fcn);
+        $this->manager->add_filter($iface, $fcn);
     }
-
     /**
      * Returns the class names of the manager and used decorators.
      *
@@ -61,55 +56,50 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      */
     public function classes(): array
     {
-        return array_merge($this->getManager()->classes(), [static::class]);
+        return array_merge($this->get_manager()->classes(), [static::class]);
     }
-
     /**
      * Removes old entries from the storage
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->clear($siteids);
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Iface New item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         return $this->manager->create($values);
     }
-
     /**
      * Creates a new cursor based on the filter criteria
      *
      * @param \Aimeos\Base\Criteria\Iface $filter Criteria object with conditions, sortations, etc.
      * @return \Aimeos\MShop\Common\Cursor\Iface Cursor object
      */
-    public function cursor(\Aimeos\Base\Criteria\Iface $filter): \Aimeos\MShop\Common\Cursor\Iface
+    public function cursor(\Aimeos\Base\Criteria\Iface $filter): \Aimeos\M_Shop\Common\Cursor\Iface
     {
         return $this->manager->cursor($filter);
     }
-
     /**
      * Deletes one or more items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|array|string $items Item object, ID of the item or a list of them
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->delete($items);
         return $this;
     }
-
     /**
      * Creates a filter object.
      *
@@ -121,7 +111,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return $this->manager->filter($default, $site);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -132,16 +121,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
         return $this->manager->find($code, $ref, $domain, $type, $default);
     }
-
     /**
      * Creates objects from the given array
      *
@@ -154,7 +137,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return $this->manager->from($entries, $domains);
     }
-
     /**
      * Returns the item specified by its ID
      *
@@ -163,32 +145,29 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         return $this->manager->get($id, $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->manager->getSaveAttributes();
+        return $this->manager->get_save_attributes();
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return $this->manager->getSearchAttributes($withsub);
+        return $this->manager->get_search_attributes($withsub);
     }
-
     /**
      * Creates a new extension manager in the domain.
      *
@@ -196,11 +175,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param string|null $name Name of the implementation, will be from configuration (or Standard) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager extending the domain functionality
      */
-    public function getSubManager(string $domain, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $domain, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->manager->getSubManager($domain, $name);
+        return $this->manager->get_sub_manager($domain, $name);
     }
-
     /**
      * Iterates over all matched items and returns the found ones
      *
@@ -208,11 +186,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param string[] $ref List of domains whose items should be fetched too
      * @return \Aimeos\Map|null List of items implementing \Aimeos\MShop\Common\Item\Iface with ids as keys
      */
-    public function iterate(\Aimeos\MShop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
+    public function iterate(\Aimeos\M_Shop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
     {
         return $this->manager->iterate($cursor, $ref);
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -224,7 +201,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return $this->manager->save($items, $fetch);
     }
-
     /**
      * Saves the dependent items of the item
      *
@@ -232,11 +208,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Common\Item\Iface Updated item
      */
-    public function saveRefs(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    public function save_refs(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->manager->saveRefs($item, $fetch);
+        return $this->manager->save_refs($item, $fetch);
     }
-
     /**
      * Searches for all items matching the given critera.
      *
@@ -249,7 +224,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return $this->manager->search($filter, $ref, $total);
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -257,26 +231,22 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
-        return $this->manager->searchRefs($entries, $ref);
+        return $this->manager->search_refs($entries, $ref);
     }
-
     /**
      * Injects the reference of the outmost object
      *
      * @param \Aimeos\MShop\Common\Manager\Iface $object Reference to the outmost manager or decorator
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function setObject(\Aimeos\MShop\Common\Manager\Iface $object): \Aimeos\MShop\Common\Manager\Iface
+    public function set_object(\Aimeos\M_Shop\Common\Manager\Iface $object): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        parent::setObject($object);
-
-        $this->manager->setObject($object);
-
+        parent::set_object($object);
+        $this->manager->set_object($object);
         return $this;
     }
-
     /**
      * Returns the type of the mananger as separate parts
      *
@@ -286,46 +256,42 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos
     {
         return $this->manager->type();
     }
-
     /**
      * Starts a database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function begin(): \Aimeos\MShop\Common\Manager\Iface
+    public function begin(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->begin();
         return $this;
     }
-
     /**
      * Commits the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function commit(): \Aimeos\MShop\Common\Manager\Iface
+    public function commit(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->commit();
         return $this;
     }
-
     /**
      * Rolls back the running database transaction on the connection identified by the given name
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rollback(): \Aimeos\MShop\Common\Manager\Iface
+    public function rollback(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->rollback();
         return $this;
     }
-
     /**
      * Returns the manager object
      *
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object
      */
-    protected function getManager(): \Aimeos\MShop\Common\Manager\Iface
+    protected function get_manager(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this->manager;
     }

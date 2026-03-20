@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Log
  */
-
-namespace Aimeos\MAdmin\Log\Manager;
+namespace Aimeos\M_Admin\Log\Manager;
 
 /**
  * Default log manager implementation.
@@ -18,7 +16,7 @@ namespace Aimeos\MAdmin\Log\Manager;
  * @package MAdmin
  * @subpackage Log
  */
-class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\Log\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Admin\Common\Manager\Base implements \Aimeos\M_Admin\Log\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /** madmin/log/manager/name
      * Class name of the used log manager implementation
@@ -52,7 +50,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string Last part of the class name
      * @since 2014.03
      */
-
     /** madmin/log/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the log manager
      *
@@ -77,7 +74,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/log/manager/decorators/global
      * @see madmin/log/manager/decorators/local
      */
-
     /** madmin/log/manager/decorators/global
      * Adds a list of globally available decorators only to the log manager
      *
@@ -100,7 +96,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/log/manager/decorators/excludes
      * @see madmin/log/manager/decorators/local
      */
-
     /** madmin/log/manager/decorators/local
      * Adds a list of local decorators only to the log manager
      *
@@ -124,63 +119,18 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/log/manager/decorators/excludes
      * @see madmin/log/manager/decorators/global
      */
-
     use \Aimeos\Base\Logger\Traits;
-
     private int $loglevel;
     private string $requestid;
-
-    private array $searchConfig = [
-        'log.id' => [
-            'code' => 'log.id',
-            'internalcode' => 'malog."id"',
-            'label' => 'Log ID',
-            'type' => 'int',
-        ],
-        'log.siteid' => [
-            'code' => 'log.siteid',
-            'internalcode' => 'malog."siteid"',
-            'label' => 'Log site ID',
-            'public' => false,
-        ],
-        'log.message' => [
-            'code' => 'log.message',
-            'internalcode' => 'malog."message"',
-            'label' => 'Log message',
-        ],
-        'log.facility' => [
-            'code' => 'log.facility',
-            'internalcode' => 'malog."facility"',
-            'label' => 'Log facility',
-        ],
-        'log.priority' => [
-            'code' => 'log.priority',
-            'internalcode' => 'malog."priority"',
-            'label' => 'Log priority',
-            'type' => 'int',
-        ],
-        'log.timestamp' => [
-            'code' => 'log.timestamp',
-            'internalcode' => 'malog."timestamp"',
-            'label' => 'Log create date/time',
-            'type' => 'datetime',
-        ],
-        'log.request' => [
-            'code' => 'log.request',
-            'internalcode' => 'malog."request"',
-            'label' => 'Log request',
-        ],
-    ];
-
+    private array $search_config = ['log.id' => ['code' => 'log.id', 'internalcode' => 'malog."id"', 'label' => 'Log ID', 'type' => 'int'], 'log.siteid' => ['code' => 'log.siteid', 'internalcode' => 'malog."siteid"', 'label' => 'Log site ID', 'public' => false], 'log.message' => ['code' => 'log.message', 'internalcode' => 'malog."message"', 'label' => 'Log message'], 'log.facility' => ['code' => 'log.facility', 'internalcode' => 'malog."facility"', 'label' => 'Log facility'], 'log.priority' => ['code' => 'log.priority', 'internalcode' => 'malog."priority"', 'label' => 'Log priority', 'type' => 'int'], 'log.timestamp' => ['code' => 'log.timestamp', 'internalcode' => 'malog."timestamp"', 'label' => 'Log create date/time', 'type' => 'datetime'], 'log.request' => ['code' => 'log.request', 'internalcode' => 'malog."request"', 'label' => 'Log request']];
     /**
      * Creates the log manager that will use the given context object.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         /** madmin/log/manager/resource
          * Name of the database connection resource to use
          *
@@ -192,10 +142,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @param string Database connection name
          * @since 2023.04
          */
-        $this->setResourceName($context->config()->get('madmin/log/manager/resource', 'db-log'));
-
+        $this->set_resource_name($context->config()->get('madmin/log/manager/resource', 'db-log'));
         $config = $context->config();
-
         /** madmin/log/manager/loglevel
          * Sets the severity level for messages to be written to the log
          *
@@ -232,53 +180,48 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
         $this->loglevel = $config->get('madmin/log/manager/loglevel', \Aimeos\Base\Logger\Iface::NOTICE);
         $this->requestid = md5(php_uname('n') . getmypid() . date('Y-m-d H:i:s'));
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MAdmin\Log\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $path = 'madmin/log/manager/submanagers';
         foreach ($this->context()->config()->get($path, []) as $domain) {
-            $this->object()->getSubManager($domain)->clear($siteids);
+            $this->object()->get_sub_manager($domain)->clear($siteids);
         }
-
-        return $this->clearBase($siteids, 'madmin/log/manager/delete');
+        return $this->clear_base($siteids, 'madmin/log/manager/delete');
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MAdmin\Log\Item\Iface New log item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         try {
-            $values['log.siteid'] ??= $this->context()->locale()->getSiteId();
+            $values['log.siteid'] ??= $this->context()->locale()->get_site_id();
         } catch (\Exception) {
-        } // if no locale item is available
-
-        return $this->createItemBase($values);
+        }
+        // if no locale item is available
+        return $this->create_item_base($values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MAdmin\Log\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** madmin/log/manager/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see madmin/log/manager/delete/ansi
          */
-
         /** madmin/log/manager/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -303,10 +246,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/log/manager/count/ansi
          */
         $path = 'madmin/log/manager/delete';
-
-        return $this->deleteItemsBase($itemIds, $path);
+        return $this->delete_items_base($item_ids, $path);
     }
-
     /**
      * Creates the log object for the given log id.
      *
@@ -316,30 +257,24 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @return \Aimeos\MAdmin\Log\Item\Iface Returns the log item of the given id
      * @throws \Aimeos\MAdmin\Log\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         $criteria = $this->object()->filter($default);
-        $expr = [
-            $criteria->compare('==', 'log.id', $id),
-            $criteria->getConditions(),
-        ];
-        $criteria->setConditions($criteria->and($expr));
-
-        if (($item = $this->object()->search($criteria, $ref)->first())) {
+        $expr = [$criteria->compare('==', 'log.id', $id), $criteria->get_conditions()];
+        $criteria->set_conditions($criteria->and($expr));
+        if ($item = $this->object()->search($criteria, $ref)->first()) {
             return $item;
         }
-
         $msg = $this->context()->translate('mshop', 'Log entry with ID "%1$s" not found');
-        throw new \Aimeos\MAdmin\Log\Exception(sprintf($msg, $id));
+        throw new \Aimeos\M_Admin\Log\Exception(sprintf($msg, $id));
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] Returns a list of search attributes
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         /** madmin/log/manager/submanagers
          * List of manager names that can be instantiated by the log manager
@@ -358,10 +293,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @since 2014.03
          */
         $path = 'madmin/log/manager/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for log extensions
      *
@@ -369,11 +302,10 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->getSubManagerBase('log', $manager, $name);
+        return $this->get_sub_manager_base('log', $manager, $name);
     }
-
     /**
      * Writes a message to the configured log facility.
      *
@@ -388,20 +320,15 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
             if (!is_scalar($message)) {
                 $message = json_encode($message);
             }
-
             $item = $this->object()->create();
-
-            $item->setFacility($facility);
-            $item->setPriority($priority);
-            $item->setMessage($message);
-            $item->setRequest($this->requestid);
-
+            $item->set_facility($facility);
+            $item->set_priority($priority);
+            $item->set_message($message);
+            $item->set_request($this->requestid);
             $this->object()->save($item);
         }
-
         return $this;
     }
-
     /**
      * Adds a new log to the storage.
      *
@@ -409,29 +336,25 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MAdmin\Log\Item\Iface Updated item including the generated ID
      */
-    protected function saveItem(\Aimeos\MAdmin\Log\Item\Iface $item, bool $fetch = true): \Aimeos\MAdmin\Log\Item\Iface
+    protected function save_item(\Aimeos\M_Admin\Log\Item\Iface $item, bool $fetch = true): \Aimeos\M_Admin\Log\Item\Iface
     {
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         try {
-            $siteid = $this->context()->locale()->getSiteId();
+            $siteid = $this->context()->locale()->get_site_id();
         } catch (\Exception) {
             $siteid = '';
         }
-
-        $id = $item->getId();
-        $columns = $this->object()->getSaveAttributes();
-        $conn = $this->context()->db($this->getResourceName(), true);
-
+        $id = $item->get_id();
+        $columns = $this->object()->get_save_attributes();
+        $conn = $this->context()->db($this->get_resource_name(), true);
         if ($id === null) {
             /** madmin/log/manager/insert/mysql
              * Inserts a new log record into the database table
              *
              * @see madmin/log/manager/insert/ansi
              */
-
             /** madmin/log/manager/insert/ansi
              * Inserts a new log record into the database table
              *
@@ -461,14 +384,13 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/log/manager/count/ansi
              */
             $path = 'madmin/log/manager/insert';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         } else {
             /** madmin/log/manager/update/mysql
              * Updates an existing log record in the database
              *
              * @see madmin/log/manager/update/ansi
              */
-
             /** madmin/log/manager/update/ansi
              * Updates an existing log record in the database
              *
@@ -495,36 +417,29 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/log/manager/count/ansi
              */
             $path = 'madmin/log/manager/update';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         }
-
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $item->getFacility());
+        $stmt->bind($idx++, $item->get_facility());
         $stmt->bind($idx++, date('Y-m-d H:i:s'));
-        $stmt->bind($idx++, $item->getPriority(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind($idx++, $item->getMessage());
-        $stmt->bind($idx++, $item->getRequest());
+        $stmt->bind($idx++, $item->get_priority(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $item->get_message());
+        $stmt->bind($idx++, $item->get_request());
         $stmt->bind($idx++, $siteid);
-
-        if ($item->getId() !== null) {
-            $stmt->bind($idx++, $item->getId(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        if ($item->get_id() !== null) {
+            $stmt->bind($idx++, $item->get_id(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         }
-
         $stmt->execute()->finish();
-
         if ($id === null && $fetch === true) {
             /** madmin/log/manager/newid/mysql
              * Retrieves the ID generated by the database when inserting a new record
              *
              * @see madmin/log/manager/newid/ansi
              */
-
             /** madmin/log/manager/newid/ansi
              * Retrieves the ID generated by the database when inserting a new record
              *
@@ -554,14 +469,11 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/log/manager/search/ansi
              * @see madmin/log/manager/count/ansi
              */
-            $id = $this->newId($conn, 'madmin/log/manager/newid');
+            $id = $this->new_id($conn, 'madmin/log/manager/newid');
         }
-
         $conn->close();
-
-        return $item->setId($id);
+        return $item->set_id($id);
     }
-
     /**
      * Search for log entries based on the given criteria.
      *
@@ -574,17 +486,14 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
     {
         $items = [];
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $required = [ 'log' ];
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE;
-
+        $conn = $context->db($this->get_resource_name());
+        $required = ['log'];
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_SUBTREE;
         /** madmin/log/manager/search/mysql
          * Retrieves the records matched by the given criteria in the database
          *
          * @see madmin/log/manager/search/ansi
          */
-
         /** madmin/log/manager/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -633,14 +542,12 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/log/manager/delete/ansi
          * @see madmin/log/manager/count/ansi
          */
-        $cfgPathSearch = 'madmin/log/manager/search';
-
+        $cfg_path_search = 'madmin/log/manager/search';
         /** madmin/log/manager/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see madmin/log/manager/count/ansi
          */
-
         /** madmin/log/manager/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -685,27 +592,23 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/log/manager/delete/ansi
          * @see madmin/log/manager/search/ansi
          */
-        $cfgPathCount = 'madmin/log/manager/count';
-
-        $results = $this->searchItemsBase($conn, $search, $cfgPathSearch, $cfgPathCount, $required, $total, $level);
-
+        $cfg_path_count = 'madmin/log/manager/count';
+        $results = $this->search_items_base($conn, $search, $cfg_path_search, $cfg_path_count, $required, $total, $level);
         while ($row = $results->fetch()) {
-            if ($item = $this->applyFilter($this->createItemBase($row))) {
+            if ($item = $this->apply_filter($this->create_item_base($row))) {
                 $items[$row['log.id']] = $item;
             }
         }
-
         return map($items);
     }
-
     /**
      * Create new admin log item object initialized with given parameters.
      *
      * @param array $values Associative list of key/value pairs of a job
      * @return \Aimeos\MAdmin\Log\Item\Iface New log item
      */
-    protected function createItemBase(array $values = []): \Aimeos\MAdmin\Log\Item\Iface
+    protected function create_item_base(array $values = []): \Aimeos\M_Admin\Log\Item\Iface
     {
-        return new \Aimeos\MAdmin\Log\Item\Standard($values);
+        return new \Aimeos\M_Admin\Log\Item\Standard($values);
     }
 }

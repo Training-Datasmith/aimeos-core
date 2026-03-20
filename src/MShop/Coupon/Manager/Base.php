@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Coupon
  */
-
-namespace Aimeos\MShop\Coupon\Manager;
+namespace Aimeos\M_Shop\Coupon\Manager;
 
 /**
  * Abstract class for coupon managers.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Coupon\Manager;
  * @package MShop
  * @subpackage Coupon
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base
 {
     /**
      * Returns the coupon model which belongs to the given code.
@@ -28,24 +26,19 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\MShop\Coupon\Provider\Iface Returns a coupon provider instance
      * @throws \LogicException If coupon provider couldn't be found
      */
-    public function getProvider(\Aimeos\MShop\Coupon\Item\Iface $item, string $code): \Aimeos\MShop\Coupon\Provider\Iface
+    public function get_provider(\Aimeos\M_Shop\Coupon\Item\Iface $item, string $code): \Aimeos\M_Shop\Coupon\Provider\Iface
     {
         $context = $this->context();
-        $names = explode(',', $item->getProvider());
-
+        $names = explode(',', $item->get_provider());
         if (($providername = array_shift($names)) === null) {
-            throw new \LogicException(sprintf('Provider in "%1$s" not available', $item->getProvider()), 400);
+            throw new \LogicException(sprintf('Provider in "%1$s" not available', $item->get_provider()), 400);
         }
-
         if (ctype_alnum($providername) === false) {
             throw new \LogicException(sprintf('Invalid characters in provider name "%1$s"', $providername), 400);
         }
-
         $classname = '\Aimeos\MShop\Coupon\Provider\\' . $providername;
-        $interface = \Aimeos\MShop\Coupon\Provider\Factory\Iface::class;
-
+        $interface = \Aimeos\M_Shop\Coupon\Provider\Factory\Iface::class;
         $provider = \Aimeos\Utils::create($classname, [$context, $item, $code], $interface);
-
         /** mshop/coupon/provider/decorators
          * Adds a list of decorators to all coupon provider objects automatcally
          *
@@ -70,13 +63,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          * @see client/html/account/favorite/decorators/local
          */
         $decorators = $context->config()->get('mshop/coupon/provider/decorators', []);
-
-        $object = $this->addCouponDecorators($item, $code, $provider, $names);
-        $object = $this->addCouponDecorators($item, $code, $object, $decorators);
-
-        return $object->setObject($object);
+        $object = $this->add_coupon_decorators($item, $code, $provider, $names);
+        $object = $this->add_coupon_decorators($item, $code, $object, $decorators);
+        return $object->set_object($object);
     }
-
     /**
      * Wraps the named coupon decorators around the coupon provider.
      *
@@ -87,24 +77,17 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\MShop\Coupon\Provider\Iface Coupon provider wrapped by one or more coupon decorators
      * @throws \LogicException If a coupon decorator couldn't be instantiated
      */
-    protected function addCouponDecorators(
-        \Aimeos\MShop\Coupon\Item\Iface $item,
-        string $code,
-        \Aimeos\MShop\Coupon\Provider\Iface $provider,
-        array $names
-    ): \Aimeos\MShop\Coupon\Provider\Iface {
+    protected function add_coupon_decorators(\Aimeos\M_Shop\Coupon\Item\Iface $item, string $code, \Aimeos\M_Shop\Coupon\Provider\Iface $provider, array $names): \Aimeos\M_Shop\Coupon\Provider\Iface
+    {
         $context = $this->context();
         $classprefix = '\Aimeos\MShop\Coupon\Provider\Decorator\\';
-        $interface = \Aimeos\MShop\Coupon\Provider\Decorator\Iface::class;
-
+        $interface = \Aimeos\M_Shop\Coupon\Provider\Decorator\Iface::class;
         foreach ($names as $name) {
             if (ctype_alnum($name) === false) {
                 throw new \LogicException(sprintf('Invalid characters in class name "%1$s"', $name), 400);
             }
-
             $provider = \Aimeos\Utils::create($classprefix . $name, [$provider, $context, $item, $code], $interface);
         }
-
         return $provider;
     }
 }

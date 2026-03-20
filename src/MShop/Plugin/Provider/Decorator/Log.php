@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Decorator;
+namespace Aimeos\M_Shop\Plugin\Provider\Decorator;
 
 /**
  * Logging and tracing for plugins.
@@ -17,21 +15,19 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
  * @package MShop
  * @subpackage Plugin
  */
-class Log extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \Aimeos\MShop\Plugin\Provider\Decorator\Iface
+class Log extends \Aimeos\M_Shop\Plugin\Provider\Decorator\Base implements \Aimeos\M_Shop\Plugin\Provider\Decorator\Iface
 {
     /**
      * Subscribes itself to a publisher
      *
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
-        $this->context()->logger()->debug('Plugin::register: ' . $this->getProvider()::class, 'core/plugin');
-        $this->getProvider()->register($p);
-
+        $this->context()->logger()->debug('Plugin::register: ' . $this->get_provider()::class, 'core/plugin');
+        $this->get_provider()->register($p);
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -40,19 +36,15 @@ class Log extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \Aimeo
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
-        $class = $this->getProvider()::class;
-        $payload = (is_object($value) ? $value::class : (is_scalar($value) ? $value : ''));
-
+        $class = $this->get_provider()::class;
+        $payload = is_object($value) ? $value::class : (is_scalar($value) ? $value : '');
         $msg = 'Plugin::update:before: ' . $class . ', action: ' . $action . ', value: ' . $payload;
         $this->context()->logger()->debug($msg, 'core/plugin');
-
-        $value = $this->getProvider()->update($order, $action, $value);
-
+        $value = $this->get_provider()->update($order, $action, $value);
         $msg = 'Plugin::update:after: ' . $class . ', action: ' . $action . ', value: ' . $payload;
         $this->context()->logger()->debug($msg, 'core/plugin');
-
         return $value;
     }
 }

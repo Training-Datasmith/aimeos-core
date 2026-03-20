@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -8,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager\Price;
+namespace Aimeos\M_Shop\Index\Manager\Price;
 
 /**
  * Submanager for product prices.
@@ -17,57 +16,24 @@ namespace Aimeos\MShop\Index\Manager\Price;
  * @package MShop
  * @subpackage Index
  */
-class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MShop\Index\Manager\Price\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Index\Manager\Db_Base implements \Aimeos\M_Shop\Index\Manager\Price\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'index.price.id' => [
-            'code' => 'index.price.id',
-            'internalcode' => 'mindpr."prodid"',
-            'internaldeps' => [ 'LEFT JOIN "mshop_index_price" AS mindpr ON mindpr."prodid" = mpro."id"' ],
-            'label' => 'Product index price ID',
-        ],
-        'index.price:value' => [
-            'code' => 'index.price:value()',
-            'internalcode' => ':site AND mindpr."currencyid" = $1 AND mindpr."value"',
-            'label' => 'Product price value, parameter(<currency ID>)',
-            'type' => 'float',
-            'public' => false,
-        ],
-        'agg:index.price:value' => [
-            'code' => 'agg:index.price:value()',
-            'internalcode' => 'mindpr."value"',
-            'label' => 'Aggregate product price value, parameter(<currency ID>)',
-            'type' => 'float',
-            'public' => false,
-        ],
-        'sort:index.price:value' => [
-            'code' => 'sort:index.price:value()',
-            'internalcode' => 'mindpr."value"',
-            'label' => 'Sort product price value, parameter(<currency ID>)',
-            'type' => 'float',
-            'public' => false,
-        ],
-    ];
-
-    private ?array $subManagers = null;
-
+    private array $search_config = ['index.price.id' => ['code' => 'index.price.id', 'internalcode' => 'mindpr."prodid"', 'internaldeps' => ['LEFT JOIN "mshop_index_price" AS mindpr ON mindpr."prodid" = mpro."id"'], 'label' => 'Product index price ID'], 'index.price:value' => ['code' => 'index.price:value()', 'internalcode' => ':site AND mindpr."currencyid" = $1 AND mindpr."value"', 'label' => 'Product price value, parameter(<currency ID>)', 'type' => 'float', 'public' => false], 'agg:index.price:value' => ['code' => 'agg:index.price:value()', 'internalcode' => 'mindpr."value"', 'label' => 'Aggregate product price value, parameter(<currency ID>)', 'type' => 'float', 'public' => false], 'sort:index.price:value' => ['code' => 'sort:index.price:value()', 'internalcode' => 'mindpr."value"', 'label' => 'Sort product price value, parameter(<currency ID>)', 'type' => 'float', 'public' => false]];
+    private ?array $sub_managers = null;
     /**
      * Initializes the manager instance.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $context->config()->get('mshop/index/manager/sitemode', $level);
-
         $name = 'index.price:value';
-        $expr = $this->siteString('mindpr."siteid"', $level);
-        $this->searchConfig[$name]['internalcode'] = str_replace(':site', $expr, $this->searchConfig[$name]['internalcode']);
+        $expr = $this->site_string('mindpr."siteid"', $level);
+        $this->search_config[$name]['internalcode'] = str_replace(':site', $expr, $this->search_config[$name]['internalcode']);
     }
-
     /**
      * Counts the number products that are available for the values of the given key.
      *
@@ -79,22 +45,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      */
     public function aggregate(\Aimeos\Base\Criteria\Iface $search, $key, ?string $value = null, ?string $type = null): \Aimeos\Map
     {
-        return $this->aggregateBase($search, $key, 'mshop/index/manager/aggregate', [], $value, $type);
+        return $this->aggregate_base($search, $key, 'mshop/index/manager/aggregate', [], $value, $type);
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::clear($siteids);
-
-        return $this->clearBase($siteids, 'mshop/index/manager/price/delete');
+        return $this->clear_base($siteids, 'mshop/index/manager/price/delete');
     }
-
     /**
      * Removes all entries not touched after the given timestamp in the index.
      * This can be a long lasting operation.
@@ -102,14 +65,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string $timestamp Timestamp in ISO format (YYYY-MM-DD HH:mm:ss)
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function cleanup(string $timestamp): \Aimeos\MShop\Index\Manager\Iface
+    public function cleanup(string $timestamp): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/price/cleanup/mysql
          * Deletes the index price records that haven't been touched
          *
          * @see mshop/index/manager/price/cleanup/ansi
          */
-
         /** mshop/index/manager/price/cleanup/ansi
          * Deletes the index price records that haven't been touched
          *
@@ -133,23 +95,21 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/insert/ansi
          * @see mshop/index/manager/price/search/ansi
          */
-        return $this->cleanupBase($timestamp, 'mshop/index/manager/price/cleanup');
+        return $this->cleanup_base($timestamp, 'mshop/index/manager/price/cleanup');
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|\Aimeos\Map|array|string $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Index\Manager\Price\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/price/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see mshop/index/manager/price/delete/ansi
          */
-
         /** mshop/index/manager/price/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -172,19 +132,17 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/insert/ansi
          * @see mshop/index/manager/price/search/ansi
          */
-        return $this->deleteItemsBase($itemIds, 'mshop/index/manager/price/delete');
+        return $this->delete_items_base($item_ids, 'mshop/index/manager/price/delete');
     }
-
     /**
      * Returns a list of objects describing the available criterias for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return array List of items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $list = parent::getSearchAttributes($withsub);
-
+        $list = parent::get_search_attributes($withsub);
         /** mshop/index/manager/price/submanagers
          * List of manager names that can be instantiated by the index price manager
          *
@@ -202,10 +160,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @since 2014.03
          */
         $path = 'mshop/index/manager/price/submanagers';
-
-        return $list + $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $list + $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for product extensions.
      *
@@ -213,7 +169,7 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/price/name
          * Class name of the used index price manager implementation
@@ -247,7 +203,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @param string Last part of the class name
          * @since 2014.03
          */
-
         /** mshop/index/manager/price/decorators/excludes
          * Excludes decorators added by the "common" option from the index price manager
          *
@@ -272,7 +227,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/decorators/global
          * @see mshop/index/manager/price/decorators/local
          */
-
         /** mshop/index/manager/price/decorators/global
          * Adds a list of globally available decorators only to the index price manager
          *
@@ -297,7 +251,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/decorators/excludes
          * @see mshop/index/manager/price/decorators/local
          */
-
         /** mshop/index/manager/price/decorators/local
          * Adds a list of local decorators only to the index price manager
          *
@@ -322,10 +275,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/decorators/excludes
          * @see mshop/index/manager/price/decorators/global
          */
-
-        return $this->getSubManagerBase('index', 'price/' . $manager, $name);
+        return $this->get_sub_manager_base('index', 'price/' . $manager, $name);
     }
-
     /**
      * Optimizes the index if necessary.
      * Execution of this operation can take a very long time and shouldn't be
@@ -333,14 +284,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      *
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function optimize(): \Aimeos\MShop\Index\Manager\Iface
+    public function optimize(): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/price/optimize/mysql
          * Optimizes the stored price data for retrieving the records faster
          *
          * @see mshop/index/manager/price/optimize/ansi
          */
-
         /** mshop/index/manager/price/optimize/ansi
          * Optimizes the stored price data for retrieving the records faster
          *
@@ -359,9 +309,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/search/ansi
          * @see mshop/index/manager/price/aggregate/ansi
          */
-        return $this->optimizeBase('mshop/index/manager/price/optimize');
+        return $this->optimize_base('mshop/index/manager/price/optimize');
     }
-
     /**
      * Rebuilds the index price for searching products or specified list of products.
      * This can be a long lasting operation.
@@ -369,23 +318,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param \Aimeos\MShop\Product\Item\Iface[] $items Associative list of product IDs as keys and items as values
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function rebuild(iterable $items = []): \Aimeos\MShop\Index\Manager\Iface
+    public function rebuild(iterable $items = []): \Aimeos\M_Shop\Index\Manager\Iface
     {
-        if (($items = map($items))->isEmpty()) {
+        if (($items = map($items))->is_empty()) {
             return $this;
         }
-
-        $items->implements(\Aimeos\MShop\Product\Item\Iface::class, true);
-
+        $items->implements(\Aimeos\M_Shop\Product\Item\Iface::class, true);
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         /** mshop/index/manager/price/insert/mysql
          * Inserts a new price record into the product index database
          *
          * @see mshop/index/manager/price/insert/ansi
          */
-
         /** mshop/index/manager/price/insert/ansi
          * Inserts a new price record into the product index database
          *
@@ -413,31 +358,26 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/search/ansi
          * @see mshop/index/manager/price/count/ansi
          */
-        $stmt = $this->getCachedStatement($conn, 'mshop/index/manager/price/insert');
-
+        $stmt = $this->get_cached_statement($conn, 'mshop/index/manager/price/insert');
         foreach ($items as $item) {
-            $this->savePrices($stmt, $item);
+            $this->save_prices($stmt, $item);
         }
-
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->rebuild($items);
         }
-
         return $this;
     }
-
     /**
      * Removes the products from the product index.
      *
      * @param iterable|string $ids Product ID or list of IDs
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function remove($ids): \Aimeos\MShop\Index\Manager\Iface
+    public function remove($ids): \Aimeos\M_Shop\Index\Manager\Iface
     {
         parent::remove($ids)->delete($ids);
         return $this;
     }
-
     /**
      * Searches for items matching the given criteria.
      *
@@ -453,7 +393,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          *
          * @see mshop/index/manager/price/search/ansi
          */
-
         /** mshop/index/manager/price/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -500,14 +439,12 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/optimize/ansi
          * @see mshop/index/manager/price/aggregate/ansi
          */
-        $cfgPathSearch = 'mshop/index/manager/price/search';
-
+        $cfg_path_search = 'mshop/index/manager/price/search';
         /** mshop/index/manager/price/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see mshop/index/manager/price/count/ansi
          */
-
         /** mshop/index/manager/price/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -550,22 +487,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/price/optimize/ansi
          * @see mshop/index/manager/price/aggregate/ansi
          */
-        $cfgPathCount = 'mshop/index/manager/price/count';
-
-        return $this->searchItemsIndexBase($search, $ref, $total, $cfgPathSearch, $cfgPathCount);
+        $cfg_path_count = 'mshop/index/manager/price/count';
+        return $this->search_items_index_base($search, $ref, $total, $cfg_path_search, $cfg_path_count);
     }
-
     /**
      * Returns the list of sub-managers available for the index attribute manager.
      *
      * @return \Aimeos\MShop\Index\Manager\Iface[] Associative list of the sub-domain as key and the manager object as value
      */
-    protected function getSubManagers(): array
+    protected function get_sub_managers(): array
     {
-        if ($this->subManagers === null) {
-            $this->subManagers = [];
+        if ($this->sub_managers === null) {
+            $this->sub_managers = [];
             $config = $this->context()->config();
-
             /** mshop/index/manager/price/submanagers
              * A list of sub-manager names used for indexing associated items to prices
              *
@@ -584,27 +518,23 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
              */
             foreach ($config->get('mshop/index/manager/price/submanagers', []) as $domain) {
                 $name = $config->get('mshop/index/manager/price/' . $domain . '/name');
-                $this->subManagers[$domain] = $this->object()->getSubManager($domain, $name);
+                $this->sub_managers[$domain] = $this->object()->get_sub_manager($domain, $name);
             }
-
-            return $this->subManagers;
+            return $this->sub_managers;
         }
-
-        return $this->subManagers;
+        return $this->sub_managers;
     }
-
     /**
      * Saves the text items referenced indirectly by products
      *
      * @param \Aimeos\Base\DB\Statement\Iface $stmt Prepared SQL statement with place holders
      * @param \Aimeos\MShop\Product\Item\Iface $item Product item containing associated price items
      */
-    protected function savePrices(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\MShop\Common\Item\ListsRef\Iface $item)
+    protected function save_prices(\Aimeos\Base\DB\Statement\Iface $stmt, \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface $item)
     {
         $prices = [];
         $context = $this->context();
-        $siteid = $context->locale()->getSiteId();
-
+        $siteid = $context->locale()->get_site_id();
         /** mshop/index/manager/price/types
          * Use different product prices types for indexing
          *
@@ -618,29 +548,26 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @since 2019.04
          */
         $types = $context->config()->get('mshop/index/manager/price/types', ['default']);
-
-        foreach ($types as $priceType) {
-            foreach ($item->getListItems('price', 'default', $priceType) as $listItem) {
-                if (($refItem = $listItem->getRefItem()) && $refItem->isAvailable()) {
-                    $prices[$refItem->getCurrencyId()][$refItem->getQuantity()] = $refItem->getValue();
+        foreach ($types as $price_type) {
+            foreach ($item->get_list_items('price', 'default', $price_type) as $list_item) {
+                if (($ref_item = $list_item->get_ref_item()) && $ref_item->is_available()) {
+                    $prices[$ref_item->get_currency_id()][$ref_item->get_quantity()] = $ref_item->get_value();
                 }
             }
         }
-
-        foreach ($prices as $currencyId => $list) {
+        foreach ($prices as $currency_id => $list) {
             ksort($list);
-
-            $stmt->bind(1, $item->getId(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-            $stmt->bind(2, $currencyId);
+            $stmt->bind(1, $item->get_id(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+            $stmt->bind(2, $currency_id);
             $stmt->bind(3, reset($list));
-            $stmt->bind(4, $context->datetime()); // mtime
+            $stmt->bind(4, $context->datetime());
+            // mtime
             $stmt->bind(5, $siteid);
-
             try {
                 $stmt->execute()->finish();
             } catch (\Aimeos\Base\DB\Exception) {
-                ;
-            } // Ignore duplicates
+            }
+            // Ignore duplicates
         }
     }
 }

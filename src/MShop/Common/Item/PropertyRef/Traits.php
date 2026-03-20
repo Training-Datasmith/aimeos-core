@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\PropertyRef;
+namespace Aimeos\M_Shop\Common\Item\Property_Ref;
 
 /**
  * Common trait for items containing property items
@@ -19,83 +17,70 @@ namespace Aimeos\MShop\Common\Item\PropertyRef;
  */
 trait Traits
 {
-    private array $propItems = [];
-    private array $propRmItems = [];
-    private int $propMax = 0;
-
+    private array $prop_items = [];
+    private array $prop_rm_items = [];
+    private int $prop_max = 0;
     /**
      * Creates a deep clone of all objects
      */
     public function __clone()
     {
         parent::__clone();
-
-        foreach ($this->propItems as $key => $item) {
-            $this->propItems[$key] = clone $item;
+        foreach ($this->prop_items as $key => $item) {
+            $this->prop_items[$key] = clone $item;
         }
-
-        foreach ($this->propRmItems as $key => $item) {
-            $this->propRmItems[$key] = clone $item;
+        foreach ($this->prop_rm_items as $key => $item) {
+            $this->prop_rm_items[$key] = clone $item;
         }
     }
-
     /**
      * Adds a new property item or overwrite an existing one
      *
      * @param \Aimeos\MShop\Common\Item\Property\Iface $item New or existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function addPropertyItem(\Aimeos\MShop\Common\Item\Property\Iface $item): \Aimeos\MShop\Common\Item\PropertyRef\Iface
+    public function add_property_item(\Aimeos\M_Shop\Common\Item\Property\Iface $item): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface
     {
-        $id = $item->getId() ?: '_' . $this->getId() . '_' . $item->getType() . '_' . $item->getLanguageId() . '_' . $item->getValue();
-
-        unset($this->propItems[$id]); // append at the end
-        $this->propItems[$id] = $item;
-
+        $id = $item->get_id() ?: '_' . $this->get_id() . '_' . $item->get_type() . '_' . $item->get_language_id() . '_' . $item->get_value();
+        unset($this->prop_items[$id]);
+        // append at the end
+        $this->prop_items[$id] = $item;
         return $this;
     }
-
     /**
      * Adds new property items or overwrite existing ones
      *
      * @param \Aimeos\Map|\Aimeos\MShop\Common\Item\Property\Iface $item New or existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function addPropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface
+    public function add_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface
     {
         foreach ($items as $item) {
-            $this->addPropertyItem($item);
+            $this->add_property_item($item);
         }
-
         return $this;
     }
-
     /**
      * Removes an existing property item
      *
      * @param \Aimeos\MShop\Common\Item\Property\Iface $item Existing property item
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function deletePropertyItem(\Aimeos\MShop\Common\Item\Property\Iface $item): \Aimeos\MShop\Common\Item\PropertyRef\Iface
+    public function delete_property_item(\Aimeos\M_Shop\Common\Item\Property\Iface $item): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface
     {
-        $id = $item->getId();
-
-        if (isset($this->propItems[$id])) {
-            $this->propRmItems[$id] = $item;
-            unset($this->propItems[$id]);
+        $id = $item->get_id();
+        if (isset($this->prop_items[$id])) {
+            $this->prop_rm_items[$id] = $item;
+            unset($this->prop_items[$id]);
             return $this;
         }
-
-        $id = '_' . $this->getId() . '_' . $item->getType() . '_' . $item->getLanguageId() . '_' . $item->getValue();
-
-        if (isset($this->propItems[$id])) {
-            $this->propRmItems[$id] = $item;
-            unset($this->propItems[$id]);
+        $id = '_' . $this->get_id() . '_' . $item->get_type() . '_' . $item->get_language_id() . '_' . $item->get_value();
+        if (isset($this->prop_items[$id])) {
+            $this->prop_rm_items[$id] = $item;
+            unset($this->prop_items[$id]);
         }
-
         return $this;
     }
-
     /**
      * Removes a list of existing property items
      *
@@ -103,25 +88,22 @@ trait Traits
      * @return \Aimeos\MShop\Common\Item\Iface Self object for method chaining
      * @throws \Aimeos\MShop\Exception If an item isn't a property item or isn't found
      */
-    public function deletePropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface
+    public function delete_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface
     {
         foreach ($items as $item) {
-            $this->deletePropertyItem($item);
+            $this->delete_property_item($item);
         }
-
         return $this;
     }
-
     /**
      * Returns the deleted property items
      *
      * @return \Aimeos\Map Property items implementing \Aimeos\MShop\Common\Item\Property\Iface
      */
-    public function getPropertyItemsDeleted(): \Aimeos\Map
+    public function get_property_items_deleted(): \Aimeos\Map
     {
-        return map($this->propRmItems);
+        return map($this->prop_rm_items);
     }
-
     /**
      * Returns the property values for the given type
      *
@@ -129,17 +111,14 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of property values
      */
-    public function getProperties(string $type, bool $active = true): \Aimeos\Map
+    public function get_properties(string $type, bool $active = true): \Aimeos\Map
     {
         $list = [];
-
-        foreach ($this->getPropertyItems($type, $active) as $id => $item) {
-            $list[$id] = $item->getValue();
+        foreach ($this->get_property_items($type, $active) as $id => $item) {
+            $list[$id] = $item->get_value();
         }
-
         return map($list);
     }
-
     /**
      * Returns the property item for the given type, language and value
      *
@@ -149,19 +128,15 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\MShop\Common\Item\Property\Iface|null Matching property item or null if none
      */
-    public function getPropertyItem(string $type, ?string $langId, string $value, bool $active = true): ?\Aimeos\MShop\Common\Item\Property\Iface
+    public function get_property_item(string $type, ?string $lang_id, string $value, bool $active = true): ?\Aimeos\M_Shop\Common\Item\Property\Iface
     {
-        foreach ($this->propItems as $propItem) {
-            if ($propItem->getType() === $type && $propItem->getLanguageId() === $langId
-                && $propItem->getValue() === $value && ($active === false || $propItem->isAvailable())
-            ) {
-                return $propItem;
+        foreach ($this->prop_items as $prop_item) {
+            if ($prop_item->get_type() === $type && $prop_item->get_language_id() === $lang_id && $prop_item->get_value() === $value && ($active === false || $prop_item->is_available())) {
+                return $prop_item;
             }
         }
-
         return null;
     }
-
     /**
      * Returns the property items of the product
      *
@@ -169,57 +144,47 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of property IDs as keys and property items implementing \Aimeos\MShop\Common\Item\Property\Iface
      */
-    public function getPropertyItems($type = null, bool $active = true): \Aimeos\Map
+    public function get_property_items($type = null, bool $active = true): \Aimeos\Map
     {
         $list = [];
-
-        foreach ($this->propItems as $propId => $propItem) {
-            if (($type === null || in_array($propItem->getType(), (array) $type))
-                && ($active === false || $propItem->isAvailable())
-            ) {
-                $list[$propId] = $propItem;
+        foreach ($this->prop_items as $prop_id => $prop_item) {
+            if (($type === null || in_array($prop_item->get_type(), (array) $type)) && ($active === false || $prop_item->is_available())) {
+                $list[$prop_id] = $prop_item;
             }
         }
-
         return map($list);
     }
-
     /**
      * Adds a new property item or overwrite an existing one
      *
      * @param \Aimeos\Map|\Aimeos\MShop\Common\Item\Property\Iface[] $items New list of property items
      * @return \Aimeos\MShop\Common\Item\PropertyRef\Iface Self object for method chaining
      */
-    public function setPropertyItems(iterable $items): \Aimeos\MShop\Common\Item\PropertyRef\Iface
+    public function set_property_items(iterable $items): \Aimeos\M_Shop\Common\Item\Property_Ref\Iface
     {
         $list = [];
-
         foreach ($items as $p) {
-            $id = $p->getId() ?: '_' . $this->getId() . '_' . $p->getType() . '_' . $p->getLanguageId() . '_' . $p->getValue();
-            unset($this->propItems[$id]);
+            $id = $p->get_id() ?: '_' . $this->get_id() . '_' . $p->get_type() . '_' . $p->get_language_id() . '_' . $p->get_value();
+            unset($this->prop_items[$id]);
             $list[$id] = $p;
         }
-
-        $this->deletePropertyItems($this->propItems);
-        $this->propItems = $list;
-
+        $this->delete_property_items($this->prop_items);
+        $this->prop_items = $list;
         return $this;
     }
-
     /**
      * Returns the unique ID of the item.
      *
      * @return string|null ID of the item
      */
-    abstract public function getId(): ?string;
-
+    abstract public function get_id(): ?string;
     /**
      * Sets the property items in the trait
      *
      * @param \Aimeos\MShop\Common\Item\Property\Iface[] $items Property items
      */
-    protected function initPropertyItems(array $items)
+    protected function init_property_items(array $items)
     {
-        $this->propItems = $items;
+        $this->prop_items = $items;
     }
 }

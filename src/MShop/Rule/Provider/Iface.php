@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  * @package MShop
  * @subpackage Rule
  */
-
-namespace Aimeos\MShop\Rule\Provider;
+namespace Aimeos\M_Shop\Rule\Provider;
 
 /**
  * Rule provider interface for dealing with run-time loadable extensions.
@@ -26,21 +24,19 @@ interface Iface
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid resp. null for attributes whose values are OK
      */
-    public function checkConfigBE(array $attributes): array;
-
+    public function check_config_be(array $attributes): array;
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array;
-
+    public function get_config_be(): array;
     /**
      * Injects the outer object into the decorator stack
      *
      * @param \Aimeos\MShop\Rule\Provider\Iface $object First object of the decorator stack
      * @return \Aimeos\MShop\Rule\Provider\Iface Rule object for chaining method calls
      */
-    public function setObject(\Aimeos\MShop\Rule\Provider\Iface $object): \Aimeos\MShop\Rule\Provider\Iface;
+    public function set_object(\Aimeos\M_Shop\Rule\Provider\Iface $object): \Aimeos\M_Shop\Rule\Provider\Iface;
 }

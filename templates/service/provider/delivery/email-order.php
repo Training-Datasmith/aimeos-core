@@ -1,32 +1,25 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 $csv = function (string $type, string $id, array $data) {
-
-    foreach ($data as $pos => $entry) { // ltrim to invalidate Excel macros
+    foreach ($data as $pos => $entry) {
+        // ltrim to invalidate Excel macros
         $data[$pos] = '"' . str_replace('"', '""', ltrim(json_encode($entry), '@=+-')) . '"';
     }
-
     return '"' . $type . '";"' . $id . '";' . join(';', $data) . PHP_EOL;
 };
-
-foreach ($this->get('orderItems', []) as $orderItem) {
-    $data = ['order.ordernumber' => $orderItem->getOrderNumber()] + $orderItem->toArray();
-
-    echo $csv('invoice', $orderItem->getId(), $data);
-
-    foreach ($orderItem->getAddresses()->krsort() as $type => $addresses) {
+foreach ($this->get('orderItems', []) as $order_item) {
+    $data = ['order.ordernumber' => $order_item->get_order_number()] + $order_item->to_array();
+    echo $csv('invoice', $order_item->get_id(), $data);
+    foreach ($order_item->get_addresses()->krsort() as $type => $addresses) {
         foreach ($addresses as $address) {
-            echo $csv('address', $orderItem->getId(), $address->toArray());
+            echo $csv('address', $order_item->get_id(), $address->to_array());
         }
     }
-
-    foreach ($orderItem->getProducts() as $product) {
-        $list = $product->toArray();
-
-        foreach ($product->getAttributeItems() as $attrItem) {
-            foreach ($attrItem->toArray(true) as $key => $value) {
+    foreach ($order_item->get_products() as $product) {
+        $list = $product->to_array();
+        foreach ($product->get_attribute_items() as $attr_item) {
+            foreach ($attr_item->to_array(true) as $key => $value) {
                 if (isset($list[$key])) {
                     $list[$key] .= "\n" . $value;
                 } else {
@@ -34,16 +27,13 @@ foreach ($this->get('orderItems', []) as $orderItem) {
                 }
             }
         }
-
-        echo $csv('product', $orderItem->getId(), $list);
+        echo $csv('product', $order_item->get_id(), $list);
     }
-
-    foreach ($orderItem->getServices()->krsort() as $type => $services) {
+    foreach ($order_item->get_services()->krsort() as $type => $services) {
         foreach ($services as $service) {
-            $list = $service->toArray();
-
-            foreach ($service->getAttributeItems() as $attrItem) {
-                foreach ($attrItem->toArray(true) as $key => $value) {
+            $list = $service->to_array();
+            foreach ($service->get_attribute_items() as $attr_item) {
+                foreach ($attr_item->to_array(true) as $key => $value) {
                     if (isset($list[$key])) {
                         $list[$key] .= "\n" . $value;
                     } else {
@@ -51,10 +41,8 @@ foreach ($this->get('orderItems', []) as $orderItem) {
                     }
                 }
             }
-
-            echo $csv('service', $orderItem->getId(), $list);
+            echo $csv('service', $order_item->get_id(), $list);
         }
     }
-
     echo PHP_EOL;
 }

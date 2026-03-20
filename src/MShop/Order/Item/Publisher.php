@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Item;
+namespace Aimeos\M_Shop\Order\Item;
 
 /**
  * Default implementation of a publisher in the observer pattern
@@ -20,7 +18,6 @@ namespace Aimeos\MShop\Order\Item;
 trait Publisher
 {
     protected array $listeners = [];
-
     /**
      * Adds a listener object to the publisher.
      *
@@ -28,12 +25,11 @@ trait Publisher
      * @param string $action Name of the action to listen for
      * @return \Aimeos\MShop\Order\Item\Iface Publisher object for method chaining
      */
-    public function attach(\Aimeos\MShop\Plugin\Provider\Iface $l, string $action): Iface
+    public function attach(\Aimeos\M_Shop\Plugin\Provider\Iface $l, string $action): Iface
     {
         $this->listeners[$action][] = $l;
         return $this;
     }
-
     /**
      * Removes all attached listeners from the publisher
      *
@@ -44,7 +40,6 @@ trait Publisher
         $this->listeners = [];
         return $this;
     }
-
     /**
      * Sends updates to all listeners of the given action.
      *
@@ -59,7 +54,6 @@ trait Publisher
                 $value = $listener->update($this, $action, $value);
             }
         }
-
         return $value;
     }
 }

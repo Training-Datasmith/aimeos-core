@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Coupon;
+namespace Aimeos\M_Shop\Order\Manager\Coupon;
 
 /**
  * Default order coupon manager implementation.
@@ -17,27 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Coupon;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Coupon\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Coupon\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.coupon.parentid' => [
-            'label' => 'Order ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.coupon.productid' => [
-            'label' => 'Coupon product ID',
-            'internalcode' => 'ordprodid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.coupon.code' => [
-            'label' => 'Coupon code',
-            'internalcode' => 'code',
-        ],
-    ];
-
+    private array $search_config = ['order.coupon.parentid' => ['label' => 'Order ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.coupon.productid' => ['label' => 'Coupon product ID', 'internalcode' => 'ordprodid', 'type' => 'int', 'public' => false], 'order.coupon.code' => ['label' => 'Coupon code', 'internalcode' => 'code']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -54,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/coupon/aggregate/ansi
          */
-
         /** mshop/order/manager/coupon/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -98,21 +77,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/coupon/count/ansi
          */
         $cfgkey = 'mshop/order/manager/coupon/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.coupon'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.coupon'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Coupon\Iface New order coupon item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['order.coupon.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Order\Item\Coupon\Standard('order.coupon.', $values);
+        $values['order.coupon.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Coupon\Standard('order.coupon.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -124,36 +101,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return parent::filter($default)->order('order.coupon.id');
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.coupon.id' => [
-                'label' => 'Order coupon ID',
-                'internalcode' => 'mordco."id"',
-                'internaldeps' => ['LEFT JOIN "mshop_order_coupon" AS mordco ON ( mord."id" = mordco."parentid" )'],
-                'type' => 'int',
-                'public' => false,
-            ],
-            ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.coupon.id' => ['label' => 'Order coupon ID', 'internalcode' => 'mordco."id"', 'internaldeps' => ['LEFT JOIN "mshop_order_coupon" AS mordco ON ( mord."id" = mordco."parentid" )'], 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -163,13 +129,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.coupon.';
     }
-
     /** mshop/order/manager/coupon/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/coupon/delete/ansi
      */
-
     /** mshop/order/manager/coupon/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -193,7 +157,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/search/ansi
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/submanagers
      * List of manager names that can be instantiated by the order base coupon manager
      *
@@ -210,7 +173,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/coupon/name
      * Class name of the used order base coupon manager implementation
      *
@@ -243,7 +205,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/coupon/decorators/excludes
      * Excludes decorators added by the "common" option from the order base coupon manager
      *
@@ -268,7 +229,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/decorators/global
      * @see mshop/order/manager/coupon/decorators/local
      */
-
     /** mshop/order/manager/coupon/decorators/global
      * Adds a list of globally available decorators only to the order base coupon manager
      *
@@ -293,7 +253,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/decorators/excludes
      * @see mshop/order/manager/coupon/decorators/local
      */
-
     /** mshop/order/manager/coupon/decorators/local
      * Adds a list of local decorators only to the order base coupon manager
      *
@@ -318,13 +277,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/decorators/excludes
      * @see mshop/order/manager/coupon/decorators/global
      */
-
     /** mshop/order/manager/coupon/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/coupon/insert/ansi
      */
-
     /** mshop/order/manager/coupon/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -353,13 +310,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/search/ansi
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/coupon/update/ansi
      */
-
     /** mshop/order/manager/coupon/update/ansi
      * Updates an existing order record in the database
      *
@@ -385,13 +340,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/search/ansi
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/coupon/newid/ansi
      */
-
     /** mshop/order/manager/coupon/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -421,13 +374,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/search/ansi
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/coupon/search/ansi
      */
-
     /** mshop/order/manager/coupon/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -476,13 +427,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/coupon/delete/ansi
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/coupon/count/ansi
      */
-
     /** mshop/order/manager/coupon/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider;
+namespace Aimeos\M_Shop\Service\Provider;
 
 /**
  * Common interface for both, delivery and payment providers.
@@ -29,8 +27,7 @@ interface Iface
      * @param array $options Selected options by customer from frontend
      * @return \Aimeos\MShop\Price\Item\Iface Price item containing the price, shipping, rebate
      */
-    public function calcPrice(\Aimeos\MShop\Order\Item\Iface $basket, array $options = []): \Aimeos\MShop\Price\Item\Iface;
-
+    public function calc_price(\Aimeos\M_Shop\Order\Item\Iface $basket, array $options = []): \Aimeos\M_Shop\Price\Item\Iface;
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -38,8 +35,7 @@ interface Iface
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid resp. null for attributes whose values are OK
      */
-    public function checkConfigBE(array $attributes): array;
-
+    public function check_config_be(array $attributes): array;
     /**
      * Checks the frontend configuration attributes for validity.
      *
@@ -47,16 +43,14 @@ interface Iface
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid resp. null for attributes whose values are OK
      */
-    public function checkConfigFE(array $attributes): array;
-
+    public function check_config_fe(array $attributes): array;
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array;
-
+    public function get_config_be(): array;
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the frontend.
@@ -64,15 +58,13 @@ interface Iface
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigFE(\Aimeos\MShop\Order\Item\Iface $basket): array;
-
+    public function get_config_fe(\Aimeos\M_Shop\Order\Item\Iface $basket): array;
     /**
      * Returns the service item which also includes the configuration for the service provider.
      *
      * @return \Aimeos\MShop\Service\Item\Iface Service item
      */
-    public function getServiceItem(): \Aimeos\MShop\Service\Item\Iface;
-
+    public function get_service_item(): \Aimeos\M_Shop\Service\Item\Iface;
     /**
      * Injects additional global configuration for the backend.
      *
@@ -88,8 +80,7 @@ interface Iface
      * @param array $config Associative list of config keys and their value
      * @return \Aimeos\MShop\Service\Provider\Iface Provider object for chaining method calls
      */
-    public function injectGlobalConfigBE(array $config): \Aimeos\MShop\Service\Provider\Iface;
-
+    public function inject_global_config_be(array $config): \Aimeos\M_Shop\Service\Provider\Iface;
     /**
      * Checks if payment provider can be used based on the basket content.
      * Checks for country, currency, address, scoring, etc. should be implemented in separate decorators
@@ -97,24 +88,21 @@ interface Iface
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return bool True if payment provider can be used, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool;
-
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $basket): bool;
     /**
      * Checks what features the payment provider implements.
      *
      * @param int $what Constant from abstract class
      * @return bool True if feature is available in the payment provider, false if not
      */
-    public function isImplemented(int $what): bool;
-
+    public function is_implemented(int $what): bool;
     /**
      * Queries for status updates for the given order if supported.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Order invoice object
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item object
      */
-    public function query(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Order\Item\Iface;
-
+    public function query(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Order\Item\Iface;
     /**
      * Sets the payment attributes in the given service.
      *
@@ -122,19 +110,14 @@ interface Iface
      * @param array $attributes Attribute key/value pairs entered by the customer during the checkout process
      * @return \Aimeos\MShop\Order\Item\Service\Iface Order service item with attributes added
      */
-    public function setConfigFE(
-        \Aimeos\MShop\Order\Item\Service\Iface $orderServiceItem,
-        array $attributes
-    ): \Aimeos\MShop\Order\Item\Service\Iface;
-
+    public function set_config_fe(\Aimeos\M_Shop\Order\Item\Service\Iface $order_service_item, array $attributes): \Aimeos\M_Shop\Order\Item\Service\Iface;
     /**
      * Injects the outer object into the decorator stack
      *
      * @param \Aimeos\MShop\Service\Provider\Iface $object First object of the decorator stack
      * @return \Aimeos\MShop\Service\Provider\Iface Service object for chaining method calls
      */
-    public function setObject(\Aimeos\MShop\Service\Provider\Iface $object): \Aimeos\MShop\Service\Provider\Iface;
-
+    public function set_object(\Aimeos\M_Shop\Service\Provider\Iface $object): \Aimeos\M_Shop\Service\Provider\Iface;
     /**
      * Looks for new update files and updates the orders for which status updates were received.
      * If batch processing of files isn't supported, this method can be empty.
@@ -142,8 +125,7 @@ interface Iface
      * @return bool True if the update was successful, false if async updates are not supported
      * @throws \Aimeos\MShop\Service\Exception If updating one of the orders failed
      */
-    public function updateAsync(): bool;
-
+    public function update_async(): bool;
     /**
      * Updates the order status sent by payment gateway notifications
      *
@@ -151,11 +133,7 @@ interface Iface
      * @param \Psr\Http\Message\ResponseInterface $response Request object
      * @return \Psr\Http\Message\ResponseInterface Response object
      */
-    public function updatePush(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Psr\Http\Message\ResponseInterface $response
-    ): \Psr\Http\Message\ResponseInterface;
-
+    public function update_push(\Psr\Http\Message\Server_Request_Interface $request, \Psr\Http\Message\Response_Interface $response): \Psr\Http\Message\Response_Interface;
     /**
      * Updates the orders for whose status updates have been received by the confirmation page
      *
@@ -164,8 +142,5 @@ interface Iface
      * @return \Aimeos\MShop\Order\Item\Iface Updated order item
      * @throws \Aimeos\MShop\Service\Exception If updating the orders failed
      */
-    public function updateSync(
-        \Psr\Http\Message\ServerRequestInterface $request,
-        \Aimeos\MShop\Order\Item\Iface $orderItem
-    ): \Aimeos\MShop\Order\Item\Iface;
+    public function update_sync(\Psr\Http\Message\Server_Request_Interface $request, \Aimeos\M_Shop\Order\Item\Iface $order_item): \Aimeos\M_Shop\Order\Item\Iface;
 }

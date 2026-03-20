@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Decorator;
+namespace Aimeos\M_Shop\Common\Manager\Decorator;
 
 /**
  * Provides a decorator for limiting recursive searches
@@ -17,10 +15,9 @@ namespace Aimeos\MShop\Common\Manager\Decorator;
  * @package MShop
  * @subpackage Common
  */
-class Depth extends \Aimeos\MShop\Common\Manager\Decorator\Base
+class Depth extends \Aimeos\M_Shop\Common\Manager\Decorator\Base
 {
     private int $level = 0;
-
     /**
      * Searches for all items matching the given critera.
      *
@@ -32,7 +29,6 @@ class Depth extends \Aimeos\MShop\Common\Manager\Decorator\Base
     public function search(\Aimeos\Base\Criteria\Iface $search, array $ref = [], ?int &$total = null): \Aimeos\Map
     {
         $items = map();
-
         try {
             /** mshop/common/manager/maxdepth
              * Maximum level of recursion for retrieving referenced items
@@ -50,17 +46,14 @@ class Depth extends \Aimeos\MShop\Common\Manager\Decorator\Base
              * @since 2019.04
              */
             $max = $this->context()->config()->get('mshop/common/manager/maxdepth', 2);
-
             if ($this->level++ < $max) {
-                $items = $this->getManager()->search($search, $ref, $total);
+                $items = $this->get_manager()->search($search, $ref, $total);
             }
-
             $this->level--;
         } catch (\Exception $e) {
             $this->level--;
             throw $e;
         }
-
         return $items;
     }
 }

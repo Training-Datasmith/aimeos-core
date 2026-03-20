@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2021-2026
  * @package MShop
  * @subpackage Rule
  */
-
-namespace Aimeos\MShop\Rule\Provider\Catalog\Decorator;
+namespace Aimeos\M_Shop\Rule\Provider\Catalog\Decorator;
 
 /**
  * Rule decorator interface for dealing with run-time loadable extensions.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Rule\Provider\Catalog\Decorator;
  * @package MShop
  * @subpackage Rule
  */
-interface Iface extends \Aimeos\MShop\Rule\Provider\Iface
+interface Iface extends \Aimeos\M_Shop\Rule\Provider\Iface
 {
     /**
      * Initializes the rule instance
@@ -26,9 +24,5 @@ interface Iface extends \Aimeos\MShop\Rule\Provider\Iface
      * @param \Aimeos\MShop\Rule\Item\Iface $item Rule item object
      * @param \Aimeos\MShop\Rule\Provider\Iface $provider Rule provider object
      */
-    public function __construct(
-        \Aimeos\MShop\ContextIface $context,
-        \Aimeos\MShop\Rule\Item\Iface $item,
-        \Aimeos\MShop\Rule\Provider\Iface $provider
-    );
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Rule\Item\Iface $item, \Aimeos\M_Shop\Rule\Provider\Iface $provider);
 }

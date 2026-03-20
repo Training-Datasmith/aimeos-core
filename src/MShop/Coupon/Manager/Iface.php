@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Coupon
  */
-
-namespace Aimeos\MShop\Coupon\Manager;
+namespace Aimeos\M_Shop\Coupon\Manager;
 
 /**
  * Generic coupon manager interface for creating and handling coupons.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Coupon\Manager;
  * @package MShop
  * @subpackage Coupon
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
     /**
      * Returns the coupon model which belongs to the given code.
@@ -28,5 +26,5 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @return \Aimeos\MShop\Coupon\Provider\Iface Coupon provider model
      * @throws \Aimeos\MShop\Coupon\Exception If coupon model couldn't be found
      */
-    public function getProvider(\Aimeos\MShop\Coupon\Item\Iface $item, string $code): \Aimeos\MShop\Coupon\Provider\Iface;
+    public function get_provider(\Aimeos\M_Shop\Coupon\Item\Iface $item, string $code): \Aimeos\M_Shop\Coupon\Provider\Iface;
 }

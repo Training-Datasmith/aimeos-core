@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager;
+namespace Aimeos\M_Shop\Index\Manager;
 
 /**
  * Base class for all database based index managers
@@ -17,19 +15,17 @@ namespace Aimeos\MShop\Index\Manager;
  * @package MShop
  * @subpackage Index
  */
-abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Product\Manager\Iface
+abstract class Db_Base extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Product\Manager\Iface
 {
-    private \Aimeos\MShop\Common\Manager\Iface $manager;
-
+    private \Aimeos\M_Shop\Common\Manager\Iface $manager;
     /**
      * Initializes the manager object
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         /** mshop/index/manager/resource
          * Name of the database connection resource to use
          *
@@ -41,73 +37,65 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
          * @param string Database connection name
          * @since 2023.04
          */
-        $this->setResourceName($context->config()->get('mshop/index/manager/resource', 'db-product'));
-        $this->manager = \Aimeos\MShop::create($this->context(), 'product');
+        $this->set_resource_name($context->config()->get('mshop/index/manager/resource', 'db-product'));
+        $this->manager = \Aimeos\M_Shop::create($this->context(), 'product');
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->clear($siteids);
         }
-
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Product\Item\Iface New product item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         return $this->manager->create($values);
     }
-
     /**
      * Creates a new lists item object
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Lists\Iface New list items object
      */
-    public function createListItem(array $values = []): \Aimeos\MShop\Common\Item\Lists\Iface
+    public function create_list_item(array $values = []): \Aimeos\M_Shop\Common\Item\Lists\Iface
     {
-        return $this->manager->createListItem($values);
+        return $this->manager->create_list_item($values);
     }
-
     /**
      * Creates a new property item object
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Property\Iface New property items object
      */
-    public function createPropertyItem(array $values = []): \Aimeos\MShop\Common\Item\Property\Iface
+    public function create_property_item(array $values = []): \Aimeos\M_Shop\Common\Item\Property\Iface
     {
-        return $this->manager->createPropertyItem($values);
+        return $this->manager->create_property_item($values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|\Aimeos\Map|array|string $items Item object, ID or a list of them
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        foreach ($this->getSubManagers() as $submanager) {
-            $submanager->delete($itemIds);
+        foreach ($this->get_sub_managers() as $submanager) {
+            $submanager->delete($item_ids);
         }
-
         return $this;
     }
-
     /**
      * Creates a filter object.
      *
@@ -119,7 +107,6 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
     {
         return $this->manager->filter($default);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -130,16 +117,10 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
         return $this->manager->find($code, $ref, $domain, $type, $default);
     }
-
     /**
      * Returns the product item for the given ID
      *
@@ -148,22 +129,20 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Product\Item\Iface Product item object
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         return $this->manager->get($id, $ref, $default);
     }
-
     /**
      * Returns a list of attribute objects describing the available criteria for searching
      *
      * @param bool $withsub True to return attributes of sub-managers too
      * @return array List of items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return $this->manager->getSearchAttributes($withsub);
+        return $this->manager->get_search_attributes($withsub);
     }
-
     /**
      * Iterates over all matched items and returns the found ones
      *
@@ -171,19 +150,16 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param string[] $ref List of domains whose items should be fetched too
      * @return \Aimeos\Map|null List of items implementing \Aimeos\MShop\Common\Item\Iface with ids as keys
      */
-    public function iterate(\Aimeos\MShop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
+    public function iterate(\Aimeos\M_Shop\Common\Cursor\Iface $cursor, array $ref = []): ?\Aimeos\Map
     {
         if ($cursor->value() === '') {
             return null;
         }
-
         $filter = $cursor->filter()->add('product.id', '>', (int) $cursor->value())->order('product.id');
         $items = $this->search($filter, $ref);
-
-        $cursor->setValue($items->lastKey() ?: '');
-        return !$items->isEmpty() ? $items : null;
+        $cursor->set_value($items->last_key() ?: '');
+        return !$items->is_empty() ? $items : null;
     }
-
     /**
      * Updates the rating of the item
      *
@@ -192,42 +168,37 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param int $ratings Total number of ratings for the item
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rate(string $id, string $rating, int $ratings): \Aimeos\MShop\Common\Manager\Iface
+    public function rate(string $id, string $rating, int $ratings): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->rate($id, $rating, $ratings);
         return $this;
     }
-
     /**
      * Rebuilds the customer index
      *
      * @param \Aimeos\MShop\Product\Item\Iface[] $items Associative list of product IDs and items values
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function rebuild(iterable $items = []): \Aimeos\MShop\Index\Manager\Iface
+    public function rebuild(iterable $items = []): \Aimeos\M_Shop\Index\Manager\Iface
     {
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->rebuild($items);
         }
-
         return $this;
     }
-
     /**
      * Removes the products from the product index.
      *
      * @param iterable|string $ids Product ID or list of IDs
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function remove($ids): \Aimeos\MShop\Index\Manager\Iface
+    public function remove($ids): \Aimeos\M_Shop\Index\Manager\Iface
     {
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->remove($ids);
         }
-
         return $this;
     }
-
     /**
      * Adds or updates an item object or a list of them.
      *
@@ -240,7 +211,6 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
         $this->rebuild(map($this->manager->save($items, true)));
         return $items;
     }
-
     /**
      * Updates if the product is in stock
      *
@@ -248,12 +218,11 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param int $value "0" or "1" if product is in stock or not
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function stock(string $id, int $value): \Aimeos\MShop\Common\Manager\Iface
+    public function stock(string $id, int $value): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $this->manager->stock($id, $value);
         return $this;
     }
-
     /**
      * Removes all entries not touched after the given timestamp
      *
@@ -261,35 +230,28 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param string $path Configuration path to the SQL statement to execute
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    protected function cleanupBase(string $timestamp, string $path): \Aimeos\MShop\Index\Manager\Iface
+    protected function cleanup_base(string $timestamp, string $path): \Aimeos\M_Shop\Index\Manager\Iface
     {
         $context = $this->context();
-        $siteid = $context->locale()->getSiteId();
-
+        $siteid = $context->locale()->get_site_id();
         $this->begin();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         try {
-            $stmt = $this->getCachedStatement($conn, $path);
-
-            $stmt->bind(1, $timestamp); // ctime
+            $stmt = $this->get_cached_statement($conn, $path);
+            $stmt->bind(1, $timestamp);
+            // ctime
             $stmt->bind(2, $siteid);
-
             $stmt->execute()->finish();
         } catch (\Exception $e) {
             $this->rollback();
             throw $e;
         }
-
         $this->commit();
-
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->cleanup($timestamp);
         }
-
         return $this;
     }
-
     /**
      * Removes several items from the index
      *
@@ -299,29 +261,22 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param string $name Name of the ID column
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    protected function deleteItemsBase(
-        $ids,
-        string $path,
-        bool $siteidcheck = true,
-        string $name = 'prodid'
-    ): \Aimeos\MShop\Common\Manager\Iface {
-        foreach ($this->getSubManagers() as $submanager) {
+    protected function delete_items_base($ids, string $path, bool $siteidcheck = true, string $name = 'prodid'): \Aimeos\M_Shop\Common\Manager\Iface
+    {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->delete($ids);
         }
-
-        return parent::deleteItemsBase($ids, $path, $siteidcheck, $name);
+        return parent::delete_items_base($ids, $path, $siteidcheck, $name);
     }
-
     /**
      * Returns the product manager instance
      *
      * @return \Aimeos\MShop\Product\Manager\Iface Product manager object
      */
-    protected function getManager(): \Aimeos\MShop\Common\Manager\Iface
+    protected function get_manager(): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this->manager;
     }
-
     /**
      * Returns the string replacements for the SQL statements
      *
@@ -333,59 +288,48 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param \Aimeos\Base\Criteria\Attribute\Iface[] $columns Additional columns to retrieve values from
      * @return array Array of keys, find and replace arrays
      */
-    protected function getSQLReplacements(\Aimeos\Base\Criteria\Iface $search, array $attributes, array $attronly, array $plugins, array $joins): array
+    protected function get_sql_replacements(\Aimeos\Base\Criteria\Iface $search, array $attributes, array $attronly, array $plugins, array $joins): array
     {
-        $types = $this->getSearchTypes($attributes);
-        $funcs = $this->getSearchFunctions($attributes);
-        $translations = $this->getSearchTranslations($attributes);
-        $translations = $this->aliasTranslations($translations);
-
-        if (!empty($sorts = $search->getSortations())) {
+        $types = $this->get_search_types($attributes);
+        $funcs = $this->get_search_functions($attributes);
+        $translations = $this->get_search_translations($attributes);
+        $translations = $this->alias_translations($translations);
+        if (!empty($sorts = $search->get_sortations())) {
             $names = $search->translate($sorts, [], $funcs);
             $cols = $search->translate($sorts, $translations, $funcs);
-            $ops = map($sorts)->getOperator();
-
+            $ops = map($sorts)->get_operator();
             $list = $translations = [];
             foreach ($cols as $idx => $col) {
                 if (!str_contains($col, '"')) {
                     $col = $this->alias($names[$idx]) . '."' . $col . '"';
                 }
-
                 $list[] = ($ops[$idx] === '-' ? 'MAX' : 'MIN') . '(' . $col . ') AS "s' . $idx . '"';
                 $translations[$names[$idx]] = '"s' . $idx . '"';
             }
         }
-
-        $map = parent::getSQLReplacements($search, $attributes, $attronly, $plugins, $joins);
-
+        $map = parent::get_sql_replacements($search, $attributes, $attronly, $plugins, $joins);
         $map[':mincols'] = !empty($list) ? ', ' . implode(', ', $list) : '';
-        $map[':order'] = $search->getSortationSource($types, $translations, $funcs);
-
+        $map[':order'] = $search->get_sortation_source($types, $translations, $funcs);
         return $map;
     }
-
     /**
      * Optimizes the catalog customer index if necessary
      *
      * @param string $path Configuration path to the SQL statements to execute
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    protected function optimizeBase(string $path): \Aimeos\MShop\Index\Manager\Iface
+    protected function optimize_base(string $path): \Aimeos\M_Shop\Index\Manager\Iface
     {
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        foreach ((array) $this->getSqlConfig($path) as $sql) {
+        $conn = $context->db($this->get_resource_name());
+        foreach ((array) $this->get_sql_config($path) as $sql) {
             $conn->create($sql)->execute()->finish();
         }
-
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->optimize();
         }
-
         return $this;
     }
-
     /**
      * Searches for items matching the given criteria.
      *
@@ -396,19 +340,12 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
      * @param string $cfgPathCount Configuration path to the count SQL statement
      * @return \Aimeos\MShop\Product\Item\Iface[] List of product items
      */
-    protected function searchItemsIndexBase(
-        \Aimeos\Base\Criteria\Iface $search,
-        array $ref,
-        ?int &$total,
-        string $cfgPathSearch,
-        string $cfgPathCount
-    ): \Aimeos\Map {
+    protected function search_items_index_base(\Aimeos\Base\Criteria\Iface $search, array $ref, ?int &$total, string $cfg_path_search, string $cfg_path_count): \Aimeos\Map
+    {
         $list = $ids = [];
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $required = [ 'product' ];
-
+        $conn = $context->db($this->get_resource_name());
+        $required = ['product'];
         /** mshop/index/manager/sitemode
          * Mode how items from levels below or above in the site tree are handled
          *
@@ -437,27 +374,22 @@ abstract class DBBase extends \Aimeos\MShop\Common\Manager\Base implements \Aime
          * @since 2018.01
          * @see mshop/locale/manager/sitelevel
          */
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $context->config()->get('mshop/index/manager/sitemode', $level);
-
-        $results = $this->searchItemsBase($conn, $search, $cfgPathSearch, $cfgPathCount, $required, $total, $level);
-
+        $results = $this->search_items_base($conn, $search, $cfg_path_search, $cfg_path_count, $required, $total, $level);
         while ($row = $results->fetch()) {
             $ids[] = $row['id'];
         }
-
-        $manager = \Aimeos\MShop::create($context, 'product');
-        $prodSearch = $manager->filter();
-        $prodSearch->setConditions($prodSearch->compare('==', 'product.id', $ids));
-        $prodSearch->slice(0, $search->getLimit());
-        $items = $manager->search($prodSearch, $ref);
-
+        $manager = \Aimeos\M_Shop::create($context, 'product');
+        $prod_search = $manager->filter();
+        $prod_search->set_conditions($prod_search->compare('==', 'product.id', $ids));
+        $prod_search->slice(0, $search->get_limit());
+        $items = $manager->search($prod_search, $ref);
         foreach ($ids as $id) {
             if (isset($items[$id])) {
                 $list[$id] = $items[$id];
             }
         }
-
         return map($list);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,7 +8,6 @@ declare(strict_types=1);
  * @package MW
  * @subpackage Tree
  */
-
 namespace Aimeos\MW\Tree\Manager;
 
 /**
@@ -25,30 +23,26 @@ interface Iface
      *
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(): array;
-
+    public function get_search_attributes(): array;
     /**
      * Creates a new search object for storing search criterias.
      *
      * @return \Aimeos\Base\Criteria\Iface Search object instance
      */
-    public function createSearch(): \Aimeos\Base\Criteria\Iface;
-
+    public function create_search(): \Aimeos\Base\Criteria\Iface;
     /**
      * Creates a new node object.
      *
      * @return \Aimeos\MW\Tree\Node\Iface Empty node object
      */
-    public function createNode(): \Aimeos\MW\Tree\Node\Iface;
-
+    public function create_node(): \Aimeos\MW\Tree\Node\Iface;
     /**
      * Deletes a node and its descendants from the storage.
      *
      * @param string|null $id Delete the node with the ID and all nodes below
      * @return \Aimeos\MW\Tree\Manager\Iface Manager object for method chaining
      */
-    public function deleteNode(?string $id = null): Iface;
-
+    public function delete_node(?string $id = null): Iface;
     /**
      * Returns a node and its descendants depending on the given resource.
      *
@@ -57,8 +51,7 @@ interface Iface
      * @param \Aimeos\Base\Criteria\Iface|null $criteria Optional criteria object with conditions
      * @return \Aimeos\MW\Tree\Node\Iface Node, maybe with subnodes
      */
-    public function getNode(?string $id = null, int $level = Base::LEVEL_TREE, ?\Aimeos\Base\Criteria\Iface $criteria = null): \Aimeos\MW\Tree\Node\Iface;
-
+    public function get_node(?string $id = null, int $level = Base::LEVEL_TREE, ?\Aimeos\Base\Criteria\Iface $criteria = null): \Aimeos\MW\Tree\Node\Iface;
     /**
      * Inserts a new node before the given reference node to the parent in the storage.
      *
@@ -67,8 +60,7 @@ interface Iface
      * @param string|null $refId ID of the node where the node node should be inserted before (null to append)
      * @return \Aimeos\MW\Tree\Node\Iface Updated node item
      */
-    public function insertNode(\Aimeos\MW\Tree\Node\Iface $node, ?string $parentId = null, ?string $refId = null): \Aimeos\MW\Tree\Node\Iface;
-
+    public function insert_node(\Aimeos\MW\Tree\Node\Iface $node, ?string $parent_id = null, ?string $ref_id = null): \Aimeos\MW\Tree\Node\Iface;
     /**
      * Moves an existing node to the new parent in the storage.
      *
@@ -78,8 +70,7 @@ interface Iface
      * @param string|null $newRefId ID of the node where the node node should be inserted before (null to append)
      * @return \Aimeos\MW\Tree\Manager\Iface Manager object for method chaining
      */
-    public function moveNode(string $id, ?string $oldParentId = null, ?string $newParentId = null, ?string $newRefId = null): Iface;
-
+    public function move_node(string $id, ?string $old_parent_id = null, ?string $new_parent_id = null, ?string $new_ref_id = null): Iface;
     /**
      * Stores the values of the given node and it's descendants to the storage.
      *
@@ -89,28 +80,25 @@ interface Iface
      * @param \Aimeos\MW\Tree\Node\Iface $node Node, maybe with subnodes
      * @return \Aimeos\MW\Tree\Node\Iface Updated node item
      */
-    public function saveNode(\Aimeos\MW\Tree\Node\Iface $node): \Aimeos\MW\Tree\Node\Iface;
-
+    public function save_node(\Aimeos\MW\Tree\Node\Iface $node): \Aimeos\MW\Tree\Node\Iface;
     /**
      * Retrieves a list of nodes from the storage matching the given search criteria.
      *
      * @param \Aimeos\Base\Criteria\Iface $search Search criteria object
      * @return \Aimeos\MW\Tree\Node\Iface[] List of tree nodes
      */
-    public function searchNodes(\Aimeos\Base\Criteria\Iface $search): array;
-
+    public function search_nodes(\Aimeos\Base\Criteria\Iface $search): array;
     /**
      * Checks, whether a tree is read only.
      *
      * @return bool True if tree is read-only, false if not
      */
-    public function isReadOnly(): bool;
-
+    public function is_read_only(): bool;
     /**
      * Returns a list of node IDs that are in the path of given node ID
      *
      * @param string $id Id of node to get path
      * @return \Aimeos\MW\Tree\Node\Iface[] List of tree nodes
      */
-    public function getPath(string $id): array;
+    public function get_path(string $id): array;
 }

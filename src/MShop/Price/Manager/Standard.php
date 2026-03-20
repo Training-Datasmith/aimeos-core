@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Price
  */
-
-namespace Aimeos\MShop\Price\Manager;
+namespace Aimeos\M_Shop\Price\Manager;
 
 /**
  * Default implementation of a price manager.
@@ -18,22 +16,19 @@ namespace Aimeos\MShop\Price\Manager;
  * @package MShop
  * @subpackage Price
  */
-class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop\Price\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Price\Manager\Base implements \Aimeos\M_Shop\Price\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     private bool $taxflag;
     private int $precision;
-
     /**
      * Creates the price manager that will use the given context object.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         $config = $context->config();
-
         /** mshop/price/taxflag
          * Configuration setting if prices are inclusive or exclusive tax
          *
@@ -45,7 +40,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
          * @since 2016.02
          */
         $this->taxflag = (bool) $config->get('mshop/price/taxflag', true);
-
         /** mshop/price/precision
          * Number of decimal digits prices contain
          *
@@ -58,88 +52,31 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
          */
         $this->precision = (int) $config->get('mshop/price/precision', 2);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Price\Item\Iface New price item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $locale = $this->context()->locale();
-
-        $values['.currencyid'] = $locale->getCurrencyId();
+        $values['.currencyid'] = $locale->get_currency_id();
         $values['price.taxflag'] ??= $this->taxflag;
         $values['price.precision'] ??= $this->precision;
-        $values['price.currencyid'] ??= $locale->getCurrencyId();
-        $values['price.siteid'] ??= $locale->getSiteId();
-
-        return new \Aimeos\MShop\Price\Item\Standard('price.', $values);
+        $values['price.currencyid'] ??= $locale->get_currency_id();
+        $values['price.siteid'] ??= $locale->get_site_id();
+        return new \Aimeos\M_Shop\Price\Item\Standard('price.', $values);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'price.type' => [
-                'label' => 'Price type ID',
-                'internalcode' => 'type',
-            ],
-            'price.currencyid' => [
-                'label' => 'Price currency code',
-                'internalcode' => 'currencyid',
-            ],
-            'price.domain' => [
-                'label' => 'Price domain',
-                'internalcode' => 'domain',
-            ],
-            'price.label' => [
-                'label' => 'Price label',
-                'internalcode' => 'label',
-            ],
-            'price.quantity' => [
-                'label' => 'Price quantity',
-                'internalcode' => 'quantity',
-                'type' => 'float',
-            ],
-            'price.value' => [
-                'label' => 'Price regular value',
-                'internalcode' => 'value',
-                'type' => 'decimal',
-            ],
-            'price.costs' => [
-                'label' => 'Price shipping costs',
-                'internalcode' => 'costs',
-                'type' => 'decimal',
-            ],
-            'price.rebate' => [
-                'label' => 'Price rebate amount',
-                'internalcode' => 'rebate',
-                'type' => 'decimal',
-            ],
-            'price.taxrate' => [
-                'label' => 'Price tax rates as JSON encoded string',
-                'internalcode' => 'taxrate',
-                'type' => 'json',
-            ],
-            'price.taxrates' => [
-                'label' => 'Price tax rates as JSON encoded string',
-                'internalcode' => 'taxrate',
-                'type' => 'json',
-            ],
-            'price.status' => [
-                'label' => 'Price status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-        ]);
+        return $this->create_attributes(['price.type' => ['label' => 'Price type ID', 'internalcode' => 'type'], 'price.currencyid' => ['label' => 'Price currency code', 'internalcode' => 'currencyid'], 'price.domain' => ['label' => 'Price domain', 'internalcode' => 'domain'], 'price.label' => ['label' => 'Price label', 'internalcode' => 'label'], 'price.quantity' => ['label' => 'Price quantity', 'internalcode' => 'quantity', 'type' => 'float'], 'price.value' => ['label' => 'Price regular value', 'internalcode' => 'value', 'type' => 'decimal'], 'price.costs' => ['label' => 'Price shipping costs', 'internalcode' => 'costs', 'type' => 'decimal'], 'price.rebate' => ['label' => 'Price rebate amount', 'internalcode' => 'rebate', 'type' => 'decimal'], 'price.taxrate' => ['label' => 'Price tax rates as JSON encoded string', 'internalcode' => 'taxrate', 'type' => 'json'], 'price.taxrates' => ['label' => 'Price tax rates as JSON encoded string', 'internalcode' => 'taxrate', 'type' => 'json'], 'price.status' => ['label' => 'Price status', 'internalcode' => 'status', 'type' => 'int']]);
     }
-
     /**
      * Creates a filter object.
      *
@@ -149,15 +86,12 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('price', $default);
-
-        if ($default !== false && ($currencyid = $this->context()->locale()->getCurrencyId())) {
+        $filter = $this->filter_base('price', $default);
+        if ($default !== false && $currencyid = $this->context()->locale()->get_currency_id()) {
             $filter->add('price.currencyid', '==', $currencyid);
         }
-
         return $filter;
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -167,7 +101,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
     {
         return 'price.';
     }
-
     /** mshop/price/manager/resource
      * Name of the database connection resource to use
      *
@@ -179,7 +112,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/price/manager/name
      * Class name of the used price manager implementation
      *
@@ -212,7 +144,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/price/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the price manager
      *
@@ -237,7 +168,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/decorators/global
      * @see mshop/price/manager/decorators/local
      */
-
     /** mshop/price/manager/decorators/global
      * Adds a list of globally available decorators only to the price manager
      *
@@ -261,7 +191,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/decorators/excludes
      * @see mshop/price/manager/decorators/local
      */
-
     /** mshop/price/manager/decorators/local
      * Adds a list of local decorators only to the price manager
      *
@@ -285,7 +214,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/decorators/excludes
      * @see mshop/price/manager/decorators/global
      */
-
     /** mshop/price/manager/submanagers
      * List of manager names that can be instantiated by the price manager
      *
@@ -302,13 +230,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/price/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/price/manager/delete/ansi
      */
-
     /** mshop/price/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -332,13 +258,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/search/ansi
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/insert/mysql
      * Inserts a new price record into the database table
      *
      * @see mshop/price/manager/insert/ansi
      */
-
     /** mshop/price/manager/insert/ansi
      * Inserts a new price record into the database table
      *
@@ -367,13 +291,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/search/ansi
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/update/mysql
      * Updates an existing price record in the database
      *
      * @see mshop/price/manager/update/ansi
      */
-
     /** mshop/price/manager/update/ansi
      * Updates an existing price record in the database
      *
@@ -399,13 +321,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/search/ansi
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/price/manager/newid/ansi
      */
-
     /** mshop/price/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -435,7 +355,6 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/search/ansi
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -464,13 +383,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/price/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/price/manager/search/ansi
      */
-
     /** mshop/price/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -519,13 +436,11 @@ class Standard extends \Aimeos\MShop\Price\Manager\Base implements \Aimeos\MShop
      * @see mshop/price/manager/delete/ansi
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/price/manager/count/ansi
      */
-
     /** mshop/price/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

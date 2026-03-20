@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Job
  */
-
-namespace Aimeos\MAdmin\Job\Manager;
+namespace Aimeos\M_Admin\Job\Manager;
 
 /**
  * Default job manager implementation.
@@ -18,7 +16,7 @@ namespace Aimeos\MAdmin\Job\Manager;
  * @package MAdmin
  * @subpackage Job
  */
-class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\Job\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Admin\Common\Manager\Base implements \Aimeos\M_Admin\Job\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /** madmin/job/manager/name
      * Class name of the used job manager implementation
@@ -52,7 +50,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string Last part of the class name
      * @since 2014.03
      */
-
     /** madmin/job/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the job manager
      *
@@ -77,7 +74,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/job/manager/decorators/global
      * @see madmin/job/manager/decorators/local
      */
-
     /** madmin/job/manager/decorators/global
      * Adds a list of globally available decorators only to the job manager
      *
@@ -100,7 +96,6 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/job/manager/decorators/excludes
      * @see madmin/job/manager/decorators/local
      */
-
     /** madmin/job/manager/decorators/local
      * Adds a list of local decorators only to the job manager
      *
@@ -124,64 +119,15 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @see madmin/job/manager/decorators/excludes
      * @see madmin/job/manager/decorators/global
      */
-
-    private array $searchConfig = [
-        'job.id' => [
-            'code' => 'job.id',
-            'internalcode' => 'majob."id"',
-            'label' => 'ID',
-            'type' => 'int',
-        ],
-        'job.siteid' => [
-            'code' => 'job.siteid',
-            'internalcode' => 'majob."siteid"',
-            'label' => 'Site ID',
-            'public' => false,
-        ],
-        'job.label' => [
-            'code' => 'job.label',
-            'internalcode' => 'majob."label"',
-            'label' => 'Label',
-        ],
-        'job.status' => [
-            'code' => 'job.status',
-            'internalcode' => 'majob."status"',
-            'label' => 'Status',
-            'type' => 'int',
-        ],
-        'job.path' => [
-            'code' => 'job.path',
-            'internalcode' => 'majob."path"',
-            'label' => 'Generated file path',
-        ],
-        'job.ctime' => [
-            'code' => 'job.ctime',
-            'internalcode' => 'majob."ctime"',
-            'label' => 'Create date/time',
-            'type' => 'datetime',
-        ],
-        'job.mtime' => [
-            'code' => 'job.mtime',
-            'internalcode' => 'majob."mtime"',
-            'label' => 'Modify date/time',
-            'type' => 'datetime',
-        ],
-        'job.editor' => [
-            'code' => 'job.editor',
-            'internalcode' => 'majob."editor"',
-            'label' => 'Editor',
-        ],
-    ];
-
+    private array $search_config = ['job.id' => ['code' => 'job.id', 'internalcode' => 'majob."id"', 'label' => 'ID', 'type' => 'int'], 'job.siteid' => ['code' => 'job.siteid', 'internalcode' => 'majob."siteid"', 'label' => 'Site ID', 'public' => false], 'job.label' => ['code' => 'job.label', 'internalcode' => 'majob."label"', 'label' => 'Label'], 'job.status' => ['code' => 'job.status', 'internalcode' => 'majob."status"', 'label' => 'Status', 'type' => 'int'], 'job.path' => ['code' => 'job.path', 'internalcode' => 'majob."path"', 'label' => 'Generated file path'], 'job.ctime' => ['code' => 'job.ctime', 'internalcode' => 'majob."ctime"', 'label' => 'Create date/time', 'type' => 'datetime'], 'job.mtime' => ['code' => 'job.mtime', 'internalcode' => 'majob."mtime"', 'label' => 'Modify date/time', 'type' => 'datetime'], 'job.editor' => ['code' => 'job.editor', 'internalcode' => 'majob."editor"', 'label' => 'Editor']];
     /**
      * Initializes the object.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
         /** madmin/job/manager/resource
          * Name of the database connection resource to use
          *
@@ -193,37 +139,33 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @param string Database connection name
          * @since 2023.04
          */
-        $this->setResourceName($context->config()->get('madmin/job/manager/resource', 'db-job'));
+        $this->set_resource_name($context->config()->get('madmin/job/manager/resource', 'db-job'));
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MAdmin\Job\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $path = 'madmin/job/manager/submanagers';
         foreach ($this->context()->config()->get($path, []) as $domain) {
-            $this->object()->getSubManager($domain)->clear($siteids);
+            $this->object()->get_sub_manager($domain)->clear($siteids);
         }
-
-        return $this->clearBase($siteids, 'madmin/job/manager/delete');
+        return $this->clear_base($siteids, 'madmin/job/manager/delete');
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MAdmin\Job\Item\Iface New job item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['job.siteid'] ??= $this->context()->locale()->getSiteId();
-        return $this->createItemBase($values);
+        $values['job.siteid'] ??= $this->context()->locale()->get_site_id();
+        return $this->create_item_base($values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -233,9 +175,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('job', $default);
+        return $this->filter_base('job', $default);
     }
-
     /**
      * Adds a new job to the storage.
      *
@@ -243,25 +184,21 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MAdmin\Job\Item\Iface Updated item including the generated ID
      */
-    protected function saveItem(\Aimeos\MAdmin\Job\Item\Iface $item, bool $fetch = true): \Aimeos\MAdmin\Job\Item\Iface
+    protected function save_item(\Aimeos\M_Admin\Job\Item\Iface $item, bool $fetch = true): \Aimeos\M_Admin\Job\Item\Iface
     {
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $id = $item->getId();
-        $columns = $this->object()->getSaveAttributes();
-
+        $conn = $context->db($this->get_resource_name());
+        $id = $item->get_id();
+        $columns = $this->object()->get_save_attributes();
         if ($id === null) {
             /** madmin/job/manager/insert/mysql
              * Inserts a new job record into the database table
              *
              * @see madmin/job/manager/insert/ansi
              */
-
             /** madmin/job/manager/insert/ansi
              * Inserts a new job record into the database table
              *
@@ -291,14 +228,13 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/job/manager/count/ansi
              */
             $path = 'madmin/job/manager/insert';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         } else {
             /** madmin/job/manager/update/mysql
              * Updates an existing job record in the database
              *
              * @see madmin/job/manager/update/ansi
              */
-
             /** madmin/job/manager/update/ansi
              * Updates an existing job record in the database
              *
@@ -325,39 +261,32 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/job/manager/count/ansi
              */
             $path = 'madmin/job/manager/update';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         }
-
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $item->getLabel());
-        $stmt->bind($idx++, $item->getPath());
-        $stmt->bind($idx++, $item->getStatus(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $item->get_label());
+        $stmt->bind($idx++, $item->get_path());
+        $stmt->bind($idx++, $item->get_status(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         $stmt->bind($idx++, $context->editor());
         $stmt->bind($idx++, $context->datetime());
-
         if ($id !== null) {
-            $stmt->bind($idx++, $context->locale()->getSiteId() . '%');
+            $stmt->bind($idx++, $context->locale()->get_site_id() . '%');
             $stmt->bind($idx++, $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         } else {
-            $stmt->bind($idx++, $context->locale()->getSiteId());
+            $stmt->bind($idx++, $context->locale()->get_site_id());
             $stmt->bind($idx++, $context->datetime());
         }
-
         $stmt->execute()->finish();
-
         if ($id === null && $fetch === true) {
             /** madmin/job/manager/newid/mysql
              * Retrieves the ID generated by the database when inserting a new record
              *
              * @see madmin/job/manager/newid/ansi
              */
-
             /** madmin/job/manager/newid/ansi
              * Retrieves the ID generated by the database when inserting a new record
              *
@@ -387,28 +316,25 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
              * @see madmin/job/manager/search/ansi
              * @see madmin/job/manager/count/ansi
              */
-            $id = $this->newId($conn, 'madmin/job/manager/newid');
+            $id = $this->new_id($conn, 'madmin/job/manager/newid');
         }
-
-        $item->setId($id); // so item is no longer modified
-
+        $item->set_id($id);
+        // so item is no longer modified
         return $item;
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MAdmin\Job\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** madmin/job/manager/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see madmin/job/manager/delete/ansi
          */
-
         /** madmin/job/manager/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -433,10 +359,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/job/manager/count/ansi
          */
         $path = 'madmin/job/manager/delete';
-
-        return $this->deleteItemsBase($itemIds, $path);
+        return $this->delete_items_base($item_ids, $path);
     }
-
     /**
      * Creates the job object for the given job ID.
      *
@@ -446,23 +370,17 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @return \Aimeos\MAdmin\Job\Item\Iface Returns the job item of the given id
      * @throws \Aimeos\MAdmin\Job\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         $criteria = $this->object()->filter($default);
-        $expr = [
-            $criteria->compare('==', 'job.id', $id),
-            $criteria->getConditions(),
-        ];
-        $criteria->setConditions($criteria->and($expr));
-
-        if (($item = $this->object()->search($criteria, $ref)->first())) {
+        $expr = [$criteria->compare('==', 'job.id', $id), $criteria->get_conditions()];
+        $criteria->set_conditions($criteria->and($expr));
+        if ($item = $this->object()->search($criteria, $ref)->first()) {
             return $item;
         }
-
         $msg = $this->context()->translate('mshop', 'Job with ID "%1$s" not found');
-        throw new \Aimeos\MAdmin\Job\Exception(sprintf($msg, $id));
+        throw new \Aimeos\M_Admin\Job\Exception(sprintf($msg, $id));
     }
-
     /**
      * Search for jobs based on the given criteria.
      *
@@ -476,17 +394,14 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
         $items = [];
         $context = $this->context();
         $context->logger();
-        $conn = $context->db($this->getResourceName());
-
-        $required = [ 'job' ];
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ONE;
-
+        $conn = $context->db($this->get_resource_name());
+        $required = ['job'];
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ONE;
         /** madmin/job/manager/search/mysql
          * Retrieves the records matched by the given criteria in the database
          *
          * @see madmin/job/manager/search/ansi
          */
-
         /** madmin/job/manager/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -535,14 +450,12 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/job/manager/delete/ansi
          * @see madmin/job/manager/count/ansi
          */
-        $cfgPathSearch = 'madmin/job/manager/search';
-
+        $cfg_path_search = 'madmin/job/manager/search';
         /** madmin/job/manager/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see madmin/job/manager/count/ansi
          */
-
         /** madmin/job/manager/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -587,26 +500,22 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @see madmin/job/manager/delete/ansi
          * @see madmin/job/manager/search/ansi
          */
-        $cfgPathCount = 'madmin/job/manager/count';
-
-        $results = $this->searchItemsBase($conn, $search, $cfgPathSearch, $cfgPathCount, $required, $total, $level);
-
+        $cfg_path_count = 'madmin/job/manager/count';
+        $results = $this->search_items_base($conn, $search, $cfg_path_search, $cfg_path_count, $required, $total, $level);
         while ($row = $results->fetch()) {
-            if ($item = $this->applyFilter($this->createItemBase($row))) {
+            if ($item = $this->apply_filter($this->create_item_base($row))) {
                 $items[$row['job.id']] = $item;
             }
         }
-
         return map($items);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] Returns a list of attributes
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         /** madmin/job/manager/submanagers
          * List of manager names that can be instantiated by the job manager
@@ -625,10 +534,8 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
          * @since 2014.03
          */
         $path = 'madmin/job/manager/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for job extensions
      *
@@ -636,19 +543,18 @@ class Standard extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAd
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->getSubManagerBase('job', $manager, $name);
+        return $this->get_sub_manager_base('job', $manager, $name);
     }
-
     /**
      * Create new admin job item object initialized with given parameters.
      *
      * @param array $values Associative list of key/value pairs of a job
      * @return \Aimeos\MAdmin\Job\Item\Iface New job item
      */
-    protected function createItemBase(array $values = []): \Aimeos\MAdmin\Job\Item\Iface
+    protected function create_item_base(array $values = []): \Aimeos\M_Admin\Job\Item\Iface
     {
-        return new \Aimeos\MAdmin\Job\Item\Standard($values);
+        return new \Aimeos\M_Admin\Job\Item\Standard($values);
     }
 }

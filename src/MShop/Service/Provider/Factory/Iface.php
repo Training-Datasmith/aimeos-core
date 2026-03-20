@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Factory;
+namespace Aimeos\M_Shop\Service\Provider\Factory;
 
 /**
  * Factory interface for service provider.
@@ -26,5 +24,5 @@ interface Iface
      * @param \Aimeos\MShop\ContextIface $context Context object with required objects
      * @param \Aimeos\MShop\Service\Item\Iface $serviceItem Service item with configuration for the provider
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context, \Aimeos\MShop\Service\Item\Iface $serviceItem);
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context, \Aimeos\M_Shop\Service\Item\Iface $service_item);
 }

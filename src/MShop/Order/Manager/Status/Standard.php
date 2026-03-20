@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Status;
+namespace Aimeos\M_Shop\Order\Manager\Status;
 
 /**
  * Default implementation for order status manager.
@@ -16,25 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Status;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Status\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Status\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.status.parentid' => [
-            'label' => 'Status parent ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.status.type' => [
-            'label' => 'Status type',
-            'internalcode' => 'type',
-        ],
-        'order.status.value' => [
-            'label' => 'Status value',
-            'internalcode' => 'value',
-        ],
-    ];
-
+    private array $search_config = ['order.status.parentid' => ['label' => 'Status parent ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.status.type' => ['label' => 'Status type', 'internalcode' => 'type'], 'order.status.value' => ['label' => 'Status value', 'internalcode' => 'value']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -51,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/status/aggregate/ansi
          */
-
         /** mshop/order/manager/status/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -95,50 +77,38 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/status/count/ansi
          */
         $cfgkey = 'mshop/order/manager/status/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.status'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.status'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Status\Iface New order status item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['order.status.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Order\Item\Status\Standard('order.status.', $values);
+        $values['order.status.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Status\Standard('order.status.', $values);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.status.id' => [
-                'label' => 'Order status ID',
-                'internalcode' => 'id',
-                'internaldeps' => ['LEFT JOIN "mshop_order_status" AS mordst ON ( mord."id" = mordst."parentid" )'],
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.status.id' => ['label' => 'Order status ID', 'internalcode' => 'id', 'internaldeps' => ['LEFT JOIN "mshop_order_status" AS mordst ON ( mord."id" = mordst."parentid" )'], 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -148,13 +118,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.status.';
     }
-
     /** mshop/order/manager/status/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/status/insert/ansi
      */
-
     /** mshop/order/manager/status/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -183,13 +151,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/search/ansi
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/status/update/ansi
      */
-
     /** mshop/order/manager/status/update/ansi
      * Updates an existing order record in the database
      *
@@ -215,13 +181,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/search/ansi
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/status/newid/ansi
      */
-
     /** mshop/order/manager/status/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -251,13 +215,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/search/ansi
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/status/delete/ansi
      */
-
     /** mshop/order/manager/status/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -281,7 +243,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/search/ansi
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/submanagers
      * List of manager names that can be instantiated by the order status manager
      *
@@ -298,7 +259,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/status/name
      * Class name of the used order status manager implementation
      *
@@ -331,7 +291,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/status/decorators/excludes
      * Excludes decorators added by the "common" option from the order status manager
      *
@@ -356,7 +315,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/decorators/global
      * @see mshop/order/manager/status/decorators/local
      */
-
     /** mshop/order/manager/status/decorators/global
      * Adds a list of globally available decorators only to the order status manager
      *
@@ -381,7 +339,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/decorators/excludes
      * @see mshop/order/manager/status/decorators/local
      */
-
     /** mshop/order/manager/status/decorators/local
      * Adds a list of local decorators only to the order status manager
      *
@@ -406,13 +363,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/decorators/excludes
      * @see mshop/order/manager/status/decorators/global
      */
-
     /** mshop/order/manager/status/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/status/search/ansi
      */
-
     /** mshop/order/manager/status/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -461,13 +416,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/status/delete/ansi
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/status/count/ansi
      */
-
     /** mshop/order/manager/status/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

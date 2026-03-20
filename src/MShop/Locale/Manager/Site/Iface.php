@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Locale
  */
-
-namespace Aimeos\MShop\Locale\Manager\Site;
+namespace Aimeos\M_Shop\Locale\Manager\Site;
 
 /**
  * Interface for Locale site manager.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Locale\Manager\Site;
  * @package MShop
  * @subpackage Locale
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common\Manager\Find\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Find\Iface
 {
     /**
      * Returns a list of item IDs, that are in the path of given item ID.
@@ -26,8 +24,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common
      * @param string[] $ref List of domains to fetch list items and referenced items for
      * @return \Aimeos\Map List of IDs as keys and items implementing \Aimeos\MShop\Locale\Item\Site\Iface
      */
-    public function getPath(string $id, array $ref = []): \Aimeos\Map;
-
+    public function get_path(string $id, array $ref = []): \Aimeos\Map;
     /**
      * Returns a node and its descendants depending on the given resource.
      *
@@ -37,13 +34,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common
      * @param \Aimeos\Base\Criteria\Iface|null $criteria Optional criteria object with conditions
      * @return \Aimeos\MShop\Locale\Item\Site\Iface Site node, maybe with subnodes
      */
-    public function getTree(
-        ?string $id = null,
-        array $ref = [],
-        int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE,
-        ?\Aimeos\Base\Criteria\Iface $criteria = null
-    ): \Aimeos\MShop\Locale\Item\Site\Iface;
-
+    public function get_tree(?string $id = null, array $ref = [], int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE, ?\Aimeos\Base\Criteria\Iface $criteria = null): \Aimeos\M_Shop\Locale\Item\Site\Iface;
     /**
      * Adds a new item object.
      *
@@ -52,12 +43,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Locale\Item\Site\Iface $item Updated item including the generated ID
      */
-    public function insert(
-        \Aimeos\MShop\Locale\Item\Site\Iface $item,
-        ?string $parentId = null,
-        ?string $refId = null
-    ): \Aimeos\MShop\Locale\Item\Site\Iface;
-
+    public function insert(\Aimeos\M_Shop\Locale\Item\Site\Iface $item, ?string $parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Locale\Item\Site\Iface;
     /**
      * Moves an existing item to the new parent in the storage.
      *
@@ -67,10 +53,5 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface, \Aimeos\MShop\Common
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Locale\Manager\Site\Iface Manager object for chaining method calls
      */
-    public function move(
-        string $id,
-        ?string $oldParentId = null,
-        ?string $newParentId = null,
-        ?string $refId = null
-    ): \Aimeos\MShop\Locale\Manager\Site\Iface;
+    public function move(string $id, ?string $old_parent_id = null, ?string $new_parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Locale\Manager\Site\Iface;
 }

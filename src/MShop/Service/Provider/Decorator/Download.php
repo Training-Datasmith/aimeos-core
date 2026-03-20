@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Provider\Decorator;
+namespace Aimeos\M_Shop\Service\Provider\Decorator;
 
 /**
  * Download check decorator for service providers
@@ -22,19 +20,9 @@ namespace Aimeos\MShop\Service\Provider\Decorator;
  * @package MShop
  * @subpackage Service
  */
-class Download extends \Aimeos\MShop\Service\Provider\Decorator\Base implements \Aimeos\MShop\Service\Provider\Decorator\Iface
+class Download extends \Aimeos\M_Shop\Service\Provider\Decorator\Base implements \Aimeos\M_Shop\Service\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'download.all' => [
-            'code' => 'download.all',
-            'internalcode' => 'download.all',
-            'label' => 'Check products: "1" = all must be downloads, "0" = at least one is no download',
-            'type' => 'bool',
-            'default' => '',
-            'required' => true,
-        ],
-    ];
-
+    private array $be_config = ['download.all' => ['code' => 'download.all', 'internalcode' => 'download.all', 'label' => 'Check products: "1" = all must be downloads, "0" = at least one is no download', 'type' => 'bool', 'default' => '', 'required' => true]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -42,24 +30,21 @@ class Download extends \Aimeos\MShop\Service\Provider\Decorator\Base implements 
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $error = $this->getProvider()->checkConfigBE($attributes);
-
-        return $error + $this->checkConfig($this->beConfig, $attributes);
+        $error = $this->get_provider()->check_config_be($attributes);
+        return $error + $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return array_replace(parent::getConfigBE(), $this->getConfigItems($this->beConfig));
+        return array_replace(parent::get_config_be(), $this->get_config_items($this->be_config));
     }
-
     /**
      * Checks if the service provider should be available.
      *
@@ -71,24 +56,21 @@ class Download extends \Aimeos\MShop\Service\Provider\Decorator\Base implements 
      * @param \Aimeos\MShop\Order\Item\Iface $basket Basket object
      * @return bool True if payment provider can be used, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $basket): bool
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $basket): bool
     {
-        if ((bool) $this->getConfigValue('download.all') === true) {
-            foreach ($basket->getProducts() as $product) {
-                if ($product->getAttribute('download', 'hidden') === null) {
+        if ((bool) $this->get_config_value('download.all') === true) {
+            foreach ($basket->get_products() as $product) {
+                if ($product->get_attribute('download', 'hidden') === null) {
                     return false;
                 }
             }
-
-            return $this->getProvider()->isAvailable($basket);
+            return $this->get_provider()->is_available($basket);
         }
-
-        foreach ($basket->getProducts() as $product) {
-            if ($product->getAttribute('download', 'hidden') === null) {
-                return $this->getProvider()->isAvailable($basket);
+        foreach ($basket->get_products() as $product) {
+            if ($product->get_attribute('download', 'hidden') === null) {
+                return $this->get_provider()->is_available($basket);
             }
         }
-
         return false;
     }
 }

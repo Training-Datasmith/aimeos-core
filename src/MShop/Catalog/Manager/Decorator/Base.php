@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Catalog
  */
-
-namespace Aimeos\MShop\Catalog\Manager\Decorator;
+namespace Aimeos\M_Shop\Catalog\Manager\Decorator;
 
 /**
  * Provides common methods for catalog manager decorators.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Catalog\Manager\Decorator;
  * @package MShop
  * @subpackage Catalog
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implements \Aimeos\MShop\Catalog\Manager\Iface
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Decorator\Base implements \Aimeos\M_Shop\Catalog\Manager\Iface
 {
     /**
      * Creates a new lists item object
@@ -26,11 +24,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Common\Item\Lists\Iface New lists item object
      */
-    public function createListItem(array $values = []): \Aimeos\MShop\Common\Item\Lists\Iface
+    public function create_list_item(array $values = []): \Aimeos\M_Shop\Common\Item\Lists\Iface
     {
-        return $this->getManager()->createListItem($values);
+        return $this->get_manager()->create_list_item($values);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -41,16 +38,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Catalog\Item\Iface Catalog item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->getManager()->find($code, $ref, $domain, $type, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->get_manager()->find($code, $ref, $domain, $type, $default);
     }
-
     /**
      * Returns a list of items starting with the given category that are in the path to the root node
      *
@@ -58,11 +49,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param string[] $ref List of domains to fetch list items and referenced items for
      * @return \Aimeos\Map Associative list of items implementing \Aimeos\MShop\Catalog\Item\Iface with IDs as keys
      */
-    public function getPath(string $id, array $ref = []): \Aimeos\Map
+    public function get_path(string $id, array $ref = []): \Aimeos\Map
     {
-        return $this->getManager()->getPath($id, $ref);
+        return $this->get_manager()->get_path($id, $ref);
     }
-
     /**
      * Returns a node and its descendants depending on the given resource.
      *
@@ -72,15 +62,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param \Aimeos\Base\Criteria\Iface|null $criteria Optional criteria object with conditions
      * @return \Aimeos\MW\Tree\Node\Iface Node, maybe with subnodes
      */
-    public function getTree(
-        ?string $id = null,
-        array $ref = [],
-        int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE,
-        ?\Aimeos\Base\Criteria\Iface $criteria = null
-    ): \Aimeos\MShop\Catalog\Item\Iface {
-        return $this->getManager()->getTree($id, $ref, $level, $criteria);
+    public function get_tree(?string $id = null, array $ref = [], int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE, ?\Aimeos\Base\Criteria\Iface $criteria = null): \Aimeos\M_Shop\Catalog\Item\Iface
+    {
+        return $this->get_manager()->get_tree($id, $ref, $level, $criteria);
     }
-
     /**
      * Adds a new item object.
      *
@@ -89,14 +74,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Catalog\Item\Iface $item Updated item including the generated ID
      */
-    public function insert(
-        \Aimeos\MShop\Catalog\Item\Iface $item,
-        ?string $parentId = null,
-        ?string $refId = null
-    ): \Aimeos\MShop\Catalog\Item\Iface {
-        return $this->getManager()->insert($item, $parentId, $refId);
+    public function insert(\Aimeos\M_Shop\Catalog\Item\Iface $item, ?string $parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Catalog\Item\Iface
+    {
+        return $this->get_manager()->insert($item, $parent_id, $ref_id);
     }
-
     /**
      * Moves an existing item to the new parent in the storage.
      *
@@ -106,13 +87,9 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Decorator\Base implemen
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Catalog\Manager\Iface Manager object for chaining method calls
      */
-    public function move(
-        string $id,
-        ?string $oldParentId = null,
-        ?string $newParentId = null,
-        ?string $refId = null
-    ): \Aimeos\MShop\Catalog\Manager\Iface {
-        $this->getManager()->move($id, $oldParentId, $newParentId, $refId);
+    public function move(string $id, ?string $old_parent_id = null, ?string $new_parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Catalog\Manager\Iface
+    {
+        $this->get_manager()->move($id, $old_parent_id, $new_parent_id, $ref_id);
         return $this;
     }
 }

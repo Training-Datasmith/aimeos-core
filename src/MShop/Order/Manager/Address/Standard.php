@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Address;
+namespace Aimeos\M_Shop\Order\Manager\Address;
 
 /**
  * Default order address manager implementation.
@@ -17,123 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Address;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Address\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Address\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.address.parentid' => [
-            'label' => 'Order ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.address.addressid' => [
-            'label' => 'Customer address ID',
-            'internalcode' => 'addrid',
-            'public' => false,
-        ],
-        'order.address.type' => [
-            'label' => 'Address type',
-            'internalcode' => 'type',
-        ],
-        'order.address.company' => [
-            'label' => 'Address company',
-            'internalcode' => 'company',
-        ],
-        'order.address.vatid' => [
-            'label' => 'Address Vat ID',
-            'internalcode' => 'vatid',
-        ],
-        'order.address.salutation' => [
-            'label' => 'Address salutation',
-            'internalcode' => 'salutation',
-        ],
-        'order.address.title' => [
-            'label' => 'Address title',
-            'internalcode' => 'title',
-        ],
-        'order.address.firstname' => [
-            'label' => 'Address firstname',
-            'internalcode' => 'firstname',
-        ],
-        'order.address.lastname' => [
-            'label' => 'Address lastname',
-            'internalcode' => 'lastname',
-        ],
-        'order.address.address1' => [
-            'label' => 'Address part one',
-            'internalcode' => 'address1',
-        ],
-        'order.address.address2' => [
-            'label' => 'Address part two',
-            'internalcode' => 'address2',
-        ],
-        'order.address.address3' => [
-            'label' => 'Address part three',
-            'internalcode' => 'address3',
-        ],
-        'order.address.postal' => [
-            'label' => 'Address postal',
-            'internalcode' => 'postal',
-        ],
-        'order.address.city' => [
-            'label' => 'Address city',
-            'internalcode' => 'city',
-        ],
-        'order.address.state' => [
-            'label' => 'Address state',
-            'internalcode' => 'state',
-        ],
-        'order.address.countryid' => [
-            'label' => 'Address country ID',
-            'internalcode' => 'countryid',
-        ],
-        'order.address.languageid' => [
-            'label' => 'Address language ID',
-            'internalcode' => 'langid',
-        ],
-        'order.address.telephone' => [
-            'label' => 'Address telephone',
-            'internalcode' => 'telephone',
-        ],
-        'order.address.telefax' => [
-            'label' => 'Address telefax',
-            'internalcode' => 'telefax',
-        ],
-        'order.address.mobile' => [
-            'label' => 'Address mobile number',
-            'internalcode' => 'mobile',
-        ],
-        'order.address.email' => [
-            'label' => 'Address email',
-            'internalcode' => 'email',
-        ],
-        'order.address.website' => [
-            'label' => 'Address website',
-            'internalcode' => 'website',
-        ],
-        'order.address.birthday' => [
-            'label' => 'Address birthday',
-            'internalcode' => 'birthday',
-            'type' => 'date',
-        ],
-        'order.address.longitude' => [
-            'label' => 'Address longitude',
-            'internalcode' => 'longitude',
-            'public' => false,
-        ],
-        'order.address.latitude' => [
-            'label' => 'Address latitude',
-            'internalcode' => 'latitude',
-            'public' => false,
-        ],
-        'order.address.position' => [
-            'label' => 'Address position',
-            'internalcode' => 'pos',
-            'type' => 'int',
-            'public' => false,
-        ],
-    ];
-
+    private array $search_config = ['order.address.parentid' => ['label' => 'Order ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.address.addressid' => ['label' => 'Customer address ID', 'internalcode' => 'addrid', 'public' => false], 'order.address.type' => ['label' => 'Address type', 'internalcode' => 'type'], 'order.address.company' => ['label' => 'Address company', 'internalcode' => 'company'], 'order.address.vatid' => ['label' => 'Address Vat ID', 'internalcode' => 'vatid'], 'order.address.salutation' => ['label' => 'Address salutation', 'internalcode' => 'salutation'], 'order.address.title' => ['label' => 'Address title', 'internalcode' => 'title'], 'order.address.firstname' => ['label' => 'Address firstname', 'internalcode' => 'firstname'], 'order.address.lastname' => ['label' => 'Address lastname', 'internalcode' => 'lastname'], 'order.address.address1' => ['label' => 'Address part one', 'internalcode' => 'address1'], 'order.address.address2' => ['label' => 'Address part two', 'internalcode' => 'address2'], 'order.address.address3' => ['label' => 'Address part three', 'internalcode' => 'address3'], 'order.address.postal' => ['label' => 'Address postal', 'internalcode' => 'postal'], 'order.address.city' => ['label' => 'Address city', 'internalcode' => 'city'], 'order.address.state' => ['label' => 'Address state', 'internalcode' => 'state'], 'order.address.countryid' => ['label' => 'Address country ID', 'internalcode' => 'countryid'], 'order.address.languageid' => ['label' => 'Address language ID', 'internalcode' => 'langid'], 'order.address.telephone' => ['label' => 'Address telephone', 'internalcode' => 'telephone'], 'order.address.telefax' => ['label' => 'Address telefax', 'internalcode' => 'telefax'], 'order.address.mobile' => ['label' => 'Address mobile number', 'internalcode' => 'mobile'], 'order.address.email' => ['label' => 'Address email', 'internalcode' => 'email'], 'order.address.website' => ['label' => 'Address website', 'internalcode' => 'website'], 'order.address.birthday' => ['label' => 'Address birthday', 'internalcode' => 'birthday', 'type' => 'date'], 'order.address.longitude' => ['label' => 'Address longitude', 'internalcode' => 'longitude', 'public' => false], 'order.address.latitude' => ['label' => 'Address latitude', 'internalcode' => 'latitude', 'public' => false], 'order.address.position' => ['label' => 'Address position', 'internalcode' => 'pos', 'type' => 'int', 'public' => false]];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -150,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/address/aggregate/ansi
          */
-
         /** mshop/order/manager/address/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -194,21 +77,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/address/count/ansi
          */
         $cfgkey = 'mshop/order/manager/address/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.address'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.address'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Address\Iface New order address item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['order.address.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Order\Item\Address\Standard('order.address.', $values);
+        $values['order.address.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Address\Standard('order.address.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -220,36 +101,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return parent::filter($default)->order('order.address.position');
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.address.id' => [
-                'label' => 'Order address ID',
-                'internalcode' => 'id',
-                'internaldeps' => ['LEFT JOIN "mshop_order_address" AS mordad ON ( mord."id" = mordad."parentid" )'],
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.address.id' => ['label' => 'Order address ID', 'internalcode' => 'id', 'internaldeps' => ['LEFT JOIN "mshop_order_address" AS mordad ON ( mord."id" = mordad."parentid" )'], 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -259,13 +129,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.address.';
     }
-
     /** mshop/order/manager/address/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/address/delete/ansi
      */
-
     /** mshop/order/manager/address/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -289,7 +157,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/search/ansi
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/submanagers
      * List of manager names that can be instantiated by the order base address manager
      *
@@ -306,7 +173,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/address/name
      * Class name of the used order base address manager implementation
      *
@@ -339,7 +205,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/address/decorators/excludes
      * Excludes decorators added by the "common" option from the order base address manager
      *
@@ -364,7 +229,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/decorators/global
      * @see mshop/order/manager/address/decorators/local
      */
-
     /** mshop/order/manager/address/decorators/global
      * Adds a list of globally available decorators only to the order base address manager
      *
@@ -389,7 +253,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/decorators/excludes
      * @see mshop/order/manager/address/decorators/local
      */
-
     /** mshop/order/manager/address/decorators/local
      * Adds a list of local decorators only to the order base address manager
      *
@@ -414,13 +277,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/decorators/excludes
      * @see mshop/order/manager/address/decorators/global
      */
-
     /** mshop/order/manager/address/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/address/insert/ansi
      */
-
     /** mshop/order/manager/address/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -449,13 +310,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/search/ansi
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/address/update/ansi
      */
-
     /** mshop/order/manager/address/update/ansi
      * Updates an existing order record in the database
      *
@@ -481,13 +340,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/search/ansi
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/address/newid/ansi
      */
-
     /** mshop/order/manager/address/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -517,13 +374,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/search/ansi
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/address/search/ansi
      */
-
     /** mshop/order/manager/address/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -572,13 +427,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/address/delete/ansi
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/address/count/ansi
      */
-
     /** mshop/order/manager/address/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

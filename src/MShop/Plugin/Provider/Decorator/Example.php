@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Decorator;
+namespace Aimeos\M_Shop\Plugin\Provider\Decorator;
 
 /**
  * Simple example implementation of a plugin decorator.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Plugin\Provider\Decorator;
  * @package MShop
  * @subpackage Plugin
  */
-class Example extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \Aimeos\MShop\Plugin\Provider\Decorator\Iface
+class Example extends \Aimeos\M_Shop\Plugin\Provider\Decorator\Base implements \Aimeos\M_Shop\Plugin\Provider\Decorator\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -26,12 +24,11 @@ class Example extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \A
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
-        $this->getProvider()->register($p);
+        $this->get_provider()->register($p);
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -40,8 +37,8 @@ class Example extends \Aimeos\MShop\Plugin\Provider\Decorator\Base implements \A
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
-        return $this->getProvider()->update($order, $action, $value);
+        return $this->get_provider()->update($order, $action, $value);
     }
 }

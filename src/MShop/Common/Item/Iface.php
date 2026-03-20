@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item;
+namespace Aimeos\M_Shop\Common\Item;
 
 /**
  * Generic interface for all items.
@@ -27,7 +25,6 @@ interface Iface
      * @return mixed Property value or null if property is unknown
      */
     public function __get(string $name);
-
     /**
      * Tests if the item property for the given name is available
      *
@@ -35,7 +32,6 @@ interface Iface
      * @return bool True if the property exists, false if not
      */
     public function __isset(string $name): bool;
-
     /**
      * Sets the new item property for the given name
      *
@@ -43,22 +39,19 @@ interface Iface
      * @param mixed $value New property value
      */
     public function __set(string $name, $value);
-
     /**
      * Returns the ID of the items
      *
      * @return string ID of the item or null
      */
     public function __toString(): string;
-
     /**
      * Assigns multiple key/value pairs to the item
      *
      * @param iterable $pairs Associative list of key/value pairs
      * @return \Aimeos\MShop\Common\Item\Iface Item for method chaining
      */
-    public function assign(iterable $pairs): \Aimeos\MShop\Common\Item\Iface;
-
+    public function assign(iterable $pairs): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Returns the item property for the given name
      *
@@ -67,7 +60,6 @@ interface Iface
      * @return mixed|null Property value or default value if property is unknown
      */
     public function get(string $name, $default = null);
-
     /**
      * Sets the new item property for the given name
      *
@@ -75,87 +67,75 @@ interface Iface
      * @param mixed $value New property value
      * @return \Aimeos\MShop\Common\Item\Iface Item for method chaining
      */
-    public function set(string $name, $value): \Aimeos\MShop\Common\Item\Iface;
-
+    public function set(string $name, $value): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Returns the unique ID of the item.
      *
      * @return string|null ID of the item
      */
-    public function getId(): ?string;
-
+    public function get_id(): ?string;
     /**
      * Sets the unique ID of the item.
      *
      * @param string|null $id Unique ID of the item
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setId(?string $id): \Aimeos\MShop\Common\Item\Iface;
-
+    public function set_id(?string $id): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Returns the ID of the site the item is stored
      *
      * @return string Site ID (or null if not available)
      */
-    public function getSiteId(): string;
-
+    public function get_site_id(): string;
     /**
      * Returns the create date of the item.
      *
      * @return string|null ISO date in YYYY-MM-DD hh:mm:ss format
      */
-    public function getTimeCreated(): ?string;
-
+    public function get_time_created(): ?string;
     /**
      * Returns the time of last modification.
      *
      * @return string|null ISO date in YYYY-MM-DD hh:mm:ss format
      */
-    public function getTimeModified(): ?string;
-
+    public function get_time_modified(): ?string;
     /**
      * Returns the user code of user who created/modified the item at last.
      *
      * @return string|null User code of user who created/modified the item at last
      */
     public function editor(): string;
-
     /**
      * Returns the item type
      *
      * @return string Item type, subtypes are separated by slashes
      */
-    public function getResourceType(): string;
-
+    public function get_resource_type(): string;
     /**
      * Tests if the item is available based on status, time, language and currency
      *
      * @return bool True if available, false if not
      */
-    public function isAvailable(): bool;
-
+    public function is_available(): bool;
     /**
      * Sets the general availability of the item
      *
      * @return bool $value True if available, false if not
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setAvailable(bool $value): \Aimeos\MShop\Common\Item\Iface;
-
+    public function set_available(bool $value): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Tests if the item was modified.
      *
      * @return bool True if modified, false if not
      */
-    public function isModified(): bool;
-
+    public function is_modified(): bool;
     /**
      * Sets the modified flag of the object.
      *
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setModified(): \Aimeos\MShop\Common\Item\Iface;
-
+    public function set_modified(): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Sets the item values from the given array and removes that entries from the list
      *
@@ -163,13 +143,12 @@ interface Iface
      * @param bool True to set private properties too, false for public only
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function fromArray(array &$list, bool $private = false): \Aimeos\MShop\Common\Item\Iface;
-
+    public function from_array(array &$list, bool $private = false): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Returns an associative list of item properties.
      *
      * @param bool True to return private properties, false for public only
      * @return array List of item properties
      */
-    public function toArray(bool $private = false): array;
+    public function to_array(bool $private = false): array;
 }

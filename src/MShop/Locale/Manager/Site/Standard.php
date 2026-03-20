@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Locale
  */
-
-namespace Aimeos\MShop\Locale\Manager\Site;
+namespace Aimeos\M_Shop\Locale\Manager\Site;
 
 /**
  * Default implementation for managing sites.
@@ -17,128 +15,23 @@ namespace Aimeos\MShop\Locale\Manager\Site;
  * @package MShop
  * @subpackage Locale
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Locale\Manager\Site\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Locale\Manager\Site\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     private array $cache = [];
-
-    private array $searchConfig = [
-        'locale.site.id' => [
-            'label' => 'Site ID',
-            'internaldeps' => ['LEFT JOIN "mshop_locale_site" AS mlocsi ON ( mloc."siteid" = mlocsi."siteid" )'],
-            'internalcode' => 'id',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'locale.site.siteid' => [
-            'label' => 'Unique site ID',
-            'internalcode' => 'siteid',
-            'type' => 'string',
-            'public' => false,
-        ],
-        'locale.site.parentid' => [
-            'label' => 'Parent site ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'locale.site.label' => [
-            'label' => 'Site label',
-            'internalcode' => 'label',
-            'type' => 'string',
-        ],
-        'locale.site.code' => [
-            'label' => 'Site code',
-            'internalcode' => 'code',
-            'type' => 'string',
-        ],
-        'locale.site.status' => [
-            'label' => 'Site status',
-            'internalcode' => 'status',
-            'type' => 'int',
-        ],
-        'locale.site.icon' => [
-            'label' => 'Site icon',
-            'internalcode' => 'icon',
-            'type' => 'string',
-        ],
-        'locale.site.logo' => [
-            'label' => 'Site logo',
-            'internalcode' => 'logo',
-            'type' => 'json',
-        ],
-        'locale.site.rating' => [
-            'label' => 'Rating value',
-            'internalcode' => 'rating',
-            'type' => 'decimal',
-        ],
-        'locale.site.ratings' => [
-            'label' => 'Number of ratings',
-            'internalcode' => 'ratings',
-            'type' => 'int',
-        ],
-        'locale.site.refid' => [
-            'label' => 'Site-related supplier ID',
-            'internalcode' => 'refid',
-            'type' => 'string',
-        ],
-        'locale.site.theme' => [
-            'label' => 'Site theme',
-            'internalcode' => 'theme',
-            'type' => 'string',
-        ],
-        'locale.site.config' => [
-            'label' => 'Site config',
-            'internalcode' => 'config',
-            'type' => 'json',
-            'public' => false,
-        ],
-        'locale.site.level' => [
-            'label' => 'Site tree level',
-            'internalcode' => 'level',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'locale.site.ctime' => [
-            'label' => 'Site create date/time',
-            'internalcode' => 'ctime',
-            'type' => 'datetime',
-            'public' => false,
-        ],
-        'locale.site.mtime' => [
-            'label' => 'Site modify date/time',
-            'internalcode' => 'mtime',
-            'type' => 'datetime',
-            'public' => false,
-        ],
-        'locale.site.editor' => [
-            'label' => 'Site editor',
-            'internalcode' => 'editor',
-            'type' => 'string',
-            'public' => false,
-        ],
-        'sort:locale.site:position' => [
-            'label' => 'Site position',
-            'internalcode' => 'nleft',
-            'type' => 'int',
-            'public' => false,
-        ],
-    ];
-
+    private array $search_config = ['locale.site.id' => ['label' => 'Site ID', 'internaldeps' => ['LEFT JOIN "mshop_locale_site" AS mlocsi ON ( mloc."siteid" = mlocsi."siteid" )'], 'internalcode' => 'id', 'type' => 'int', 'public' => false], 'locale.site.siteid' => ['label' => 'Unique site ID', 'internalcode' => 'siteid', 'type' => 'string', 'public' => false], 'locale.site.parentid' => ['label' => 'Parent site ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'locale.site.label' => ['label' => 'Site label', 'internalcode' => 'label', 'type' => 'string'], 'locale.site.code' => ['label' => 'Site code', 'internalcode' => 'code', 'type' => 'string'], 'locale.site.status' => ['label' => 'Site status', 'internalcode' => 'status', 'type' => 'int'], 'locale.site.icon' => ['label' => 'Site icon', 'internalcode' => 'icon', 'type' => 'string'], 'locale.site.logo' => ['label' => 'Site logo', 'internalcode' => 'logo', 'type' => 'json'], 'locale.site.rating' => ['label' => 'Rating value', 'internalcode' => 'rating', 'type' => 'decimal'], 'locale.site.ratings' => ['label' => 'Number of ratings', 'internalcode' => 'ratings', 'type' => 'int'], 'locale.site.refid' => ['label' => 'Site-related supplier ID', 'internalcode' => 'refid', 'type' => 'string'], 'locale.site.theme' => ['label' => 'Site theme', 'internalcode' => 'theme', 'type' => 'string'], 'locale.site.config' => ['label' => 'Site config', 'internalcode' => 'config', 'type' => 'json', 'public' => false], 'locale.site.level' => ['label' => 'Site tree level', 'internalcode' => 'level', 'type' => 'int', 'public' => false], 'locale.site.ctime' => ['label' => 'Site create date/time', 'internalcode' => 'ctime', 'type' => 'datetime', 'public' => false], 'locale.site.mtime' => ['label' => 'Site modify date/time', 'internalcode' => 'mtime', 'type' => 'datetime', 'public' => false], 'locale.site.editor' => ['label' => 'Site editor', 'internalcode' => 'editor', 'type' => 'string', 'public' => false], 'sort:locale.site:position' => ['label' => 'Site position', 'internalcode' => 'nleft', 'type' => 'int', 'public' => false]];
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Locale\Manager\Site\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         if (empty($siteids)) {
             return $this;
         }
-
         $context = $this->context();
         $config = $context->config();
-
         /** mshop/locale/manager/site/cleanup/shop/domains
          * List of madmin domains names whose items referring to the same site should be deleted as well
          *
@@ -158,11 +51,9 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/cleanup/admin/domains
          */
         $path = 'mshop/locale/manager/site/cleanup/shop/domains';
-
         foreach ($config->get($path, []) as $domain) {
-            \Aimeos\MShop::create($context, $domain)->clear($siteids);
+            \Aimeos\M_Shop::create($context, $domain)->clear($siteids);
         }
-
         /** mshop/locale/manager/site/cleanup/admin/domains
          * List of mshop domains names whose items referring to the same site should be deleted as well
          *
@@ -182,35 +73,31 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/cleanup/shop/domains
          */
         $path = 'mshop/locale/manager/site/cleanup/admin/domains';
-
         foreach ($config->get($path, []) as $domain) {
-            \Aimeos\MAdmin::create($context, $domain)->clear($siteids);
+            \Aimeos\M_Admin::create($context, $domain)->clear($siteids);
         }
-
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Locale\Item\Site\Iface New locale site item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return new \Aimeos\MShop\Locale\Item\Site\Standard('locale.site.', $values);
+        return new \Aimeos\M_Shop\Locale\Item\Site\Standard('locale.site.', $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|array|string $items List of item objects or IDs of the items
      * @return \Aimeos\MShop\Locale\Manager\Site\Iface Manager object for chaining method calls
      */
-    public function delete($items): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($items): \Aimeos\M_Shop\Common\Manager\Iface
     {
         if (is_map($items)) {
-            $items = $items->toArray();
+            $items = $items->to_array();
         }
         if (!is_array($items)) {
             $items = [$items];
@@ -218,20 +105,14 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
         if (empty($items)) {
             return $this;
         }
-
-        $filter = $this->object()->filter()
-            ->add(['locale.site.id' => $items])
-            ->slice(0, count($items));
-
-        $siteIds = $this->object()->search($filter)->getSiteId()->toArray();
-        $this->object()->clear($siteIds);
-
+        $filter = $this->object()->filter()->add(['locale.site.id' => $items])->slice(0, count($items));
+        $site_ids = $this->object()->search($filter)->get_site_id()->to_array();
+        $this->object()->clear($site_ids);
         /** mshop/locale/manager/site/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see mshop/locale/manager/site/delete/ansi
          */
-
         /** mshop/locale/manager/site/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -257,10 +138,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/rate/ansi
          */
         $path = 'mshop/locale/manager/site/delete';
-
-        return $this->deleteItemsBase($items, $path, false);
+        return $this->delete_items_base($items, $path, false);
     }
-
     /**
      * Creates a filter object.
      *
@@ -270,9 +149,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('locale.site', $default)->add('locale.site.level', '==', 0);
+        return $this->filter_base('locale.site', $default)->add('locale.site.level', '==', 0);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -283,16 +161,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['locale.site.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['locale.site.code' => $code], $ref, $default);
     }
-
     /**
      * Returns a list of item IDs, that are in the path of given item ID.
      *
@@ -300,19 +172,18 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string[] $ref List of domains to fetch list items and referenced items for
      * @return \Aimeos\Map List of IDs as keys and items implementing \Aimeos\MShop\Locale\Item\Site\Iface
      */
-    public function getPath(string $id, array $ref = []): \Aimeos\Map
+    public function get_path(string $id, array $ref = []): \Aimeos\Map
     {
-        $item = $this->getTree($id, $ref, \Aimeos\MW\Tree\Manager\Base::LEVEL_ONE);
-        return map([$item->getId() => $item]);
+        $item = $this->get_tree($id, $ref, \Aimeos\MW\Tree\Manager\Base::LEVEL_ONE);
+        return map([$item->get_id() => $item]);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         /** mshop/locale/manager/site/submanagers
          * List of manager names that can be instantiated by the locale site manager
@@ -331,10 +202,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2015.10
          */
         $path = 'mshop/locale/manager/site/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a node and its descendants depending on the given resource.
      *
@@ -344,37 +213,26 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param \Aimeos\Base\Criteria\Iface|null $criteria Optional criteria object with conditions
      * @return \Aimeos\MShop\Locale\Item\Site\Iface Site node, maybe with subnodes
      */
-    public function getTree(
-        ?string $id = null,
-        array $ref = [],
-        int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE,
-        ?\Aimeos\Base\Criteria\Iface $criteria = null
-    ): \Aimeos\MShop\Locale\Item\Site\Iface {
+    public function get_tree(?string $id = null, array $ref = [], int $level = \Aimeos\MW\Tree\Manager\Base::LEVEL_TREE, ?\Aimeos\Base\Criteria\Iface $criteria = null): \Aimeos\M_Shop\Locale\Item\Site\Iface
+    {
         if ($id !== null) {
             if (count($ref) > 0) {
                 return $this->object()->get($id, $ref);
             }
-
             if (!isset($this->cache[$id])) {
                 $this->cache[$id] = $this->object()->get($id, $ref);
             }
-
             return $this->cache[$id];
         }
-
         $criteria = $criteria ? clone $criteria : $this->object()->filter();
         $criteria->add(['locale.site.code' => 'default'])->slice(0, 1);
-
         if (($item = $this->object()->search($criteria, $ref)->first()) === null) {
             $msg = $this->context()->translate('mshop', 'Tree root with code "%1$s" in "%2$s" not found');
-            throw new \Aimeos\MShop\Locale\Exception(sprintf($msg, 'default', 'locale.site.code'));
+            throw new \Aimeos\M_Shop\Locale\Exception(sprintf($msg, 'default', 'locale.site.code'));
         }
-
-        $this->cache[$item->getId()] = $item;
-
+        $this->cache[$item->get_id()] = $item;
         return $item;
     }
-
     /**
      * Adds a new item object.
      *
@@ -383,19 +241,16 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Locale\Item\Site\Iface $item Updated item including the generated ID
      */
-    public function insert(\Aimeos\MShop\Locale\Item\Site\Iface $item, ?string $parentId = null, ?string $refId = null): \Aimeos\MShop\Locale\Item\Site\Iface
+    public function insert(\Aimeos\M_Shop\Locale\Item\Site\Iface $item, ?string $parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Locale\Item\Site\Iface
     {
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $columns = $this->object()->getSaveAttributes();
-
+        $conn = $context->db($this->get_resource_name());
+        $columns = $this->object()->get_save_attributes();
         /** mshop/locale/manager/site/insert/mysql
          * Inserts a new currency record into the database table
          *
          * @see mshop/locale/manager/site/insert/ansi
          */
-
         /** mshop/locale/manager/site/insert/ansi
          * Inserts a new currency record into the database table
          *
@@ -422,36 +277,33 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/rate/ansi
          */
         $path = 'mshop/locale/manager/site/insert';
-        $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
-
+        $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, ''); // site ID
-        $stmt->bind($idx++, $item->getCode());
-        $stmt->bind($idx++, $item->getLabel());
-        $stmt->bind($idx++, json_encode($item->getConfig(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $item->getStatus(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind($idx++, $item->getIcon());
-        $stmt->bind($idx++, json_encode($item->getLogos(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $item->getRefId());
-        $stmt->bind($idx++, $item->getTheme());
+        $stmt->bind($idx++, '');
+        // site ID
+        $stmt->bind($idx++, $item->get_code());
+        $stmt->bind($idx++, $item->get_label());
+        $stmt->bind($idx++, json_encode($item->get_config(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $item->get_status(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $item->get_icon());
+        $stmt->bind($idx++, json_encode($item->get_logos(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $item->get_ref_id());
+        $stmt->bind($idx++, $item->get_theme());
         $stmt->bind($idx++, $context->editor());
-        $stmt->bind($idx++, $context->datetime()); // mtime
-        $stmt->bind($idx++, $context->datetime()); // ctime
-
+        $stmt->bind($idx++, $context->datetime());
+        // mtime
+        $stmt->bind($idx++, $context->datetime());
+        // ctime
         $stmt->execute()->finish();
-
         /** mshop/locale/manager/site/newid/mysql
          * Retrieves the ID generated by the database when inserting a new record
          *
          * @see mshop/locale/manager/site/newid/ansi
          */
-
         /** mshop/locale/manager/site/newid/ansi
          * Retrieves the ID generated by the database when inserting a new record
          *
@@ -483,14 +335,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/rate/ansi
          */
         $path = 'mshop/locale/manager/newid';
-        $item->setId($this->newId($conn, $path));
-
+        $item->set_id($this->new_id($conn, $path));
         // Add unique site identifier
-        $item = $this->object()->save($item->setSiteId($item->getId() . '.'));
-
+        $item = $this->object()->save($item->set_site_id($item->get_id() . '.'));
         return $item;
     }
-
     /**
      * Moves an existing item to the new parent in the storage.
      *
@@ -500,16 +349,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string|null $refId ID of the item where the item should be inserted before (null to append)
      * @return \Aimeos\MShop\Locale\Manager\Site\Iface Manager object for chaining method calls
      */
-    public function move(
-        string $id,
-        ?string $oldParentId = null,
-        ?string $newParentId = null,
-        ?string $refId = null
-    ): \Aimeos\MShop\Locale\Manager\Site\Iface {
+    public function move(string $id, ?string $old_parent_id = null, ?string $new_parent_id = null, ?string $ref_id = null): \Aimeos\M_Shop\Locale\Manager\Site\Iface
+    {
         $msg = $this->context()->translate('mshop', 'Method "%1$s" for locale site manager not available');
-        throw new \Aimeos\MShop\Locale\Exception(sprintf($msg, 'move()'));
+        throw new \Aimeos\M_Shop\Locale\Exception(sprintf($msg, 'move()'));
     }
-
     /**
      * Updates the rating of the item
      *
@@ -518,17 +362,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $ratings Total number of ratings for the item
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    public function rate(string $id, string $rating, int $ratings): \Aimeos\MShop\Common\Manager\Iface
+    public function rate(string $id, string $rating, int $ratings): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         /** mshop/locale/manager/site/rate/mysql
          * Updates the rating of the product in the database
          *
          * @see mshop/locale/manager/site/rate/ansi
          */
-
         /** mshop/locale/manager/site/rate/ansi
          * Updates the rating of the product in the database
          *
@@ -552,18 +394,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/newid/ansi
          */
         $path = 'mshop/locale/manager/site/rate';
-
-        $stmt = $this->getCachedStatement($conn, $path, $this->getSqlConfig($path));
-
+        $stmt = $this->get_cached_statement($conn, $path, $this->get_sql_config($path));
         $stmt->bind(1, $rating);
         $stmt->bind(2, $ratings, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         $stmt->bind(3, (int) $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
         $stmt->execute()->finish();
-
         return $this;
     }
-
     /**
      * Registers a new item filter for the given name
      *
@@ -572,11 +409,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string $name Filter name
      * @param \Closure $fcn Callback function
      */
-    public function registerItemFilter(string $name, \Closure $fcn): \Aimeos\MShop\Locale\Manager\Site\Iface
+    public function register_item_filter(string $name, \Closure $fcn): \Aimeos\M_Shop\Locale\Manager\Site\Iface
     {
         return $this;
     }
-
     /**
      * Returns the table alias name.
      *
@@ -587,17 +423,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'mlocsi';
     }
-
     /**
      * Returns the raw search config array.
      *
      * @return array List of search config arrays
      */
-    protected function getSearchConfig(): array
+    protected function get_search_config(): array
     {
-        return $this->searchConfig;
+        return $this->search_config;
     }
-
     /**
      * Returns the site coditions for the search request
      *
@@ -606,11 +440,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $sitelevel Site level constant from \Aimeos\MShop\Locale\Manager\Base
      * @return \Aimeos\Base\Criteria\Expression\Iface[] List of search conditions
      */
-    protected function getSiteConditions(array $keys, array $attributes, int $sitelevel): array
+    protected function get_site_conditions(array $keys, array $attributes, int $sitelevel): array
     {
         return [];
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -620,7 +453,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'locale.site.';
     }
-
     /**
      * Adds a new site to the storage or updates an existing one.
      *
@@ -628,29 +460,24 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Locale\Item\Site\Iface $item Updated item including the generated ID
      */
-    protected function saveBase(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    protected function save_base(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        if ($item->getId() === null) {
+        if ($item->get_id() === null) {
             $msg = $this->context()->translate('mshop', 'Newly created item can not be saved using method "save()", use "insert()" instead');
-            throw new \Aimeos\MShop\Locale\Exception($msg);
+            throw new \Aimeos\M_Shop\Locale\Exception($msg);
         }
-
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $id = $item->getId();
-        $columns = $this->object()->getSaveAttributes();
-
+        $conn = $context->db($this->get_resource_name());
+        $id = $item->get_id();
+        $columns = $this->object()->get_save_attributes();
         /** mshop/locale/manager/site/update/mysql
          * Updates an existing site record in the database
          *
          * @see mshop/locale/manager/site/update/ansi
          */
-
         /** mshop/locale/manager/site/update/ansi
          * Updates an existing site record in the database
          *
@@ -674,34 +501,30 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/site/newid/ansi
          */
         $path = 'mshop/locale/manager/site/update';
-        $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
-
+        $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $item->getSiteId());
-        $stmt->bind($idx++, $item->getCode());
-        $stmt->bind($idx++, $item->getLabel());
-        $stmt->bind($idx++, json_encode($item->getConfig(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $item->getStatus(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind($idx++, $item->getIcon());
-        $stmt->bind($idx++, json_encode($item->getLogos(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $item->getRefId());
-        $stmt->bind($idx++, $item->getTheme());
+        $stmt->bind($idx++, $item->get_site_id());
+        $stmt->bind($idx++, $item->get_code());
+        $stmt->bind($idx++, $item->get_label());
+        $stmt->bind($idx++, json_encode($item->get_config(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $item->get_status(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $item->get_icon());
+        $stmt->bind($idx++, json_encode($item->get_logos(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $item->get_ref_id());
+        $stmt->bind($idx++, $item->get_theme());
         $stmt->bind($idx++, $context->editor());
-        $stmt->bind($idx++, $context->datetime()); // mtime
+        $stmt->bind($idx++, $context->datetime());
+        // mtime
         $stmt->bind($idx++, $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
         $stmt->execute()->finish();
-        $item->setId($id); // set Modified false
-
+        $item->set_id($id);
+        // set Modified false
         return $item;
     }
-
     /** mshop/locale/manager/site/name
      * Class name of the used locale site manager implementation
      *
@@ -734,7 +557,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/locale/manager/site/decorators/excludes
      * Excludes decorators added by the "common" option from the locale site manager
      *
@@ -759,7 +581,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/site/decorators/global
      * @see mshop/locale/manager/site/decorators/local
      */
-
     /** mshop/locale/manager/site/decorators/global
      * Adds a list of globally available decorators only to the locale site manager
      *
@@ -784,7 +605,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/site/decorators/excludes
      * @see mshop/locale/manager/site/decorators/local
      */
-
     /** mshop/locale/manager/site/decorators/local
      * Adds a list of local decorators only to the locale site manager
      *
@@ -809,13 +629,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/site/decorators/excludes
      * @see mshop/locale/manager/site/decorators/global
      */
-
     /** mshop/locale/manager/site/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/locale/manager/site/search/ansi
      */
-
     /** mshop/locale/manager/site/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -865,13 +683,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/site/newid/ansi
      * @see mshop/locale/manager/site/rate/ansi
      */
-
     /** mshop/locale/manager/site/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/locale/manager/site/count/ansi
      */
-
     /** mshop/locale/manager/site/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

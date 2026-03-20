@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Coupon
  */
-
-namespace Aimeos\MShop\Coupon\Provider\Decorator;
+namespace Aimeos\M_Shop\Coupon\Provider\Decorator;
 
 /**
  * Required decorator for coupon provider.
@@ -18,26 +16,9 @@ namespace Aimeos\MShop\Coupon\Provider\Decorator;
  * @package MShop
  * @subpackage Coupon
  */
-class Required extends \Aimeos\MShop\Coupon\Provider\Decorator\Base implements \Aimeos\MShop\Coupon\Provider\Decorator\Iface
+class Required extends \Aimeos\M_Shop\Coupon\Provider\Decorator\Base implements \Aimeos\M_Shop\Coupon\Provider\Decorator\Iface
 {
-    private array $beConfig = [
-        'required.productcode' => [
-            'code' => 'required.productcode',
-            'internalcode' => 'required.productcode',
-            'label' => 'Code of the product that must be in the basket',
-            'default' => '',
-            'required' => true,
-        ],
-        'required.only' => [
-            'code' => 'required.only',
-            'internalcode' => 'required.only',
-            'label' => 'Rebate is applied only to products',
-            'type' => 'bool',
-            'default' => false,
-            'required' => false,
-        ],
-    ];
-
+    private array $be_config = ['required.productcode' => ['code' => 'required.productcode', 'internalcode' => 'required.productcode', 'label' => 'Code of the product that must be in the basket', 'default' => '', 'required' => true], 'required.only' => ['code' => 'required.only', 'internalcode' => 'required.only', 'label' => 'Rebate is applied only to products', 'type' => 'bool', 'default' => false, 'required' => false]];
     /**
      * Returns the price the discount should be applied to
      *
@@ -47,24 +28,20 @@ class Required extends \Aimeos\MShop\Coupon\Provider\Decorator\Base implements \
      * @param \Aimeos\MShop\Order\Item\Iface $order Basic order of the customer
      * @return \Aimeos\MShop\Price\Item\Iface New price that should be used
      */
-    public function calcPrice(\Aimeos\MShop\Order\Item\Iface $order): \Aimeos\MShop\Price\Item\Iface
+    public function calc_price(\Aimeos\M_Shop\Order\Item\Iface $order): \Aimeos\M_Shop\Price\Item\Iface
     {
-        if ($this->getConfigValue('required.only') == true) {
-            $price = \Aimeos\MShop::create($this->context(), 'price')->create();
-            $codes = explode(',', $this->getConfigValue('required.productcode', ''));
-
-            foreach ($order->getProducts() as $product) {
-                if (in_array($product->getProductCode(), $codes)) {
-                    $price = $price->addItem($product->getPrice(), $product->getQuantity());
+        if ($this->get_config_value('required.only') == true) {
+            $price = \Aimeos\M_Shop::create($this->context(), 'price')->create();
+            $codes = explode(',', $this->get_config_value('required.productcode', ''));
+            foreach ($order->get_products() as $product) {
+                if (in_array($product->get_product_code(), $codes)) {
+                    $price = $price->add_item($product->get_price(), $product->get_quantity());
                 }
             }
-
             return $price;
         }
-
-        return $this->getProvider()->calcPrice($order);
+        return $this->get_provider()->calc_price($order);
     }
-
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -72,42 +49,37 @@ class Required extends \Aimeos\MShop\Coupon\Provider\Decorator\Base implements \
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        return $this->checkConfig($this->beConfig, $attributes);
+        return $this->check_config($this->be_config, $attributes);
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return array_replace(parent::getConfigBE(), $this->getConfigItems($this->beConfig));
+        return array_replace(parent::get_config_be(), $this->get_config_items($this->be_config));
     }
-
     /**
      * Checks for requirements.
      *
      * @param \Aimeos\MShop\Order\Item\Iface $order Basic order of the customer
      * @return bool True if the requirements are met, false if not
      */
-    public function isAvailable(\Aimeos\MShop\Order\Item\Iface $order): bool
+    public function is_available(\Aimeos\M_Shop\Order\Item\Iface $order): bool
     {
-        if ($prodcode = $this->getConfigValue('required.productcode', '')) {
+        if ($prodcode = $this->get_config_value('required.productcode', '')) {
             $codes = explode(',', $prodcode);
-
-            foreach ($order->getProducts() as $product) {
-                if (in_array($product->getProductCode(), $codes)) {
-                    return parent::isAvailable($order);
+            foreach ($order->get_products() as $product) {
+                if (in_array($product->get_product_code(), $codes)) {
+                    return parent::is_available($order);
                 }
             }
-
             return false;
         }
-
         return true;
     }
 }

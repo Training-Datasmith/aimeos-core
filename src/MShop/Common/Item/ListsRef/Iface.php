@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\ListsRef;
+namespace Aimeos\M_Shop\Common\Item\Lists_Ref;
 
 /**
  * Common interface for items containing referenced list items.
@@ -18,7 +16,7 @@ namespace Aimeos\MShop\Common\Item\ListsRef;
  * @package MShop
  * @subpackage Common
  */
-interface Iface extends \Aimeos\MShop\Common\Item\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Item\Iface
 {
     /**
      * Adds a new or overwrite an existing list item which references the given domain item (created if it doesn't exist)
@@ -28,8 +26,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param \Aimeos\MShop\Common\Item\Iface|null $refItem New item added to the given domain or null if no item should be referenced
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      */
-    public function addListItem(string $domain, \Aimeos\MShop\Common\Item\Lists\Iface $listItem, ?\Aimeos\MShop\Common\Item\Iface $refItem = null): \Aimeos\MShop\Common\Item\ListsRef\Iface;
-
+    public function add_list_item(string $domain, \Aimeos\M_Shop\Common\Item\Lists\Iface $list_item, ?\Aimeos\M_Shop\Common\Item\Iface $ref_item = null): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface;
     /**
      * Removes a list item which references the given domain item (removed as well if it exists)
      *
@@ -38,8 +35,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param \Aimeos\MShop\Common\Item\Iface|null $refItem Existing item removed from the given domain or null if item shouldn't be removed
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      */
-    public function deleteListItem(string $domain, \Aimeos\MShop\Common\Item\Lists\Iface $listItem, ?\Aimeos\MShop\Common\Item\Iface $refItem = null): \Aimeos\MShop\Common\Item\ListsRef\Iface;
-
+    public function delete_list_item(string $domain, \Aimeos\M_Shop\Common\Item\Lists\Iface $list_item, ?\Aimeos\M_Shop\Common\Item\Iface $ref_item = null): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface;
     /**
      * Removes a list of list items which references their domain items (removed as well if it exists)
      *
@@ -47,23 +43,20 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $all True to delete referenced items as well, false for list items only
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      */
-    public function deleteListItems(iterable $items, bool $all = false): \Aimeos\MShop\Common\Item\ListsRef\Iface;
-
+    public function delete_list_items(iterable $items, bool $all = false): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface;
     /**
      * Returns the domains for which items are available
      *
      * @return string[] List of domain names
      */
-    public function getDomains(): array;
-
+    public function get_domains(): array;
     /**
      * Returns the deleted list items which include the domain items if available
      *
      * @param string|null $domain Domain name to get the deleted list items for
      * @return \Aimeos\Map Associative list of domains as keys list items as values or list items only
      */
-    public function getListItemsDeleted(?string $domain = null): \Aimeos\Map;
-
+    public function get_list_items_deleted(?string $domain = null): \Aimeos\Map;
     /**
      * Returns the list item for the given reference ID, domain and list type
      *
@@ -73,8 +66,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\MShop\Common\Item\Lists\Iface|null Matching list item or null if none
      */
-    public function getListItem(string $domain, string $listtype, string $refId, bool $active = true): ?\Aimeos\MShop\Common\Item\Lists\Iface;
-
+    public function get_list_item(string $domain, string $listtype, string $ref_id, bool $active = true): ?\Aimeos\M_Shop\Common\Item\Lists\Iface;
     /**
      * Returns the list items attached, optionally filtered by domain and list type.
      * The reference parameter in search() must have been set accordingly
@@ -87,8 +79,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Common\Item\Lists\Iface
      */
-    public function getListItems($domain = null, $listtype = null, $type = null, bool $active = true): \Aimeos\Map;
-
+    public function get_list_items($domain = null, $listtype = null, $type = null, bool $active = true): \Aimeos\Map;
     /**
      * Returns the product, text, etc. items, optionally filtered by type.
      * The reference parameter in search() must have been set accordingly
@@ -101,8 +92,7 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Common\Item\Iface
      */
-    public function getRefItems($domain = null, $type = null, $listtype = null, bool $active = true): \Aimeos\Map;
-
+    public function get_ref_items($domain = null, $type = null, $listtype = null, bool $active = true): \Aimeos\Map;
     /**
      * Returns the localized text type of the item or the internal label if no name is available.
      *
@@ -110,5 +100,5 @@ interface Iface extends \Aimeos\MShop\Common\Item\Iface
      * @param string|null $langId Two letter ISO Language code of the text
      * @return string Specified text type or label of the item
      */
-    public function getName(string $type = 'name', ?string $langId = null): string;
+    public function get_name(string $type = 'name', ?string $lang_id = null): string;
 }

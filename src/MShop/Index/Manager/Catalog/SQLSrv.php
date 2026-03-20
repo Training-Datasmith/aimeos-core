@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2020-2026
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager\Catalog;
+namespace Aimeos\M_Shop\Index\Manager\Catalog;
 
 /**
  * SQL Server based index catalog for searching in product tables.
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Index\Manager\Catalog;
  * @package MShop
  * @subpackage Index
  */
-class SQLSrv extends \Aimeos\MShop\Index\Manager\Catalog\Standard
+class Sql_Srv extends \Aimeos\M_Shop\Index\Manager\Catalog\Standard
 {
 }

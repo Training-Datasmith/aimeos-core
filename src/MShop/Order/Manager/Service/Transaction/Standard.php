@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Service\Transaction;
+namespace Aimeos\M_Shop\Order\Manager\Service\Transaction;
 
 /**
  * Order service transaction manager.
@@ -17,31 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Service\Transaction;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Service\Transaction\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Service\Transaction\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.service.transaction.parentid' => [
-            'label' => 'Service ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.service.transaction.type' => [
-            'label' => 'Service transaction type',
-            'internalcode' => 'type',
-        ],
-        'order.service.transaction.config' => [
-            'label' => 'Transaction data',
-            'internalcode' => 'config',
-            'type' => 'json',
-        ],
-        'order.service.transaction.status' => [
-            'label' => 'Transaction status',
-            'internalcode' => 'status',
-            'type' => 'int',
-        ],
-    ];
-
+    private array $search_config = ['order.service.transaction.parentid' => ['label' => 'Service ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.service.transaction.type' => ['label' => 'Service transaction type', 'internalcode' => 'type'], 'order.service.transaction.config' => ['label' => 'Transaction data', 'internalcode' => 'config', 'type' => 'json'], 'order.service.transaction.status' => ['label' => 'Transaction status', 'internalcode' => 'status', 'type' => 'int']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -58,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/service/transaction/aggregate/ansi
          */
-
         /** mshop/order/manager/service/transaction/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -102,83 +77,40 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/service/transaction/count/ansi
          */
         $cfgkey = 'mshop/order/manager/service/transaction/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.service.transaction'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.service.transaction'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Service\Transaction\Iface New order service transaction item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $context = $this->context();
-
-        $values['.price'] ??= \Aimeos\MShop::create($context, 'price')->create();
-        $values['order.service.transaction.siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Order\Item\Service\Transaction\Standard('order.service.transaction.', $values);
+        $values['.price'] ??= \Aimeos\M_Shop::create($context, 'price')->create();
+        $values['order.service.transaction.siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Service\Transaction\Standard('order.service.transaction.', $values);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.service.transaction.id' => [
-                'label' => 'Service transaction ID',
-                'internaldeps' => ['LEFT JOIN "mshop_order_service_tx" AS mordsetx ON ( mordse."id" = mordsetx."parentid" )'],
-                'internalcode' => 'id',
-                'type' => 'int',
-                'public' => false,
-            ],
-            'order.service.transaction.currencyid' => [
-                'label' => 'Service currencyid code',
-                'internalcode' => 'currencyid',
-            ],
-            'order.service.transaction.price' => [
-                'label' => 'Service price',
-                'internalcode' => 'price',
-                'type' => 'decimal',
-            ],
-            'order.service.transaction.costs' => [
-                'label' => 'Service shipping',
-                'internalcode' => 'costs',
-                'type' => 'decimal',
-            ],
-            'order.service.transaction.rebate' => [
-                'label' => 'Service rebate',
-                'internalcode' => 'rebate',
-                'type' => 'decimal',
-            ],
-            'order.service.transaction.taxvalue' => [
-                'label' => 'Service tax value',
-                'internalcode' => 'tax',
-                'type' => 'decimal',
-            ],
-            'order.service.transaction.taxflag' => [
-                'label' => 'Service tax flag (0=net, 1=gross)',
-                'internalcode' => 'taxflag',
-                'type' => 'int',
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.service.transaction.id' => ['label' => 'Service transaction ID', 'internaldeps' => ['LEFT JOIN "mshop_order_service_tx" AS mordsetx ON ( mordse."id" = mordsetx."parentid" )'], 'internalcode' => 'id', 'type' => 'int', 'public' => false], 'order.service.transaction.currencyid' => ['label' => 'Service currencyid code', 'internalcode' => 'currencyid'], 'order.service.transaction.price' => ['label' => 'Service price', 'internalcode' => 'price', 'type' => 'decimal'], 'order.service.transaction.costs' => ['label' => 'Service shipping', 'internalcode' => 'costs', 'type' => 'decimal'], 'order.service.transaction.rebate' => ['label' => 'Service rebate', 'internalcode' => 'rebate', 'type' => 'decimal'], 'order.service.transaction.taxvalue' => ['label' => 'Service tax value', 'internalcode' => 'tax', 'type' => 'decimal'], 'order.service.transaction.taxflag' => ['label' => 'Service tax flag (0=net, 1=gross)', 'internalcode' => 'taxflag', 'type' => 'int']]));
     }
-
     /**
      * Returns the table alias name.
      *
@@ -189,7 +121,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'mordsetx';
     }
-
     /**
      * Binds additional values to the statement before execution.
      *
@@ -198,20 +129,17 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $idx Current bind index
      * @return \Aimeos\Base\DB\Statement\Iface Database statement object with bound values
      */
-    protected function bind(\Aimeos\MShop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
+    protected function bind(\Aimeos\M_Shop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
     {
-        $price = $item->getPrice();
-
-        $stmt->bind($idx++, $price->getCurrencyId());
-        $stmt->bind($idx++, $price->getValue());
-        $stmt->bind($idx++, $price->getCosts());
-        $stmt->bind($idx++, $price->getRebate());
-        $stmt->bind($idx++, $price->getTaxValue());
-        $stmt->bind($idx++, $price->getTaxFlag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
+        $price = $item->get_price();
+        $stmt->bind($idx++, $price->get_currency_id());
+        $stmt->bind($idx++, $price->get_value());
+        $stmt->bind($idx++, $price->get_costs());
+        $stmt->bind($idx++, $price->get_rebate());
+        $stmt->bind($idx++, $price->get_tax_value());
+        $stmt->bind($idx++, $price->get_tax_flag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         return $stmt;
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -219,25 +147,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
-        $manager = \Aimeos\MShop::create($this->context(), 'price');
-
+        $manager = \Aimeos\M_Shop::create($this->context(), 'price');
         foreach ($entries as $id => $row) {
             // don't use fromArray() or set*() methods to avoid recalculation of tax value
-            $entries[$id]['.price'] = $manager->create([
-                'price.currencyid' => $row['order.service.transaction.currencyid'],
-                'price.value' => $row['order.service.transaction.price'],
-                'price.costs' => $row['order.service.transaction.costs'],
-                'price.rebate' => $row['order.service.transaction.rebate'],
-                'price.taxflag' => $row['order.service.transaction.taxflag'],
-                'price.taxvalue' => $row['order.service.transaction.taxvalue'],
-            ]);
+            $entries[$id]['.price'] = $manager->create(['price.currencyid' => $row['order.service.transaction.currencyid'], 'price.value' => $row['order.service.transaction.price'], 'price.costs' => $row['order.service.transaction.costs'], 'price.rebate' => $row['order.service.transaction.rebate'], 'price.taxflag' => $row['order.service.transaction.taxflag'], 'price.taxvalue' => $row['order.service.transaction.taxvalue']]);
         }
-
         return $entries;
     }
-
     /**
      * Returns the name of the used table
      *
@@ -247,7 +165,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'mshop_order_service_tx';
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -257,13 +174,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.service.transaction.';
     }
-
     /** mshop/order/manager/service/transaction/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/service/transaction/delete/ansi
      */
-
     /** mshop/order/manager/service/transaction/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -287,7 +202,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/search/ansi
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/submanagers
      * List of manager names that can be instantiated by the order service transaction manager
      *
@@ -304,7 +218,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/service/transaction/name
      * Class name of the used order service transaction manager implementation
      *
@@ -337,7 +250,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/service/transaction/decorators/excludes
      * Excludes decorators added by the "common" option from the order service transaction manager
      *
@@ -362,7 +274,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/decorators/global
      * @see mshop/order/manager/service/transaction/decorators/local
      */
-
     /** mshop/order/manager/service/transaction/decorators/global
      * Adds a list of globally available decorators only to the order service transaction manager
      *
@@ -387,7 +298,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/decorators/excludes
      * @see mshop/order/manager/service/transaction/decorators/local
      */
-
     /** mshop/order/manager/service/transaction/decorators/local
      * Adds a list of local decorators only to the order service transaction manager
      *
@@ -412,13 +322,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/decorators/excludes
      * @see mshop/order/manager/service/transaction/decorators/global
      */
-
     /** mshop/order/manager/service/transaction/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/service/transaction/insert/ansi
      */
-
     /** mshop/order/manager/service/transaction/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -447,13 +355,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/search/ansi
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/service/transaction/update/ansi
      */
-
     /** mshop/order/manager/service/transaction/update/ansi
      * Updates an existing order record in the database
      *
@@ -479,13 +385,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/search/ansi
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/service/transaction/newid/ansi
      */
-
     /** mshop/order/manager/service/transaction/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -515,13 +419,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/search/ansi
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/service/transaction/search/ansi
      */
-
     /** mshop/order/manager/service/transaction/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -570,13 +472,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/service/transaction/delete/ansi
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/service/transaction/count/ansi
      */
-
     /** mshop/order/manager/service/transaction/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

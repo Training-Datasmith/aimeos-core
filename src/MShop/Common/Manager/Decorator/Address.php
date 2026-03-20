@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2024-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Manager\Decorator;
+namespace Aimeos\M_Shop\Common\Manager\Decorator;
 
 /**
  * Provides a decorator for fetching site items
@@ -17,10 +15,9 @@ namespace Aimeos\MShop\Common\Manager\Decorator;
  * @package MShop
  * @subpackage Common
  */
-class Address extends \Aimeos\MShop\Common\Manager\Decorator\Base
+class Address extends \Aimeos\M_Shop\Common\Manager\Decorator\Base
 {
-    use \Aimeos\MShop\Common\Manager\AddressRef\Traits;
-
+    use \Aimeos\M_Shop\Common\Manager\Address_Ref\Traits;
     /**
      * Creates objects from the given array
      *
@@ -33,21 +30,17 @@ class Address extends \Aimeos\MShop\Common\Manager\Decorator\Base
     {
         $keys = array_flip($excludes);
         $excludes[] = 'address';
-
-        $items = $this->getManager()->from($entries, $refs, $excludes);
-
+        $items = $this->get_manager()->from($entries, $refs, $excludes);
         foreach ($entries as $key => $entry) {
-            if (isset($entry['address']) && ($item = $items->get($key))) {
+            if (isset($entry['address']) && $item = $items->get($key)) {
                 foreach ($entry['address'] as $list) {
                     $list = array_diff_key($list, $keys);
-                    $item->addAddressItem($this->createAddressItem()->fromArray($list, true));
+                    $item->add_address_item($this->create_address_item()->from_array($list, true));
                 }
             }
         }
-
         return $items;
     }
-
     /**
      * Saves the dependent items of the item
      *
@@ -55,14 +48,12 @@ class Address extends \Aimeos\MShop\Common\Manager\Decorator\Base
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Common\Item\Iface Updated item
      */
-    public function saveRefs(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    public function save_refs(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $this->getManager()->saveRefs($item, $fetch);
-        $this->saveAddressItems($item, $this->domain(), $fetch);
-
+        $this->get_manager()->save_refs($item, $fetch);
+        $this->save_address_items($item, $this->domain(), $fetch);
         return $item;
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -70,17 +61,15 @@ class Address extends \Aimeos\MShop\Common\Manager\Decorator\Base
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
         $domain = $this->domain();
-        $entries = $this->getManager()->searchRefs($entries, $ref);
-
-        if ($this->hasRef($ref, $domain . '/address')) {
-            foreach ($this->getAddressItems(array_keys($entries), $domain) as $id => $list) {
+        $entries = $this->get_manager()->search_refs($entries, $ref);
+        if ($this->has_ref($ref, $domain . '/address')) {
+            foreach ($this->get_address_items(array_keys($entries), $domain) as $id => $list) {
                 $entries[$id]['.addritems'] = $list;
             }
         }
-
         return $entries;
     }
 }

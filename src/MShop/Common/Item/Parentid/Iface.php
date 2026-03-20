@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\Parentid;
+namespace Aimeos\M_Shop\Common\Item\Parentid;
 
 /**
  * Interface for items with parent/child relationship
@@ -24,13 +22,12 @@ interface Iface
      *
      * @return string Parent ID of the item
      */
-    public function getParentId(): ?string;
-
+    public function get_parent_id(): ?string;
     /**
      * Sets the new parent ID this item belongs to
      *
      * @param string|null $parentid New parent ID of the item
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setParentId(?string $parentid): \Aimeos\MShop\Common\Item\Iface;
+    public function set_parent_id(?string $parentid): \Aimeos\M_Shop\Common\Item\Iface;
 }

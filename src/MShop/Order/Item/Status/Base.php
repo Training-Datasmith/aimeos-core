@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Item\Status;
+namespace Aimeos\M_Shop\Order\Item\Status;
 
 /**
  * Abstract class for all order status objects.
@@ -16,38 +15,32 @@ namespace Aimeos\MShop\Order\Item\Status;
  * @package MShop
  * @subpackage Order
  */
-abstract class Base extends \Aimeos\MShop\Common\Item\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Item\Base
 {
     /**
      * Payment status.
      */
     public const STATUS_PAYMENT = 'status-payment';
-
     /**
      * Delivery status.
      */
     public const STATUS_DELIVERY = 'status-delivery';
-
     /**
      * Already sent payment e-mails.
      */
     public const EMAIL_PAYMENT = 'email-payment';
-
     /**
      * Already sent delivery e-mails.
      */
     public const EMAIL_DELIVERY = 'email-delivery';
-
     /**
      * Already sent voucher e-mails.
      */
     public const EMAIL_VOUCHER = 'email-voucher';
-
     /**
      * Stock level is already updated.
      */
     public const STOCK_UPDATE = 'stock-update';
-
     /**
      * Stock level is already updated.
      */

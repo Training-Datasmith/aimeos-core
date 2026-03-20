@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Updates the basket depending on the coupon
@@ -25,7 +23,7 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class Coupon extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Coupon extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -33,10 +31,9 @@ class Coupon extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aime
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $plugin = $this->object();
-
         $p->attach($plugin, 'addProduct.after');
         $p->attach($plugin, 'deleteProduct.after');
         $p->attach($plugin, 'setProducts.after');
@@ -49,10 +46,8 @@ class Coupon extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aime
         $p->attach($plugin, 'addCoupon.after');
         $p->attach($plugin, 'deleteCoupon.after');
         $p->attach($plugin, 'setOrder.before');
-
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -62,34 +57,25 @@ class Coupon extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aime
      * @return mixed Modified value parameter
      * @throws \Aimeos\MShop\Plugin\Provider\Exception if checks fail
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
-        $notAvailable = false;
+        $not_available = false;
         $context = $this->context();
-
-        $manager = \Aimeos\MShop::create($context, 'coupon');
-        $codeManager = \Aimeos\MShop::create($context, 'coupon/code');
-
-        foreach ($order->getCoupons() as $code => $products) {
-            $search = $manager->filter(true)
-                ->add('coupon.code.code', '==', $code)
-                ->add($codeManager->filter(true)->getConditions())
-                ->slice(0, 1);
-
+        $manager = \Aimeos\M_Shop::create($context, 'coupon');
+        $code_manager = \Aimeos\M_Shop::create($context, 'coupon/code');
+        foreach ($order->get_coupons() as $code => $products) {
+            $search = $manager->filter(true)->add('coupon.code.code', '==', $code)->add($code_manager->filter(true)->get_conditions())->slice(0, 1);
             if (($item = $manager->search($search)->first()) !== null) {
-                $manager->getProvider($item, $code)->update($order);
+                $manager->get_provider($item, $code)->update($order);
             } else {
-                $order->deleteCoupon($code);
-                $notAvailable = true;
+                $order->delete_coupon($code);
+                $not_available = true;
             }
         }
-
-        if ($notAvailable) {
+        if ($not_available) {
             $msg = $this->context()->translate('mshop', 'Coupon is not available any more');
-            throw new \Aimeos\MShop\Plugin\Provider\Exception($msg);
+            throw new \Aimeos\M_Shop\Plugin\Provider\Exception($msg);
         }
-
         return $value;
     }
-
 }

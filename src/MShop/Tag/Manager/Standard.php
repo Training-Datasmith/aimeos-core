@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Tag
  */
-
-namespace Aimeos\MShop\Tag\Manager;
+namespace Aimeos\M_Shop\Tag\Manager;
 
 /**
  * Default tag manager implementation.
@@ -17,53 +15,31 @@ namespace Aimeos\MShop\Tag\Manager;
  * @package MShop
  * @subpackage Tag
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Tag\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Tag\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'tag.type' => [
-            'label' => 'Type',
-            'internalcode' => 'type',
-        ],
-        'tag.label' => [
-            'label' => 'Label',
-            'internalcode' => 'label',
-        ],
-        'tag.domain' => [
-            'label' => 'Domain',
-            'internalcode' => 'domain',
-        ],
-        'tag.languageid' => [
-            'label' => 'Language id',
-            'internalcode' => 'langid',
-        ],
-    ];
-
+    private array $search_config = ['tag.type' => ['label' => 'Type', 'internalcode' => 'type'], 'tag.label' => ['label' => 'Label', 'internalcode' => 'label'], 'tag.domain' => ['label' => 'Domain', 'internalcode' => 'domain'], 'tag.languageid' => ['label' => 'Language id', 'internalcode' => 'langid']];
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Tag\Item\Iface New tag item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $locale = $this->context()->locale();
-
-        $values['.languageid'] = $locale->getLanguageId();
-        $values['tag.siteid'] ??= $locale->getSiteId();
-
-        return new \Aimeos\MShop\Tag\Item\Standard('tag.', $values);
+        $values['.languageid'] = $locale->get_language_id();
+        $values['tag.siteid'] ??= $locale->get_site_id();
+        return new \Aimeos\M_Shop\Tag\Item\Standard('tag.', $values);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -73,7 +49,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'tag.';
     }
-
     /** mshop/tag/manager/name
      * Class name of the used tag manager implementation
      *
@@ -106,7 +81,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.12
      */
-
     /** mshop/tag/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the tag manager
      *
@@ -131,7 +105,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/decorators/global
      * @see mshop/tag/manager/decorators/local
      */
-
     /** mshop/tag/manager/decorators/global
      * Adds a list of globally available decorators only to the tag manager
      *
@@ -155,7 +128,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/decorators/excludes
      * @see mshop/tag/manager/decorators/local
      */
-
     /** mshop/tag/manager/decorators/local
      * Adds a list of local decorators only to the tag manager
      *
@@ -179,7 +151,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/decorators/excludes
      * @see mshop/tag/manager/decorators/global
      */
-
     /** mshop/tag/manager/resource
      * Name of the database connection resource to use
      *
@@ -191,13 +162,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/tag/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/tag/manager/delete/ansi
      */
-
     /** mshop/tag/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -221,7 +190,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/search/ansi
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/submanagers
      * List of manager names that can be instantiated by the tag manager
      *
@@ -238,13 +206,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.12
      */
-
     /** mshop/tag/manager/insert/mysql
      * Inserts a new tag record into the database table
      *
      * @see mshop/tag/manager/insert/ansi
      */
-
     /** mshop/tag/manager/insert/ansi
      * Inserts a new tag record into the database table
      *
@@ -273,13 +239,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/search/ansi
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/update/mysql
      * Updates an existing tag record in the database
      *
      * @see mshop/tag/manager/update/ansi
      */
-
     /** mshop/tag/manager/update/ansi
      * Updates an existing tag record in the database
      *
@@ -305,13 +269,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/search/ansi
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/tag/manager/newid/ansi
      */
-
     /** mshop/tag/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -341,7 +303,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/search/ansi
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -370,13 +331,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/tag/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/tag/manager/search/ansi
      */
-
     /** mshop/tag/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -423,13 +382,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/tag/manager/delete/ansi
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/tag/manager/count/ansi
      */
-
     /** mshop/tag/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

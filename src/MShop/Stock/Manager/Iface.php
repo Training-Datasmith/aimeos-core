@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,15 +8,14 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Stock
  */
-
-namespace Aimeos\MShop\Stock\Manager;
+namespace Aimeos\M_Shop\Stock\Manager;
 
 /**
  * Generic interface for stock managers
  * @package MShop
  * @subpackage Stock
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
     /**
      * Decreases the stock level for the given product codes/quantity pairs and type
@@ -26,8 +24,7 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @param string $type Unique code of the stock type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface;
-
+    public function decrease(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface;
     /**
      * Increases the stock level for the given product codes/quantity pairs and type
      *
@@ -35,5 +32,5 @@ interface Iface extends \Aimeos\MShop\Common\Manager\Iface
      * @param string $type Unique code of the type
      * @return \Aimeos\MShop\Stock\Manager\Iface Manager object for chaining method calls
      */
-    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\MShop\Stock\Manager\Iface;
+    public function increase(iterable $pairs, string $type = 'default'): \Aimeos\M_Shop\Stock\Manager\Iface;
 }

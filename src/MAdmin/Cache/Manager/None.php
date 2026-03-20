@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Cache
  */
-
-namespace Aimeos\MAdmin\Cache\Manager;
+namespace Aimeos\M_Admin\Cache\Manager;
 
 /**
  * Null cache manager implementation.
@@ -18,49 +16,39 @@ namespace Aimeos\MAdmin\Cache\Manager;
  * @package MAdmin
  * @subpackage Cache
  */
-class None extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\Cache\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class None extends \Aimeos\M_Admin\Common\Manager\Base implements \Aimeos\M_Admin\Cache\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'cache.id' => [
-            'code' => 'cache.id',
-            'internalcode' => '"id"',
-            'label' => 'ID',
-        ],
-    ];
-
+    private array $search_config = ['cache.id' => ['code' => 'cache.id', 'internalcode' => '"id"', 'label' => 'ID']];
     /**
      * Returns the cache object
      *
      * @return \Aimeos\Base\Cache\Iface Cache object
      */
-    public function getCache(): \Aimeos\Base\Cache\Iface
+    public function get_cache(): \Aimeos\Base\Cache\Iface
     {
         return \Aimeos\Base\Cache\Factory::create('None', [], null);
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MAdmin\Cache\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MAdmin\Cache\Item\Iface New cache item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MAdmin\Cache\Item\Standard($values);
+        $values['siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Admin\Cache\Item\Standard($values);
     }
-
     /**
      * Adds a new cache to the storage.
      *
@@ -68,22 +56,20 @@ class None extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MAdmin\Cache\Item\Iface Updated item including the generated ID
      */
-    protected function saveItem(\Aimeos\MAdmin\Cache\Item\Iface $item, bool $fetch = true): \Aimeos\MAdmin\Cache\Item\Iface
+    protected function save_item(\Aimeos\M_Admin\Cache\Item\Iface $item, bool $fetch = true): \Aimeos\M_Admin\Cache\Item\Iface
     {
         return $item;
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MAdmin\Cache\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Creates the cache object for the given cache id.
      *
@@ -93,12 +79,11 @@ class None extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\
      * @return \Aimeos\MAdmin\Cache\Item\Iface Returns the cache item of the given id
      * @throws \Aimeos\MAdmin\Cache\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
         $msg = $this->context()->translate('mshop', 'Operation not supported');
-        throw new \Aimeos\MAdmin\Cache\Exception($msg);
+        throw new \Aimeos\M_Admin\Cache\Exception($msg);
     }
-
     /**
      * Search for cache entries based on the given criteria.
      *
@@ -111,20 +96,17 @@ class None extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\
     {
         return map();
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] Returns a list of search attributes
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         $path = 'madmin/cache/manager/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for cache extensions
      *
@@ -132,8 +114,8 @@ class None extends \Aimeos\MAdmin\Common\Manager\Base implements \Aimeos\MAdmin\
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
-        return $this->getSubManagerBase('cache', $manager, $name);
+        return $this->get_sub_manager_base('cache', $manager, $name);
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Helper\Config;
+namespace Aimeos\M_Shop\Common\Helper\Config;
 
 /**
  * Default implementation of the config helper item
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Common\Helper\Config;
  * @package MShop
  * @subpackage Common
  */
-class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
+class Standard implements \Aimeos\M_Shop\Common\Helper\Config\Iface
 {
     /**
      * Initializes the object with the criteria objects to check against
@@ -27,7 +25,6 @@ class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
     public function __construct(private array $criteria)
     {
     }
-
     /**
      * Checks required fields and the types of the config array
      *
@@ -38,15 +35,13 @@ class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
     public function check(array $config): array
     {
         $errors = [];
-
         foreach ($this->criteria as $key => $attr) {
-            if ($attr->isRequired() === true && (!isset($config[$key]) || $config[$key] === '')) {
+            if ($attr->is_required() === true && (!isset($config[$key]) || $config[$key] === '')) {
                 $errors[$key] = sprintf('Configuration for "%1$s" is missing', $key);
                 continue;
             }
-
             if (isset($config[$key])) {
-                switch ($attr->getType()) {
+                switch ($attr->get_type()) {
                     case 'bool':
                     case 'boolean':
                         if (!in_array($config[$key], ['', '0', '1'])) {
@@ -97,7 +92,7 @@ class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
                         break;
                     case 'list':
                     case 'select':
-                        $default = (array) $attr->getDefault();
+                        $default = (array) $attr->get_default();
                         if (!empty($default) && !isset($default[$config[$key]]) && !in_array($config[$key], $default)) {
                             $errors[$key] = sprintf('Not a listed value');
                             continue 2;
@@ -110,13 +105,11 @@ class Standard implements \Aimeos\MShop\Common\Helper\Config\Iface
                         }
                         break;
                     default:
-                        throw new \Aimeos\MShop\Exception(sprintf('Invalid type "%1$s"', $attr->getType()));
+                        throw new \Aimeos\M_Shop\Exception(sprintf('Invalid type "%1$s"', $attr->get_type()));
                 }
             }
-
             $errors[$key] = null;
         }
-
         return $errors;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Updates service items on basket change
@@ -27,7 +25,7 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class ServicesUpdate extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Services_Update extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
     /**
      * Subscribes itself to a publisher
@@ -35,10 +33,9 @@ class ServicesUpdate extends \Aimeos\MShop\Plugin\Provider\Factory\Base implemen
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $plugin = $this->object();
-
         $p->attach($plugin, 'addAddress.after');
         $p->attach($plugin, 'deleteAddress.after');
         $p->attach($plugin, 'setAddresses.after');
@@ -47,10 +44,8 @@ class ServicesUpdate extends \Aimeos\MShop\Plugin\Provider\Factory\Base implemen
         $p->attach($plugin, 'addProduct.after');
         $p->attach($plugin, 'deleteProduct.after');
         $p->attach($plugin, 'setProducts.after');
-
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -59,74 +54,57 @@ class ServicesUpdate extends \Aimeos\MShop\Plugin\Provider\Factory\Base implemen
      * @param mixed $value Object or value changed in publisher
      * @return mixed Modified value parameter
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
-        $services = $order->getServices();
-
-        if ($order->getProducts()->isEmpty()) {
-            $priceManager = \Aimeos\MShop::create($this->context(), 'price');
-
+        $services = $order->get_services();
+        if ($order->get_products()->is_empty()) {
+            $price_manager = \Aimeos\M_Shop::create($this->context(), 'price');
             foreach ($services as $type => $list) {
-                $serviceItems = $list;
-
+                $service_items = $list;
                 foreach ($list as $key => $item) {
-                    $serviceItems[$key] = $item->setPrice($priceManager->create());
+                    $service_items[$key] = $item->set_price($price_manager->create());
                 }
-
-                $services[$type] = $serviceItems;
+                $services[$type] = $service_items;
             }
-
-            $order->setServices($services->toArray());
+            $order->set_services($services->to_array());
             return $value;
         }
-
-        $serviceItems = $this->getServiceItems($services);
-        $serviceManager = \Aimeos\MShop::create($this->context(), 'service');
-
+        $service_items = $this->get_service_items($services);
+        $service_manager = \Aimeos\M_Shop::create($this->context(), 'service');
         foreach ($services as $type => $list) {
-            $orderServices = $list;
-
+            $order_services = $list;
             foreach ($list as $key => $item) {
-                if (($serviceItem = $serviceItems->get($item->getServiceId())) !== null) {
-                    $provider = $serviceManager->getProvider($serviceItem, $serviceItem->getType());
-
-                    if ($provider->isAvailable($order)) {
-                        $orderServices[$key] = $item->setPrice($provider->calcPrice($order));
+                if (($service_item = $service_items->get($item->get_service_id())) !== null) {
+                    $provider = $service_manager->get_provider($service_item, $service_item->get_type());
+                    if ($provider->is_available($order)) {
+                        $order_services[$key] = $item->set_price($provider->calc_price($order));
                         continue;
                     }
                 }
-
-                unset($orderServices[$key]);
+                unset($order_services[$key]);
             }
-
-            $services[$type] = $orderServices;
+            $services[$type] = $order_services;
         }
-
-        $order->setServices($services->toArray());
+        $order->set_services($services->to_array());
         return $value;
     }
-
     /**
      * Returns the service items for the given order services
      *
      * @param \Aimeos\Map $services List of items implementing \Aimeos\MShop\Order\Item\Service\Iface with IDs as keys
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Service\Item\Iface with IDs as keys
      */
-    protected function getServiceItems(\Aimeos\Map $services): \Aimeos\Map
+    protected function get_service_items(\Aimeos\Map $services): \Aimeos\Map
     {
         $list = map();
-
         foreach ($services as $items) {
-            $list->concat(map($items)->getServiceId());
+            $list->concat(map($items)->get_service_id());
         }
-
-        if ($list->isEmpty()) {
+        if ($list->is_empty()) {
             return $list;
         }
-
-        $serviceManager = \Aimeos\MShop::create($this->context(), 'service');
-        $search = $serviceManager->filter(true)->add(['service.id' => $list]);
-
-        return $serviceManager->search($search, ['media', 'price', 'text']);
+        $service_manager = \Aimeos\M_Shop::create($this->context(), 'service');
+        $search = $service_manager->filter(true)->add(['service.id' => $list]);
+        return $service_manager->search($search, ['media', 'price', 'text']);
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\ListsRef;
+namespace Aimeos\M_Shop\Common\Item\Lists_Ref;
 
 /**
  * Common trait for items containing list items
@@ -19,43 +17,37 @@ namespace Aimeos\MShop\Common\Item\ListsRef;
  */
 trait Traits
 {
-    private array $listItems = [];
-    private array $listRmItems = [];
-    private array $listMap = [];
-    private int $listMax = 0;
-
+    private array $list_items = [];
+    private array $list_rm_items = [];
+    private array $list_map = [];
+    private int $list_max = 0;
     /**
      * Creates a deep clone of all objects
      */
     public function __clone()
     {
         parent::__clone();
-
-        foreach ($this->listItems as $domain => $list) {
+        foreach ($this->list_items as $domain => $list) {
             foreach ($list as $id => $item) {
-                $this->listItems[$domain][$id] = clone $item;
+                $this->list_items[$domain][$id] = clone $item;
             }
         }
-
-        foreach ($this->listRmItems as $key => $item) {
-            $this->listRmItems[$key] = clone $item;
+        foreach ($this->list_rm_items as $key => $item) {
+            $this->list_rm_items[$key] = clone $item;
         }
     }
-
     /**
      * Returns the unique ID of the item.
      *
      * @return string|null ID of the item
      */
-    abstract public function getId(): ?string;
-
+    abstract public function get_id(): ?string;
     /**
      * Returns the item type
      *
      * @return string Item type, subtypes are separated by slashes
      */
-    abstract public function getResourceType(): string;
-
+    abstract public function get_resource_type(): string;
     /**
      * Registers a custom macro that has access to the class properties if called non-static
      *
@@ -64,14 +56,12 @@ trait Traits
      * @return \Closure|null Registered function
      */
     abstract public static function macro(string $name, ?\Closure $function = null): ?\Closure;
-
     /**
      * Sets the modified flag of the object.
      *
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    abstract public function setModified(): \Aimeos\MShop\Common\Item\Iface;
-
+    abstract public function set_modified(): \Aimeos\M_Shop\Common\Item\Iface;
     /**
      * Adds a new or overwrite an existing list item which references the given domain item (created if it doesn't exist)
      *
@@ -80,31 +70,26 @@ trait Traits
      * @param \Aimeos\MShop\Common\Item\Iface|null $refItem New item added to the given domain or null if no item should be referenced
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      */
-    public function addListItem(string $domain, \Aimeos\MShop\Common\Item\Lists\Iface $listItem, ?\Aimeos\MShop\Common\Item\Iface $refItem = null): \Aimeos\MShop\Common\Item\ListsRef\Iface
+    public function add_list_item(string $domain, \Aimeos\M_Shop\Common\Item\Lists\Iface $list_item, ?\Aimeos\M_Shop\Common\Item\Iface $ref_item = null): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface
     {
-        $id = '_' . $this->listMax++;
-
-        if ($refItem !== null) {
-            if ($refItem instanceof \Aimeos\MShop\Common\Item\Domain\Iface && !$refItem->getDomain()) {
-                $refItem->setDomain($this->getResourceType());
+        $id = '_' . $this->list_max++;
+        if ($ref_item !== null) {
+            if ($ref_item instanceof \Aimeos\M_Shop\Common\Item\Domain\Iface && !$ref_item->get_domain()) {
+                $ref_item->set_domain($this->get_resource_type());
             }
-
-            $listItem->setRefItem($refItem)->setRefId($refItem->getId() ?: $id);
+            $list_item->set_ref_item($ref_item)->set_ref_id($ref_item->get_id() ?: $id);
         }
-
-        $id = $listItem->getId() ?: $id;
-
-        unset($this->listItems[$domain][$id]); // append at the end
-        $this->listItems[$domain][$id] = $listItem->setDomain($domain);
-
-        if (isset($this->listMap[$domain])) {
-            unset($this->listMap[$domain][$listItem->getType()][$listItem->getRefId()]); // append at the end
-            $this->listMap[$domain][$listItem->getType()][$listItem->getRefId()] = $listItem;
+        $id = $list_item->get_id() ?: $id;
+        unset($this->list_items[$domain][$id]);
+        // append at the end
+        $this->list_items[$domain][$id] = $list_item->set_domain($domain);
+        if (isset($this->list_map[$domain])) {
+            unset($this->list_map[$domain][$list_item->get_type()][$list_item->get_ref_id()]);
+            // append at the end
+            $this->list_map[$domain][$list_item->get_type()][$list_item->get_ref_id()] = $list_item;
         }
-
         return $this;
     }
-
     /**
      * Removes a list item which references the given domain item (removed as well if it exists)
      *
@@ -113,18 +98,15 @@ trait Traits
      * @param \Aimeos\MShop\Common\Item\Iface|null $refItem Existing item removed from the given domain or null if item shouldn't be removed
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      */
-    public function deleteListItem(string $domain, \Aimeos\MShop\Common\Item\Lists\Iface $listItem, ?\Aimeos\MShop\Common\Item\Iface $refItem = null): \Aimeos\MShop\Common\Item\ListsRef\Iface
+    public function delete_list_item(string $domain, \Aimeos\M_Shop\Common\Item\Lists\Iface $list_item, ?\Aimeos\M_Shop\Common\Item\Iface $ref_item = null): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface
     {
-        if (($key = array_search($listItem, $this->listItems[$domain] ?? [], true)) !== false) {
-            $this->listRmItems[] = $listItem->setRefItem($refItem);
-
-            unset($this->listMap[$domain][$listItem->getType()][$listItem->getRefId()]);
-            unset($this->listItems[$domain][$key]);
+        if (($key = array_search($list_item, $this->list_items[$domain] ?? [], true)) !== false) {
+            $this->list_rm_items[] = $list_item->set_ref_item($ref_item);
+            unset($this->list_map[$domain][$list_item->get_type()][$list_item->get_ref_id()]);
+            unset($this->list_items[$domain][$key]);
         }
-
         return $this;
     }
-
     /**
      * Removes a list of list items which references their domain items (removed as well if it exists)
      *
@@ -133,43 +115,37 @@ trait Traits
      * @return \Aimeos\MShop\Common\Item\ListsRef\Iface Self object for method chaining
      * @throws \Aimeos\MShop\Exception If an item isn't a list item or isn't found
      */
-    public function deleteListItems(iterable $items, bool $all = false): \Aimeos\MShop\Common\Item\ListsRef\Iface
+    public function delete_list_items(iterable $items, bool $all = false): \Aimeos\M_Shop\Common\Item\Lists_Ref\Iface
     {
-        map($items)->implements(\Aimeos\MShop\Common\Item\Lists\Iface::class, true);
-
+        map($items)->implements(\Aimeos\M_Shop\Common\Item\Lists\Iface::class, true);
         foreach ($items as $item) {
-            $refItem = $all ? $item->getRefItem() : null;
-            $this->deleteListItem($item->getDomain(), $item, $refItem);
+            $ref_item = $all ? $item->get_ref_item() : null;
+            $this->delete_list_item($item->get_domain(), $item, $ref_item);
         }
-
         return $this;
     }
-
     /**
      * Returns the domains for which items are available
      *
      * @return string[] List of domain names
      */
-    public function getDomains(): array
+    public function get_domains(): array
     {
-        return array_keys($this->listItems);
+        return array_keys($this->list_items);
     }
-
     /**
      * Returns the deleted list items which include the domain items if available
      *
      * @param string|null $domain Domain name to get the deleted list items for
      * @return \Aimeos\Map Associative list of domains as keys list items as values or list items only
      */
-    public function getListItemsDeleted(?string $domain = null): \Aimeos\Map
+    public function get_list_items_deleted(?string $domain = null): \Aimeos\Map
     {
         if ($domain) {
-            return map($this->listRmItems)->filter(fn ($item): bool => $item->getDomain() === $domain);
+            return map($this->list_rm_items)->filter(fn($item): bool => $item->get_domain() === $domain);
         }
-
-        return map($this->listRmItems);
+        return map($this->list_rm_items);
     }
-
     /**
      * Returns the list item for the given reference ID, domain and list type
      *
@@ -179,31 +155,24 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\MShop\Common\Item\Lists\Iface|null Matching list item or null if none
      */
-    public function getListItem(string $domain, string $listtype, string $refId, bool $active = true): ?\Aimeos\MShop\Common\Item\Lists\Iface
+    public function get_list_item(string $domain, string $listtype, string $ref_id, bool $active = true): ?\Aimeos\M_Shop\Common\Item\Lists\Iface
     {
-        if (!isset($this->listMap[$domain]) && isset($this->listItems[$domain])) {
+        if (!isset($this->list_map[$domain]) && isset($this->list_items[$domain])) {
             $map = [];
-
-            foreach ($this->listItems[$domain] as $listItem) {
-                $map[$listItem->getType()][$listItem->getRefId()] = $listItem;
+            foreach ($this->list_items[$domain] as $list_item) {
+                $map[$list_item->get_type()][$list_item->get_ref_id()] = $list_item;
             }
-
-            $this->listMap[$domain] = $map;
+            $this->list_map[$domain] = $map;
         }
-
-        if (isset($this->listMap[$domain][$listtype][$refId])) {
-            $listItem = $this->listMap[$domain][$listtype][$refId];
-
-            if ($active && !$listItem->isAvailable()) {
+        if (isset($this->list_map[$domain][$listtype][$ref_id])) {
+            $list_item = $this->list_map[$domain][$listtype][$ref_id];
+            if ($active && !$list_item->is_available()) {
                 return null;
             }
-
-            return $listItem;
+            return $list_item;
         }
-
         return null;
     }
-
     /**
      * Returns the list items attached, optionally filtered by domain and list type.
      *
@@ -217,47 +186,36 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Common\Item\Lists\Iface
      */
-    public function getListItems($domain = null, $listtype = null, $type = null, bool $active = true): \Aimeos\Map
+    public function get_list_items($domain = null, $listtype = null, $type = null, bool $active = true): \Aimeos\Map
     {
         $result = [];
         $fcn = static::macro('listFilter');
-
-        $iface = \Aimeos\MShop\Common\Item\TypeRef\Iface::class;
-        $listTypes = is_array($listtype) ? $listtype : [$listtype];
+        $iface = \Aimeos\M_Shop\Common\Item\Type_Ref\Iface::class;
+        $list_types = is_array($listtype) ? $listtype : [$listtype];
         $domains = is_array($domain) ? $domain : [$domain];
         $types = is_array($type) ? $type : [$type];
-
-        foreach ($this->listItems as $dname => $list) {
+        foreach ($this->list_items as $dname => $list) {
             if ($domain && !in_array($dname, $domains)) {
                 continue;
             }
-
             $set = [];
-
             foreach ($list as $id => $item) {
-                $refItem = $item->getRefItem();
-
-                if ($type && !($refItem && $refItem instanceof $iface && in_array($refItem->getType(), $types))) {
+                $ref_item = $item->get_ref_item();
+                if ($type && !($ref_item && $ref_item instanceof $iface && in_array($ref_item->get_type(), $types))) {
                     continue;
                 }
-
-                if ($listtype && !in_array($item->getType(), $listTypes)) {
+                if ($listtype && !in_array($item->get_type(), $list_types)) {
                     continue;
                 }
-
-                if ($active && !$item->isAvailable()) {
+                if ($active && !$item->is_available()) {
                     continue;
                 }
-
                 $set[$id] = $item;
             }
-
             $result = array_replace($result, $fcn ? $fcn($set) : $set);
         }
-
         return map($result);
     }
-
     /**
      * Returns the product, text, etc. items filtered by domain and optionally by type and list type.
      *
@@ -271,38 +229,32 @@ trait Traits
      * @param bool $active True to return only active items, false to return all
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Common\Item\Iface
      */
-    public function getRefItems($domain = null, $type = null, $listtype = null, bool $active = true): \Aimeos\Map
+    public function get_ref_items($domain = null, $type = null, $listtype = null, bool $active = true): \Aimeos\Map
     {
         $list = [];
-
-        foreach ($this->getListItems($domain, $listtype, $type, $active) as $listItem) {
-            if (($refItem = $listItem->getRefItem()) && (!$active || $refItem->isAvailable())) {
-                $list[$listItem->getDomain()][$listItem->getRefId()] = $refItem;
+        foreach ($this->get_list_items($domain, $listtype, $type, $active) as $list_item) {
+            if (($ref_item = $list_item->get_ref_item()) && (!$active || $ref_item->is_available())) {
+                $list[$list_item->get_domain()][$list_item->get_ref_id()] = $ref_item;
             }
         }
-
         if (is_array($domain)) {
             return map($list)->only($domain);
         }
-
         if ($domain) {
             return map($list[$domain] ?? []);
         }
-
         return map($list);
     }
-
     /**
      * Returns the label of the item.
      * This method should be implemented in the derived class if a label column is available.
      *
      * @return string Label of the item
      */
-    public function getLabel(): string
+    public function get_label(): string
     {
         return '';
     }
-
     /**
      * Returns the localized text type of the item or the internal label if no name is available.
      *
@@ -310,28 +262,25 @@ trait Traits
      * @param string|null $langId Two letter ISO Language code of the text
      * @return string Specified text type or label of the item
      */
-    public function getName(string $type = 'name', ?string $langId = null): string
+    public function get_name(string $type = 'name', ?string $lang_id = null): string
     {
-        foreach ($this->getRefItems('text', $type) as $textItem) {
-            if ($textItem->getLanguageId() === $langId || $langId === null) {
-                return $textItem->getContent();
+        foreach ($this->get_ref_items('text', $type) as $text_item) {
+            if ($text_item->get_language_id() === $lang_id || $lang_id === null) {
+                return $text_item->get_content();
             }
         }
-
-        return $this->getLabel();
+        return $this->get_label();
     }
-
     /**
      * Initializes the list items in the trait
      *
      * @param array $listItems Two dimensional associative list of domain / ID / list items that implement \Aimeos\MShop\Common\Item\Lists\Iface
      */
-    protected function initListItems(array $listItems)
+    protected function init_list_items(array $list_items)
     {
-        $this->listMax = count($listItems);
-
-        foreach ($listItems as $id => $listItem) {
-            $this->listItems[$listItem->getDomain()][$id] = $listItem;
+        $this->list_max = count($list_items);
+        foreach ($list_items as $id => $list_item) {
+            $this->list_items[$list_item->get_domain()][$id] = $list_item;
         }
     }
 }

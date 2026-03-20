@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Service
  */
-
-namespace Aimeos\MShop\Service\Manager;
+namespace Aimeos\M_Shop\Service\Manager;
 
 /**
  * Delivery and payment service manager.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Service\Manager;
  * @package MShop
  * @subpackage Service
  */
-class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MShop\Service\Manager\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Service\Manager\Base implements \Aimeos\M_Shop\Service\Manager\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
     /**
      * Creates a new empty item instance
@@ -25,16 +23,13 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Service\Item\Iface New service item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $context = $this->context();
-
         $values['.date'] = $context->datetime();
-        $values['service.siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Service\Item\Standard('service.', $values);
+        $values['service.siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Service\Item\Standard('service.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -44,26 +39,13 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        $filter = $this->filterBase('service', $default);
-
+        $filter = $this->filter_base('service', $default);
         if ($default !== false) {
             $date = $this->context()->datetime();
-
-            $filter->add($filter->and([
-                $filter->or([
-                    $filter->compare('<=', 'service.datestart', $date),
-                    $filter->compare('==', 'service.datestart', null),
-                ]),
-                $filter->or([
-                    $filter->compare('>=', 'service.dateend', $date),
-                    $filter->compare('==', 'service.dateend', null),
-                ]),
-            ]));
+            $filter->add($filter->and([$filter->or([$filter->compare('<=', 'service.datestart', $date), $filter->compare('==', 'service.datestart', null)]), $filter->or([$filter->compare('>=', 'service.dateend', $date), $filter->compare('==', 'service.dateend', null)])]));
         }
-
         return $filter;
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -74,69 +56,19 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['service.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['service.code' => $code], $ref, $default);
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes([
-            'service.type' => [
-                'label' => 'Type',
-                'internalcode' => 'type',
-            ],
-            'service.label' => [
-                'label' => 'Label',
-                'internalcode' => 'label',
-            ],
-            'service.code' => [
-                'label' => 'Code',
-                'internalcode' => 'code',
-            ],
-            'service.provider' => [
-                'label' => 'Provider',
-                'internalcode' => 'provider',
-            ],
-            'service.datestart' => [
-                'label' => 'Start date/time',
-                'internalcode' => 'start',
-                'type' => 'datetime',
-            ],
-            'service.dateend' => [
-                'label' => 'End date/time',
-                'internalcode' => 'end',
-                'type' => 'datetime',
-            ],
-            'service.position' => [
-                'label' => 'Position',
-                'internalcode' => 'pos',
-                'type' => 'int',
-            ],
-            'service.status' => [
-                'label' => 'Status',
-                'internalcode' => 'status',
-                'type' => 'int',
-            ],
-            'service.config' => [
-                'label' => 'Configuration',
-                'internalcode' => 'config',
-                'type' => 'json',
-                'public' => false,
-            ],
-        ]);
+        return $this->create_attributes(['service.type' => ['label' => 'Type', 'internalcode' => 'type'], 'service.label' => ['label' => 'Label', 'internalcode' => 'label'], 'service.code' => ['label' => 'Code', 'internalcode' => 'code'], 'service.provider' => ['label' => 'Provider', 'internalcode' => 'provider'], 'service.datestart' => ['label' => 'Start date/time', 'internalcode' => 'start', 'type' => 'datetime'], 'service.dateend' => ['label' => 'End date/time', 'internalcode' => 'end', 'type' => 'datetime'], 'service.position' => ['label' => 'Position', 'internalcode' => 'pos', 'type' => 'int'], 'service.status' => ['label' => 'Status', 'internalcode' => 'status', 'type' => 'int'], 'service.config' => ['label' => 'Configuration', 'internalcode' => 'config', 'type' => 'json', 'public' => false]]);
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -146,7 +78,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
     {
         return 'service.';
     }
-
     /** mshop/service/manager/resource
      * Name of the database connection resource to use
      *
@@ -158,7 +89,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @param string Database connection name
      * @since 2023.04
      */
-
     /** mshop/service/manager/name
      * Class name of the used service manager implementation
      *
@@ -191,7 +121,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @param string Last part of the class name
      * @since 2014.03
      */
-
     /** mshop/service/manager/decorators/excludes
      * Excludes decorators added by the "common" option from the service manager
      *
@@ -216,7 +145,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/decorators/global
      * @see mshop/service/manager/decorators/local
      */
-
     /** mshop/service/manager/decorators/global
      * Adds a list of globally available decorators only to the service manager
      *
@@ -240,7 +168,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/decorators/excludes
      * @see mshop/service/manager/decorators/local
      */
-
     /** mshop/service/manager/decorators/local
      * Adds a list of local decorators only to the service manager
      *
@@ -264,7 +191,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/decorators/excludes
      * @see mshop/service/manager/decorators/global
      */
-
     /** mshop/service/manager/submanagers
      * List of manager names that can be instantiated by the service manager
      *
@@ -281,13 +207,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @param array List of sub-manager names
      * @since 2014.03
      */
-
     /** mshop/service/manager/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/service/manager/delete/ansi
      */
-
     /** mshop/service/manager/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -311,13 +235,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/search/ansi
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/insert/mysql
      * Inserts a new service record into the database table
      *
      * @see mshop/service/manager/insert/ansi
      */
-
     /** mshop/service/manager/insert/ansi
      * Inserts a new service record into the database table
      *
@@ -346,13 +268,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/search/ansi
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/update/mysql
      * Updates an existing service record in the database
      *
      * @see mshop/service/manager/update/ansi
      */
-
     /** mshop/service/manager/update/ansi
      * Updates an existing service record in the database
      *
@@ -378,13 +298,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/search/ansi
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/service/manager/newid/ansi
      */
-
     /** mshop/service/manager/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -414,7 +332,6 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/search/ansi
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/sitemode
      * Mode how items from levels below or above in the site tree are handled
      *
@@ -443,13 +360,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @since 2018.01
      * @see mshop/locale/manager/sitelevel
      */
-
     /** mshop/service/manager/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/service/manager/search/ansi
      */
-
     /** mshop/service/manager/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -498,13 +413,11 @@ class Standard extends \Aimeos\MShop\Service\Manager\Base implements \Aimeos\MSh
      * @see mshop/service/manager/delete/ansi
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/service/manager/count/ansi
      */
-
     /** mshop/service/manager/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

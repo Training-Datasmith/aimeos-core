@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2014
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MAdmin
  * @subpackage Cache
  */
-
-namespace Aimeos\MAdmin\Cache;
+namespace Aimeos\M_Admin\Cache;
 
 /**
  * \Exception thrown by cache classes.
@@ -18,6 +16,6 @@ namespace Aimeos\MAdmin\Cache;
  * @package MAdmin
  * @subpackage Cache
  */
-class Exception extends \Aimeos\MAdmin\Exception
+class Exception extends \Aimeos\M_Admin\Exception
 {
 }

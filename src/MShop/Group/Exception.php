@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2023
  * @package MShop
  * @subpackage Group
  */
-
-namespace Aimeos\MShop\Group;
+namespace Aimeos\M_Shop\Group;
 
 /**
  * Group domain exception
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Group;
  * @package MShop
  * @subpackage Group
  */
-class Exception extends \Aimeos\MShop\Exception
+class Exception extends \Aimeos\M_Shop\Exception
 {
 }

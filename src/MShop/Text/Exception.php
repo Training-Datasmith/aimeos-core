@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Text
  */
-
-namespace Aimeos\MShop\Text;
+namespace Aimeos\M_Shop\Text;
 
 /**
  * Generic exception thrown by Aimeos objects if no specialized exception is available
@@ -18,6 +16,6 @@ namespace Aimeos\MShop\Text;
  * @package MShop
  * @subpackage Text
  */
-class Exception extends \Aimeos\MShop\Exception
+class Exception extends \Aimeos\M_Shop\Exception
 {
 }

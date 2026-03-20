@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Index
  */
-
-namespace Aimeos\MShop\Index\Manager\Supplier;
+namespace Aimeos\M_Shop\Index\Manager\Supplier;
 
 /**
  * Submanager for supplier.
@@ -16,18 +15,9 @@ namespace Aimeos\MShop\Index\Manager\Supplier;
  * @package MShop
  * @subpackage Index
  */
-class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MShop\Index\Manager\Supplier\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Index\Manager\Db_Base implements \Aimeos\M_Shop\Index\Manager\Supplier\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'index.supplier.id' => [
-            'code' => 'index.supplier.id',
-            'internalcode' => 'mindsu."supid"',
-            'internaldeps' => [ 'LEFT JOIN "mshop_index_supplier" AS mindsu ON mindsu."prodid" = mpro."id"' ],
-            'label' => 'Product index supplier ID',
-        ],
-        'index.supplier:radius' => [
-            'code' => 'index.supplier:radius()',
-            'internalcode' => ':site AND
+    private array $search_config = ['index.supplier.id' => ['code' => 'index.supplier.id', 'internalcode' => 'mindsu."supid"', 'internaldeps' => ['LEFT JOIN "mshop_index_supplier" AS mindsu ON mindsu."prodid" = mpro."id"'], 'label' => 'Product index supplier ID'], 'index.supplier:radius' => ['code' => 'index.supplier:radius()', 'internalcode' => ':site AND
 				mindsu."latitude" > $1 - $3 / 111.19493 AND
 				mindsu."latitude" < $1 + $3 / 111.19493 AND
 				mindsu."longitude" > $2 - $3 / 111.19493 / COS( RADIANS( $2 ) ) AND
@@ -37,50 +27,24 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
 					COS( RADIANS( $1 ) ) * COS( RADIANS( mindsu."latitude" ) ) *
 					COS( RADIANS( mindsu."longitude" ) - RADIANS( $2 ) )
 				) * 6371
-			',
-            'label' => 'Within distance to given coordinates, parameter(<latitude>,<longitude>,<distance in km>)',
-            'type' => 'bool',
-            'public' => false,
-        ],
-        'index.supplier:position' => [
-            'code' => 'index.supplier:position()',
-            'internalcode' => ':site AND mindsu."supid" IN ( $2 ) AND mindsu."listtype" = $1 AND mindsu."pos"',
-            'label' => 'Product position in supplier list, parameter(<list type code>,<supplier IDs>)',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'sort:index.supplier:position' => [
-            'code' => 'sort:index.supplier:position()',
-            'internalcode' => 'mindsu."pos"',
-            'label' => 'Sort product position in supplier list, parameter(<list type code>,<supplier IDs>)',
-            'type' => 'int',
-            'public' => false,
-        ],
-    ];
-
-    private ?array $subManagers = null;
-
+			', 'label' => 'Within distance to given coordinates, parameter(<latitude>,<longitude>,<distance in km>)', 'type' => 'bool', 'public' => false], 'index.supplier:position' => ['code' => 'index.supplier:position()', 'internalcode' => ':site AND mindsu."supid" IN ( $2 ) AND mindsu."listtype" = $1 AND mindsu."pos"', 'label' => 'Product position in supplier list, parameter(<list type code>,<supplier IDs>)', 'type' => 'int', 'public' => false], 'sort:index.supplier:position' => ['code' => 'sort:index.supplier:position()', 'internalcode' => 'mindsu."pos"', 'label' => 'Sort product position in supplier list, parameter(<list type code>,<supplier IDs>)', 'type' => 'int', 'public' => false]];
+    private ?array $sub_managers = null;
     /**
      * Initializes the manager instance.
      *
      * @param \Aimeos\MShop\ContextIface $context Context object
      */
-    public function __construct(\Aimeos\MShop\ContextIface $context)
+    public function __construct(\Aimeos\M_Shop\Context_Iface $context)
     {
         parent::__construct($context);
-
-        $level = \Aimeos\MShop\Locale\Manager\Base::SITE_ALL;
+        $level = \Aimeos\M_Shop\Locale\Manager\Base::SITE_ALL;
         $level = $context->config()->get('mshop/index/manager/sitemode', $level);
-
-        $expr = $this->siteString('mindsu."siteid"', $level);
-
+        $expr = $this->site_string('mindsu."siteid"', $level);
         $name = 'index.supplier:position';
-        $this->searchConfig[$name]['internalcode'] = str_replace(':site', $expr, $this->searchConfig[$name]['internalcode']);
-
+        $this->search_config[$name]['internalcode'] = str_replace(':site', $expr, $this->search_config[$name]['internalcode']);
         $name = 'index.supplier:radius';
-        $this->searchConfig[$name]['internalcode'] = str_replace(':site', $expr, $this->searchConfig[$name]['internalcode']);
+        $this->search_config[$name]['internalcode'] = str_replace(':site', $expr, $this->search_config[$name]['internalcode']);
     }
-
     /**
      * Counts the number products that are available for the values of the given key.
      *
@@ -92,22 +56,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      */
     public function aggregate(\Aimeos\Base\Criteria\Iface $search, $key, ?string $value = null, ?string $type = null): \Aimeos\Map
     {
-        return $this->aggregateBase($search, $key, 'mshop/index/manager/aggregate', [], $value, $type);
+        return $this->aggregate_base($search, $key, 'mshop/index/manager/aggregate', [], $value, $type);
     }
-
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         parent::clear($siteids);
-
-        return $this->clearBase($siteids, 'mshop/index/manager/supplier/delete');
+        return $this->clear_base($siteids, 'mshop/index/manager/supplier/delete');
     }
-
     /**
      * Removes all entries not touched after the given timestamp in the index.
      * This can be a long lasting operation.
@@ -115,14 +76,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string $timestamp Timestamp in ISO format (YYYY-MM-DD HH:mm:ss)
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function cleanup(string $timestamp): \Aimeos\MShop\Index\Manager\Iface
+    public function cleanup(string $timestamp): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/supplier/cleanup/mysql
          * Deletes the index supplier records that haven't been touched
          *
          * @see mshop/index/manager/supplier/cleanup/ansi
          */
-
         /** mshop/index/manager/supplier/cleanup/ansi
          * Deletes the index supplier records that haven't been touched
          *
@@ -146,23 +106,21 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/insert/ansi
          * @see mshop/index/manager/supplier/search/ansi
          */
-        return $this->cleanupBase($timestamp, 'mshop/index/manager/supplier/cleanup');
+        return $this->cleanup_base($timestamp, 'mshop/index/manager/supplier/cleanup');
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface|\Aimeos\Map|array|string $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/supplier/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see mshop/index/manager/supplier/delete/ansi
          */
-
         /** mshop/index/manager/supplier/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -185,19 +143,17 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/insert/ansi
          * @see mshop/index/manager/supplier/search/ansi
          */
-        return $this->deleteItemsBase($itemIds, 'mshop/index/manager/supplier/delete');
+        return $this->delete_items_base($item_ids, 'mshop/index/manager/supplier/delete');
     }
-
     /**
      * Returns a list of objects describing the available criterias for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return array List of items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        $list = parent::getSearchAttributes($withsub);
-
+        $list = parent::get_search_attributes($withsub);
         /** mshop/index/manager/supplier/submanagers
          * List of manager names that can be instantiated by the index attribute manager
          *
@@ -215,10 +171,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @since 2018.07
          */
         $path = 'mshop/index/manager/supplier/submanagers';
-
-        return $list + $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $list + $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns a new manager for product extensions.
      *
@@ -226,7 +180,7 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param string|null $name Name of the implementation, will be from configuration (or Default) if null
      * @return \Aimeos\MShop\Common\Manager\Iface Manager for different extensions, e.g stock, tags, locations, etc.
      */
-    public function getSubManager(string $manager, ?string $name = null): \Aimeos\MShop\Common\Manager\Iface
+    public function get_sub_manager(string $manager, ?string $name = null): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/index/manager/supplier/name
          * Class name of the used index supplier manager implementation
@@ -260,7 +214,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @param string Last part of the class name
          * @since 2018.07
          */
-
         /** mshop/index/manager/supplier/decorators/excludes
          * Excludes decorators added by the "common" option from the index supplier manager
          *
@@ -285,7 +238,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/decorators/global
          * @see mshop/index/manager/supplier/decorators/local
          */
-
         /** mshop/index/manager/supplier/decorators/global
          * Adds a list of globally available decorators only to the index supplier manager
          *
@@ -310,7 +262,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/decorators/excludes
          * @see mshop/index/manager/supplier/decorators/local
          */
-
         /** mshop/index/manager/supplier/decorators/local
          * Adds a list of local decorators only to the index supplier manager
          *
@@ -335,10 +286,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/decorators/excludes
          * @see mshop/index/manager/supplier/decorators/global
          */
-
-        return $this->getSubManagerBase('index', 'supplier/' . $manager, $name);
+        return $this->get_sub_manager_base('index', 'supplier/' . $manager, $name);
     }
-
     /**
      * Optimizes the index if necessary.
      * Execution of this operation can take a very long time and shouldn't be
@@ -346,14 +295,13 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      *
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function optimize(): \Aimeos\MShop\Index\Manager\Iface
+    public function optimize(): \Aimeos\M_Shop\Index\Manager\Iface
     {
         /** mshop/index/manager/supplier/optimize/mysql
          * Optimizes the stored supplier data for retrieving the records faster
          *
          * @see mshop/index/manager/supplier/optimize/ansi
          */
-
         /** mshop/index/manager/supplier/optimize/ansi
          * Optimizes the stored supplier data for retrieving the records faster
          *
@@ -372,9 +320,8 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/search/ansi
          * @see mshop/index/manager/supplier/aggregate/ansi
          */
-        return $this->optimizeBase('mshop/index/manager/supplier/optimize');
+        return $this->optimize_base('mshop/index/manager/supplier/optimize');
     }
-
     /**
      * Rebuilds the index supplier for searching products or specified list of products.
      * This can be a long lasting operation.
@@ -382,24 +329,20 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
      * @param \Aimeos\MShop\Product\Item\Iface[] $items Associative list of product IDs as keys and items as values
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function rebuild(iterable $items = []): \Aimeos\MShop\Index\Manager\Iface
+    public function rebuild(iterable $items = []): \Aimeos\M_Shop\Index\Manager\Iface
     {
-        if (($items = map($items))->isEmpty()) {
+        if (($items = map($items))->is_empty()) {
             return $this;
         }
-
-        $items->implements(\Aimeos\MShop\Product\Item\Iface::class, true);
-
+        $items->implements(\Aimeos\M_Shop\Product\Item\Iface::class, true);
         $context = $this->context();
-        $siteid = $context->locale()->getSiteId();
-        $conn = $context->db($this->getResourceName());
-
+        $siteid = $context->locale()->get_site_id();
+        $conn = $context->db($this->get_resource_name());
         /** mshop/index/manager/supplier/insert/mysql
          * Inserts a new supplier record into the product index database
          *
          * @see mshop/index/manager/supplier/insert/ansi
          */
-
         /** mshop/index/manager/supplier/insert/ansi
          * Inserts a new supplier record into the product index database
          *
@@ -427,60 +370,50 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/search/ansi
          * @see mshop/index/manager/supplier/count/ansi
          */
-        $stmt = $this->getCachedStatement($conn, 'mshop/index/manager/supplier/insert');
-
+        $stmt = $this->get_cached_statement($conn, 'mshop/index/manager/supplier/insert');
         foreach ($items as $item) {
-            foreach ($item->getListItems('supplier') as $listItem) {
-                if (($supplier = $listItem->getRefItem()) === null) {
+            foreach ($item->get_list_items('supplier') as $list_item) {
+                if (($supplier = $list_item->get_ref_item()) === null) {
                     continue;
                 }
-
-                $pairs = $supplier->getAddressItems()->map(fn ($addr) => $addr->getLatitude() !== null && $addr->getLongitude() !== null
-                        ? ['lat' => $addr->getLatitude(), 'lon' => $addr->getLongitude()]
-                        : null)->filter();
-
-                if ($pairs->isEmpty()) {
+                $pairs = $supplier->get_address_items()->map(fn($addr) => $addr->get_latitude() !== null && $addr->get_longitude() !== null ? ['lat' => $addr->get_latitude(), 'lon' => $addr->get_longitude()] : null)->filter();
+                if ($pairs->is_empty()) {
                     $pairs = [['lat' => null, 'lon' => null]];
                 }
-
                 foreach ($pairs as $pair) {
-                    $stmt->bind(1, $listItem->getParentId(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-                    $stmt->bind(2, $listItem->getRefId(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-                    $stmt->bind(3, $listItem->getType());
-                    $stmt->bind(4, $listItem->getPosition(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+                    $stmt->bind(1, $list_item->get_parent_id(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+                    $stmt->bind(2, $list_item->get_ref_id(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+                    $stmt->bind(3, $list_item->get_type());
+                    $stmt->bind(4, $list_item->get_position(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
                     $stmt->bind(5, $pair['lat'] ?? null, \Aimeos\Base\DB\Statement\Base::PARAM_FLOAT);
                     $stmt->bind(6, $pair['lon'] ?? null, \Aimeos\Base\DB\Statement\Base::PARAM_FLOAT);
-                    $stmt->bind(7, $context->datetime()); //mtime
+                    $stmt->bind(7, $context->datetime());
+                    //mtime
                     $stmt->bind(8, $siteid);
-
                     try {
                         $stmt->execute()->finish();
                     } catch (\Aimeos\Base\DB\Exception) {
-                        ;
-                    } // Ignore duplicates
+                    }
+                    // Ignore duplicates
                 }
             }
         }
-
-        foreach ($this->getSubManagers() as $submanager) {
+        foreach ($this->get_sub_managers() as $submanager) {
             $submanager->rebuild($items);
         }
-
         return $this;
     }
-
     /**
      * Removes the products from the product index.
      *
      * @param iterable|string $ids Product ID or list of IDs
      * @return \Aimeos\MShop\Index\Manager\Iface Manager object for chaining method calls
      */
-    public function remove($ids): \Aimeos\MShop\Index\Manager\Iface
+    public function remove($ids): \Aimeos\M_Shop\Index\Manager\Iface
     {
         parent::remove($ids)->delete($ids);
         return $this;
     }
-
     /**
      * Searches for items matching the given criteria.
      *
@@ -496,7 +429,6 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          *
          * @see mshop/index/manager/supplier/search/ansi
          */
-
         /** mshop/index/manager/supplier/search/ansi
          * Retrieves the records matched by the given criteria in the database
          *
@@ -543,14 +475,12 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/optimize/ansi
          * @see mshop/index/manager/supplier/aggregate/ansi
          */
-        $cfgPathSearch = 'mshop/index/manager/supplier/search';
-
+        $cfg_path_search = 'mshop/index/manager/supplier/search';
         /** mshop/index/manager/supplier/count/mysql
          * Counts the number of records matched by the given criteria in the database
          *
          * @see mshop/index/manager/supplier/count/ansi
          */
-
         /** mshop/index/manager/supplier/count/ansi
          * Counts the number of records matched by the given criteria in the database
          *
@@ -593,22 +523,19 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
          * @see mshop/index/manager/supplier/optimize/ansi
          * @see mshop/index/manager/supplier/aggregate/ansi
          */
-        $cfgPathCount = 'mshop/index/manager/supplier/count';
-
-        return $this->searchItemsIndexBase($search, $ref, $total, $cfgPathSearch, $cfgPathCount);
+        $cfg_path_count = 'mshop/index/manager/supplier/count';
+        return $this->search_items_index_base($search, $ref, $total, $cfg_path_search, $cfg_path_count);
     }
-
     /**
      * Returns the list of sub-managers available for the index supplier manager.
      *
      * @return \Aimeos\MShop\Index\Manager\Iface[] Associative list of the sub-domain as key and the manager object as value
      */
-    protected function getSubManagers(): array
+    protected function get_sub_managers(): array
     {
-        if ($this->subManagers === null) {
-            $this->subManagers = [];
+        if ($this->sub_managers === null) {
+            $this->sub_managers = [];
             $config = $this->context()->config();
-
             /** mshop/index/manager/supplier/submanagers
              * A list of sub-manager names used for indexing associated items to categories
              *
@@ -627,12 +554,10 @@ class Standard extends \Aimeos\MShop\Index\Manager\DBBase implements \Aimeos\MSh
              */
             foreach ($config->get('mshop/index/manager/supplier/submanagers', []) as $domain) {
                 $name = $config->get('mshop/index/manager/supplier/' . $domain . '/name');
-                $this->subManagers[$domain] = $this->object()->getSubManager($domain, $name);
+                $this->sub_managers[$domain] = $this->object()->get_sub_manager($domain, $name);
             }
-
-            return $this->subManagers;
+            return $this->sub_managers;
         }
-
-        return $this->subManagers;
+        return $this->sub_managers;
     }
 }

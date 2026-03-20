@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Product\Attribute;
+namespace Aimeos\M_Shop\Order\Manager\Product\Attribute;
 
 /**
  * Default order manager base product attribute.
@@ -17,48 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Product\Attribute;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Product\Attribute\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Product\Attribute\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.product.attribute.attributeid' => [
-            'label' => 'Product attribute original ID',
-            'internalcode' => 'attrid',
-            'public' => false,
-        ],
-        'order.product.attribute.parentid' => [
-            'label' => 'Product ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.product.attribute.name' => [
-            'label' => 'Product attribute name',
-            'internalcode' => 'name',
-        ],
-        'order.product.attribute.value' => [
-            'label' => 'Product attribute value',
-            'internalcode' => 'value',
-            'type' => 'json',
-        ],
-        'order.product.attribute.code' => [
-            'label' => 'Product attribute code',
-            'internalcode' => 'code',
-        ],
-        'order.product.attribute.type' => [
-            'label' => 'Product attribute type',
-            'internalcode' => 'type',
-        ],
-        'order.product.attribute.quantity' => [
-            'label' => 'Product attribute quantity',
-            'internalcode' => 'quantity',
-            'type' => 'int',
-        ],
-        'order.product.attribute.price' => [
-            'label' => 'Product attribute price',
-            'internalcode' => 'price',
-        ],
-    ];
-
+    private array $search_config = ['order.product.attribute.attributeid' => ['label' => 'Product attribute original ID', 'internalcode' => 'attrid', 'public' => false], 'order.product.attribute.parentid' => ['label' => 'Product ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.product.attribute.name' => ['label' => 'Product attribute name', 'internalcode' => 'name'], 'order.product.attribute.value' => ['label' => 'Product attribute value', 'internalcode' => 'value', 'type' => 'json'], 'order.product.attribute.code' => ['label' => 'Product attribute code', 'internalcode' => 'code'], 'order.product.attribute.type' => ['label' => 'Product attribute type', 'internalcode' => 'type'], 'order.product.attribute.quantity' => ['label' => 'Product attribute quantity', 'internalcode' => 'quantity', 'type' => 'int'], 'order.product.attribute.price' => ['label' => 'Product attribute price', 'internalcode' => 'price']];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -75,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/product/attribute/aggregate/ansi
          */
-
         /** mshop/order/manager/product/attribute/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -119,21 +77,19 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/product/attribute/count/ansi
          */
         $cfgkey = 'mshop/order/manager/product/attribute/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.product.attribute'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.product.attribute'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Product\Attribute\Iface New order product attribute item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['order.product.attribute.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Order\Item\Product\Attribute\Standard('order.product.attribute.', $values);
+        $values['order.product.attribute.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Product\Attribute\Standard('order.product.attribute.', $values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -145,36 +101,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return parent::filter($default)->order('order.product.attribute.id');
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.product.attribute.id' => [
-                'label' => 'Product attribute ID',
-                'internaldeps' => ['LEFT JOIN "mshop_order_product_attr" AS mordprat ON ( mordpr."id" = mordprat."parentid" )'],
-                'internalcode' => 'id',
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.product.attribute.id' => ['label' => 'Product attribute ID', 'internaldeps' => ['LEFT JOIN "mshop_order_product_attr" AS mordprat ON ( mordpr."id" = mordprat."parentid" )'], 'internalcode' => 'id', 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Returns the name of the used table
      *
@@ -184,7 +129,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'mshop_order_product_attr';
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -194,13 +138,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.product.attribute.';
     }
-
     /** mshop/order/manager/product/attribute/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/order/manager/product/attribute/delete/ansi
      */
-
     /** mshop/order/manager/product/attribute/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -224,7 +166,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/search/ansi
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/submanagers
      * List of manager names that can be instantiated by the order base product attribute manager
      *
@@ -241,7 +182,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/order/manager/product/attribute/name
      * Class name of the used order base product attribute manager implementation
      *
@@ -274,7 +214,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/order/manager/product/attribute/decorators/excludes
      * Excludes decorators added by the "common" option from the order base product attribute manager
      *
@@ -299,7 +238,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/decorators/global
      * @see mshop/order/manager/product/attribute/decorators/local
      */
-
     /** mshop/order/manager/product/attribute/decorators/global
      * Adds a list of globally available decorators only to the order base product attribute manager
      *
@@ -324,7 +262,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/decorators/excludes
      * @see mshop/order/manager/product/attribute/decorators/local
      */
-
     /** mshop/order/manager/product/attribute/decorators/local
      * Adds a list of local decorators only to the order base product attribute manager
      *
@@ -349,13 +286,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/decorators/excludes
      * @see mshop/order/manager/product/attribute/decorators/global
      */
-
     /** mshop/order/manager/product/attribute/insert/mysql
      * Inserts a new order record into the database table
      *
      * @see mshop/order/manager/product/attribute/insert/ansi
      */
-
     /** mshop/order/manager/product/attribute/insert/ansi
      * Inserts a new order record into the database table
      *
@@ -384,13 +319,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/search/ansi
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/update/mysql
      * Updates an existing order record in the database
      *
      * @see mshop/order/manager/product/attribute/update/ansi
      */
-
     /** mshop/order/manager/product/attribute/update/ansi
      * Updates an existing order record in the database
      *
@@ -416,13 +349,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/search/ansi
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/order/manager/product/attribute/newid/ansi
      */
-
     /** mshop/order/manager/product/attribute/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -452,13 +383,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/search/ansi
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/order/manager/product/attribute/search/ansi
      */
-
     /** mshop/order/manager/product/attribute/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -507,13 +436,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/order/manager/product/attribute/delete/ansi
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/order/manager/product/attribute/count/ansi
      */
-
     /** mshop/order/manager/product/attribute/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

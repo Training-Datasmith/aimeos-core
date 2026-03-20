@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Customer
  */
-
-namespace Aimeos\MShop\Customer\Manager\Property;
+namespace Aimeos\M_Shop\Customer\Manager\Property;
 
 /**
  * Customer property manager interface
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Customer\Manager\Property;
  * @package MShop
  * @subpackage Customer
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
 }

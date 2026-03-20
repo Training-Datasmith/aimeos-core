@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2011
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Stock
  */
-
-namespace Aimeos\MShop\Stock\Item;
+namespace Aimeos\M_Shop\Stock\Item;
 
 /**
  * Default stock item interface.
@@ -18,65 +16,58 @@ namespace Aimeos\MShop\Stock\Item;
  * @package MShop
  * @subpackage Stock
  */
-interface Iface extends \Aimeos\MShop\Common\Item\Iface, \Aimeos\MShop\Common\Item\TypeRef\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Item\Iface, \Aimeos\M_Shop\Common\Item\Type_Ref\Iface
 {
     /**
      * Returns the ID of the product the stock item belongs to.
      *
      * @return string Product ID
      */
-    public function getProductId(): string;
-
+    public function get_product_id(): string;
     /**
      * Sets a new product ID the stock item belongs to.
      *
      * @param string $value New product ID
      * @return \Aimeos\MShop\Stock\Item\Iface Stock item for chaining method calls
      */
-    public function setProductId(string $value): \Aimeos\MShop\Stock\Item\Iface;
-
+    public function set_product_id(string $value): \Aimeos\M_Shop\Stock\Item\Iface;
     /**
      * Returns the stock level.
      *
      * @return int|null Stock level
      */
-    public function getStockLevel(): ?int;
-
+    public function get_stock_level(): ?int;
     /**
      * Sets the stock level.
      *
      * @param int|null $stocklevel New stock level
      * @return \Aimeos\MShop\Stock\Item\Iface Stock stock item for chaining method calls
      */
-    public function setStockLevel($stocklevel = null): \Aimeos\MShop\Stock\Item\Iface;
-
+    public function set_stock_level($stocklevel = null): \Aimeos\M_Shop\Stock\Item\Iface;
     /**
      * Returns the back in stock date of the stock.
      *
      * @return string|null Back in stock date of the stock
      */
-    public function getDateBack(): ?string;
-
+    public function get_date_back(): ?string;
     /**
      * Sets the stock back in stock date.
      *
      * @param string|null $dateback New back in stock date of the stock
      * @return \Aimeos\MShop\Stock\Item\Iface Stock stock item for chaining method calls
      */
-    public function setDateBack(?string $dateback): \Aimeos\MShop\Stock\Item\Iface;
-
+    public function set_date_back(?string $dateback): \Aimeos\M_Shop\Stock\Item\Iface;
     /**
      * Returns the expected delivery time frame
      *
      * @return string Expected delivery time frame
      */
-    public function getTimeframe(): string;
-
+    public function get_timeframe(): string;
     /**
      * Sets the expected delivery time frame
      *
      * @param string $timeframe Expected delivery time frame
      * @return \Aimeos\MShop\Stock\Item\Iface Stock stock item for chaining method calls
      */
-    public function setTimeframe(?string $timeframe): \Aimeos\MShop\Stock\Item\Iface;
+    public function set_timeframe(?string $timeframe): \Aimeos\M_Shop\Stock\Item\Iface;
 }

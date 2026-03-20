@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Customer
  */
-
-namespace Aimeos\MShop\Customer\Manager;
+namespace Aimeos\M_Shop\Customer\Manager;
 
 /**
  * Base class with common methods for all customer implementations.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Customer\Manager;
  * @package MShop
  * @subpackage Customer
  */
-abstract class Base extends \Aimeos\MShop\Common\Manager\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Manager\Base
 {
     /**
      * Counts the number items that are available for the values of the given key.
@@ -35,7 +33,6 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          *
          * @see mshop/customer/manager/aggregate/ansi
          */
-
         /** mshop/customer/manager/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -78,11 +75,9 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
          * @see mshop/customer/manager/search/ansi
          * @see mshop/customer/manager/count/ansi
          */
-
         $cfgkey = 'mshop/customer/manager/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['customer'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['customer'], $value, $type);
     }
-
     /**
      * Creates a filter object.
      *
@@ -92,9 +87,8 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('customer', $default);
+        return $this->filter_base('customer', $default);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -105,16 +99,10 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Customer\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase(['customer.code' => $code], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['customer.code' => $code], $ref, $default);
     }
-
     /**
      * Returns the customer item object specificed by its ID.
      *
@@ -124,37 +112,31 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @return \Aimeos\MShop\Customer\Item\Iface Returns the customer item of the given id
      * @throws \Aimeos\MShop\Exception If item couldn't be found
      */
-    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\MShop\Common\Item\Iface
+    public function get(string $id, array $ref = [], ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->getItemBase('customer.id', $id, $ref, $default);
+        return $this->get_item_base('customer.id', $id, $ref, $default);
     }
-
     /**
      * Adds the customer to the groups listed in the customer item
      *
      * @param \Aimeos\MShop\Customer\Item\Iface $item Customer item
      * @return \Aimeos\MShop\Customer\Item\Iface $item Modified customer item
      */
-    protected function addGroups(\Aimeos\MShop\Customer\Item\Iface $item): \Aimeos\MShop\Customer\Item\Iface
+    protected function add_groups(\Aimeos\M_Shop\Customer\Item\Iface $item): \Aimeos\M_Shop\Customer\Item\Iface
     {
         $pos = 0;
-
-        $manager = $this->object()->getSubManager('lists');
-        $listItems = $item->getListItems('group', 'default', null, false);
-
-        foreach ($item->getGroups() as $refId) {
-            if (($litem = $item->getListItem('group', 'default', $refId, false)) !== null) {
-                unset($listItems[$litem->getId()], $listItems['__group_default_' . $refId]);
+        $manager = $this->object()->get_sub_manager('lists');
+        $list_items = $item->get_list_items('group', 'default', null, false);
+        foreach ($item->get_groups() as $ref_id) {
+            if (($litem = $item->get_list_item('group', 'default', $ref_id, false)) !== null) {
+                unset($list_items[$litem->get_id()], $list_items['__group_default_' . $ref_id]);
             } else {
-                $litem = $manager->create()->setType('default');
+                $litem = $manager->create()->set_type('default');
             }
-
-            $item->addListItem('group', $litem->setRefId($refId)->setPosition($pos++));
+            $item->add_list_item('group', $litem->set_ref_id($ref_id)->set_position($pos++));
         }
-
-        return $item->deleteListItems($listItems);
+        return $item->delete_list_items($list_items);
     }
-
     /**
      * Creates a new customer item.
      *
@@ -165,20 +147,13 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param \Aimeos\MShop\Common\Item\Property\Iface[] $propItems List of property items
      * @return \Aimeos\MShop\Customer\Item\Iface New customer item
      */
-    protected function createItemBase(
-        array $values = [],
-        array $listItems = [],
-        array $refItems = [],
-        array $addrItems = [],
-        array $propItems = []
-    ): \Aimeos\MShop\Common\Item\Iface {
-        $values['.listitems'] = $listItems;
-        $values['.propitems'] = $propItems;
-        $values['.addritems'] = $addrItems;
-
+    protected function create_item_base(array $values = [], array $list_items = [], array $ref_items = [], array $addr_items = [], array $prop_items = []): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        $values['.listitems'] = $list_items;
+        $values['.propitems'] = $prop_items;
+        $values['.addritems'] = $addr_items;
         return $this->create($values);
     }
-
     /**
      * Deletes items.
      *
@@ -188,37 +163,25 @@ abstract class Base extends \Aimeos\MShop\Common\Manager\Base
      * @param string $name Name of the ID column
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    protected function deleteItemsBase(
-        $items,
-        string $cfgpath,
-        bool $siteid = true,
-        string $name = 'id'
-    ): \Aimeos\MShop\Common\Manager\Iface {
-        if (map($items)->isEmpty()) {
+    protected function delete_items_base($items, string $cfgpath, bool $siteid = true, string $name = 'id'): \Aimeos\M_Shop\Common\Manager\Iface
+    {
+        if (map($items)->is_empty()) {
             return $this;
         }
-
         $search = $this->object()->filter();
-        $search->setConditions($search->compare('==', $name, $items));
-
-        $types = [ $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
-        $translations = [ $name => '"' . $name . '"' ];
-
-        $cond = $search->getConditionSource($types, $translations);
-        $sql = str_replace(':cond', $cond, $this->getSqlConfig($cfgpath));
-
+        $search->set_conditions($search->compare('==', $name, $items));
+        $types = [$name => \Aimeos\Base\DB\Statement\Base::PARAM_STR];
+        $translations = [$name => '"' . $name . '"'];
+        $cond = $search->get_condition_source($types, $translations);
+        $sql = str_replace(':cond', $cond, $this->get_sql_config($cfgpath));
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         $stmt = $conn->create($sql);
-
         if ($siteid) {
-            $stmt->bind(1, $context->locale()->getSiteId() . '%');
-            $stmt->bind(2, $context->user()?->getSiteId());
+            $stmt->bind(1, $context->locale()->get_site_id() . '%');
+            $stmt->bind(2, $context->user()?->get_site_id());
         }
-
         $stmt->execute()->finish();
-
         return $this;
     }
 }

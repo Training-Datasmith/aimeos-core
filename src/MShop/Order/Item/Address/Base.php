@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Item\Address;
+namespace Aimeos\M_Shop\Order\Item\Address;
 
 /**
  * Abstract class with constants for all order address items.
@@ -17,13 +15,12 @@ namespace Aimeos\MShop\Order\Item\Address;
  * @package MShop
  * @subpackage Order
  */
-abstract class Base extends \Aimeos\MShop\Common\Item\Address\Base
+abstract class Base extends \Aimeos\M_Shop\Common\Item\Address\Base
 {
     /**
      * Delivery address.
      */
     public const TYPE_DELIVERY = 'delivery';
-
     /**
      * Billing address.
      */

@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2022-2026
  * @package MShop
  * @subpackage Basket
  */
-
-namespace Aimeos\MShop\Basket\Manager;
+namespace Aimeos\M_Shop\Basket\Manager;
 
 /**
  * Interface for all basket manager implementations.
@@ -16,6 +15,6 @@ namespace Aimeos\MShop\Basket\Manager;
  * @package MShop
  * @subpackage Basket
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Iface
 {
 }

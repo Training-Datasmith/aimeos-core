@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Locale
  */
-
-namespace Aimeos\MShop\Locale\Manager\Language;
+namespace Aimeos\M_Shop\Locale\Manager\Language;
 
 /**
  * Default implementation for managing languages.
@@ -17,83 +15,42 @@ namespace Aimeos\MShop\Locale\Manager\Language;
  * @package MShop
  * @subpackage Locale
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Locale\Manager\Language\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Locale\Manager\Language\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'locale.language.id' => [
-            'label' => 'Language ID',
-            'internaldeps' => ['LEFT JOIN "mshop_locale_language" AS mlocla ON (mloc."langid" = mlocla."id")'],
-            'internalcode' => 'mlocla."id"',
-            'public' => false,
-        ],
-        'locale.language.label' => [
-            'label' => 'Language label',
-            'internalcode' => 'mlocla."label"',
-        ],
-        'locale.language.code' => [
-            'label' => 'Language code',
-            'internalcode' => 'mlocla."id"',
-        ],
-        'locale.language.status' => [
-            'label' => 'Language status',
-            'internalcode' => 'mlocla."status"',
-            'type' => 'int',
-        ],
-        'locale.language.ctime' => [
-            'label' => 'Language create date/time',
-            'internalcode' => 'mlocla."ctime"',
-            'type' => 'datetime',
-            'public' => false,
-        ],
-        'locale.language.mtime' => [
-            'label' => 'Language modify date/time',
-            'internalcode' => 'mlocla."mtime"',
-            'type' => 'datetime',
-            'public' => false,
-        ],
-        'locale.language.editor' => [
-            'label' => 'Language editor',
-            'internalcode' => 'mlocla."editor"',
-            'public' => false,
-        ],
-    ];
-
+    private array $search_config = ['locale.language.id' => ['label' => 'Language ID', 'internaldeps' => ['LEFT JOIN "mshop_locale_language" AS mlocla ON (mloc."langid" = mlocla."id")'], 'internalcode' => 'mlocla."id"', 'public' => false], 'locale.language.label' => ['label' => 'Language label', 'internalcode' => 'mlocla."label"'], 'locale.language.code' => ['label' => 'Language code', 'internalcode' => 'mlocla."id"'], 'locale.language.status' => ['label' => 'Language status', 'internalcode' => 'mlocla."status"', 'type' => 'int'], 'locale.language.ctime' => ['label' => 'Language create date/time', 'internalcode' => 'mlocla."ctime"', 'type' => 'datetime', 'public' => false], 'locale.language.mtime' => ['label' => 'Language modify date/time', 'internalcode' => 'mlocla."mtime"', 'type' => 'datetime', 'public' => false], 'locale.language.editor' => ['label' => 'Language editor', 'internalcode' => 'mlocla."editor"', 'public' => false]];
     /**
      * Removes old entries from the storage.
      *
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Locale\Manager\Language\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         return $this;
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Locale\Item\Language\Iface New locale language item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return new \Aimeos\MShop\Locale\Item\Language\Standard('locale.language.', $values);
+        return new \Aimeos\M_Shop\Locale\Item\Language\Standard('locale.language.', $values);
     }
-
     /**
      * Removes multiple items.
      *
      * @param \Aimeos\MShop\Common\Item\Iface[]|string[] $itemIds List of item objects or IDs of the items
      * @return \Aimeos\MShop\Locale\Manager\Language\Iface Manager object for chaining method calls
      */
-    public function delete($itemIds): \Aimeos\MShop\Common\Manager\Iface
+    public function delete($item_ids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         /** mshop/locale/manager/language/delete/mysql
          * Deletes the items matched by the given IDs from the database
          *
          * @see mshop/locale/manager/language/delete/ansi
          */
-
         /** mshop/locale/manager/language/delete/ansi
          * Deletes the items matched by the given IDs from the database
          *
@@ -117,17 +74,15 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/locale/manager/language/count/ansi
          */
         $path = 'mshop/locale/manager/language/delete';
-
-        return $this->deleteItemsBase($itemIds, $path, false);
+        return $this->delete_items_base($item_ids, $path, false);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
         /** mshop/locale/manager/language/submanagers
          * List of manager names that can be instantiated by the locale language manager
@@ -146,10 +101,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2015.10
          */
         $path = 'mshop/locale/manager/language/submanagers';
-
-        return $this->getSearchAttributesBase($this->searchConfig, $path, [], $withsub);
+        return $this->get_search_attributes_base($this->search_config, $path, [], $withsub);
     }
-
     /**
      * Returns the item specified by its code and domain/type if necessary
      *
@@ -160,16 +113,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool|null $default Add default criteria or NULL for relaxed default criteria
      * @return \Aimeos\MShop\Common\Item\Iface Item object
      */
-    public function find(
-        string $code,
-        array $ref = [],
-        ?string $domain = null,
-        ?string $type = null,
-        ?bool $default = false
-    ): \Aimeos\MShop\Common\Item\Iface {
-        return $this->findBase([ 'locale.language.id' => $code ], $ref, $default);
+    public function find(string $code, array $ref = [], ?string $domain = null, ?string $type = null, ?bool $default = false): \Aimeos\M_Shop\Common\Item\Iface
+    {
+        return $this->find_base(['locale.language.id' => $code], $ref, $default);
     }
-
     /**
      * Creates a filter object.
      *
@@ -179,9 +126,8 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      */
     public function filter(?bool $default = false, bool $site = false): \Aimeos\Base\Criteria\Iface
     {
-        return $this->filterBase('locale.language', $default);
+        return $this->filter_base('locale.language', $default);
     }
-
     /**
      * Returns the site coditions for the search request
      *
@@ -190,11 +136,10 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $sitelevel Site level constant from \Aimeos\MShop\Locale\Manager\Base
      * @return \Aimeos\Base\Criteria\Expression\Iface[] List of search conditions
      */
-    protected function getSiteConditions(array $keys, array $attributes, int $sitelevel): array
+    protected function get_site_conditions(array $keys, array $attributes, int $sitelevel): array
     {
         return [];
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -204,7 +149,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'locale.language.';
     }
-
     /**
      * Saves the language object to the storage.
      *
@@ -212,25 +156,21 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Locale\Item\Language\Iface $item Updated item including the generated ID
      */
-    protected function saveBase(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    protected function save_base(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $id = $item->getId();
-        $columns = $this->object()->getSaveAttributes();
-
+        $conn = $context->db($this->get_resource_name());
+        $id = $item->get_id();
+        $columns = $this->object()->get_save_attributes();
         if ($id === null) {
             /** mshop/locale/manager/language/insert/mysql
              * Inserts a new language record into the database table
              *
              * @see mshop/locale/manager/language/insert/ansi
              */
-
             /** mshop/locale/manager/language/insert/ansi
              * Inserts a new language record into the database table
              *
@@ -255,14 +195,13 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
              * @see mshop/locale/manager/language/count/ansi
              */
             $path = 'mshop/locale/manager/language/insert';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         } else {
             /** mshop/locale/manager/language/update/mysql
              * Updates an existing language record in the database
              *
              * @see mshop/locale/manager/language/update/ansi
              */
-
             /** mshop/locale/manager/language/update/ansi
              * Updates an existing language record in the database
              *
@@ -285,34 +224,29 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
              * @see mshop/locale/manager/language/count/ansi
              */
             $path = 'mshop/locale/manager/language/update';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         }
-
         $idx = 1;
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
         foreach ($columns as $name => $entry) {
-            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+            $stmt->bind($idx++, $item->get($name), \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $item->getLabel());
-        $stmt->bind($idx++, $item->getStatus(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-        $stmt->bind($idx++, $context->datetime()); // mtime
+        $stmt->bind($idx++, $item->get_label());
+        $stmt->bind($idx++, $item->get_status(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
+        $stmt->bind($idx++, $context->datetime());
+        // mtime
         $stmt->bind($idx++, $context->editor());
         // code and ID are identical after saving and ID is the flag to detect updates or inserts
-        $stmt->bind($idx++, $item->getCode());
-
+        $stmt->bind($idx++, $item->get_code());
         if ($id === null) {
-            $stmt->bind($idx++, $context->datetime()); // ctime
+            $stmt->bind($idx++, $context->datetime());
+            // ctime
         }
-
         $stmt->execute()->finish();
-
-        $item->setId($item->getCode()); // set modified flag to false
-
+        $item->set_id($item->get_code());
+        // set modified flag to false
         return $item;
     }
-
     /** mshop/locale/manager/language/name
      * Class name of the used locale language manager implementation
      *
@@ -345,7 +279,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/locale/manager/language/decorators/excludes
      * Excludes decorators added by the "common" option from the locale language manager
      *
@@ -370,7 +303,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/language/decorators/global
      * @see mshop/locale/manager/language/decorators/local
      */
-
     /** mshop/locale/manager/language/decorators/global
      * Adds a list of globally available decorators only to the locale language manager
      *
@@ -395,7 +327,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/language/decorators/excludes
      * @see mshop/locale/manager/language/decorators/local
      */
-
     /** mshop/locale/manager/language/decorators/local
      * Adds a list of local decorators only to the locale language manager
      *
@@ -420,13 +351,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/language/decorators/excludes
      * @see mshop/locale/manager/language/decorators/global
      */
-
     /** mshop/locale/manager/language/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/locale/manager/language/search/ansi
      */
-
     /** mshop/locale/manager/language/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -474,13 +403,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @see mshop/locale/manager/language/delete/ansi
      * @see mshop/locale/manager/language/count/ansi
      */
-
     /** mshop/locale/manager/language/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/locale/manager/language/count/ansi
      */
-
     /** mshop/locale/manager/language/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

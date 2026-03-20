@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2018-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Item\Config;
+namespace Aimeos\M_Shop\Common\Item\Config;
 
 /**
  * Common trait for items containing configurations
@@ -25,32 +23,28 @@ trait Traits
      * @return string Prefix for the item properties
      */
     abstract protected function prefix(): string;
-
     /**
      * Returns the config property of the catalog.
      *
      * @return array Returns the config of the catalog node
      */
-    public function getConfig(): array
+    public function get_config(): array
     {
         return (array) $this->get($this->prefix() . 'config', []);
     }
-
     /**
      * Sets the config property of the catalog item.
      *
      * @param array $config Configuration to be set for the catalog node
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setConfig(array $config): \Aimeos\MShop\Common\Item\Iface
+    public function set_config(array $config): \Aimeos\M_Shop\Common\Item\Iface
     {
-        if (!$this->compareConfig($this->getConfig(), $config)) {
+        if (!$this->compare_config($this->get_config(), $config)) {
             $this->set($this->prefix() . 'config', $config);
         }
-
         return $this;
     }
-
     /**
      * Returns the configuration value for the specified path
      *
@@ -58,32 +52,27 @@ trait Traits
      * @param mixed $default Default value if no configration is found
      * @return mixed Configuration value or array of values
      */
-    public function getConfigValue(string $key, $default = null)
+    public function get_config_value(string $key, $default = null)
     {
-        return $this->getArrayValue($this->getConfig(), explode('/', trim($key, '/')), $default);
+        return $this->get_array_value($this->get_config(), explode('/', trim($key, '/')), $default);
     }
-
     /**
      * Sets all configuration values at once
      *
      * @param array $flat Associative list of keys (with "/" for nested arrays) and values
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setConfigFlat(array $flat): \Aimeos\MShop\Common\Item\Iface
+    public function set_config_flat(array $flat): \Aimeos\M_Shop\Common\Item\Iface
     {
         $config = [];
-
         foreach ($flat as $key => $value) {
-            $config = $this->setArrayValue($config, explode('/', trim($key, '/')), $value);
+            $config = $this->set_array_value($config, explode('/', trim($key, '/')), $value);
         }
-
-        if (!$this->compareConfig($this->getConfig(), $config)) {
-            return $this->setConfig($config);
+        if (!$this->compare_config($this->get_config(), $config)) {
+            return $this->set_config($config);
         }
-
         return $this;
     }
-
     /**
      * Sets the configuration value for the specified path
      *
@@ -98,11 +87,10 @@ trait Traits
      * @param mixed $value Value to set for the key
      * @return \Aimeos\MShop\Common\Item\Iface Item for chaining method calls
      */
-    public function setConfigValue(string $key, $value): \Aimeos\MShop\Common\Item\Iface
+    public function set_config_value(string $key, $value): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->setConfig($this->setArrayValue($this->getConfig(), explode('/', trim($key, '/')), $value));
+        return $this->set_config($this->set_array_value($this->get_config(), explode('/', trim($key, '/')), $value));
     }
-
     /**
      * Returns if two associative arrays with string keys are equal
      *
@@ -110,27 +98,23 @@ trait Traits
      * @param array $b Second associative array
      * @return bool TRUE if arrays are loosly equal, FALSE if there are differences other than the order of keys
      */
-    protected function compareConfig(array $a, array $b): bool
+    protected function compare_config(array $a, array $b): bool
     {
         if (count($a) !== count($b) || array_diff_key($a, $b)) {
             return false;
         }
-
         foreach ($a as $k => $v) {
             $bv = $b[$k];
-
             if (is_array($v) && is_array($bv)) {
-                if (!$this->compareConfig($v, $bv)) {
+                if (!$this->compare_config($v, $bv)) {
                     return false;
                 }
             } elseif ($v != $bv) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * Returns a configuration value from an array
      *
@@ -139,23 +123,19 @@ trait Traits
      * @param mixed $default Default value if no configuration is found
      * @return mixed Found value or null if no value is available
      */
-    protected function getArrayValue(array $config, array $parts, $default)
+    protected function get_array_value(array $config, array $parts, $default)
     {
         if (($current = array_shift($parts)) !== null && isset($config[$current])) {
             if (count($parts) > 0) {
                 if (is_array($config[$current])) {
-                    return $this->getArrayValue($config[$current], $parts, $default);
+                    return $this->get_array_value($config[$current], $parts, $default);
                 }
-
                 return $default;
             }
-
             return $config[$current];
         }
-
         return $default;
     }
-
     /**
      * Sets the value for the given key parts in the array configuration
      *
@@ -164,16 +144,14 @@ trait Traits
      * @param mixed $value Value to set in the configuration array
      * @return array Modified configuration array
      */
-    protected function setArrayValue(array $config, array $parts, $value): array
+    protected function set_array_value(array $config, array $parts, $value): array
     {
         $current = array_shift($parts);
-
         if (!empty($parts)) {
-            $config[$current] = $this->setArrayValue($config[$current] ?? [], $parts, $value);
+            $config[$current] = $this->set_array_value($config[$current] ?? [], $parts, $value);
         } else {
             $config[$current] = $value;
         }
-
         return $config;
     }
 }

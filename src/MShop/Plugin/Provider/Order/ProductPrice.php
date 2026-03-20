@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Metaways Infosystems GmbH, 2012
@@ -9,8 +8,7 @@ declare(strict_types=1);
  * @package MShop
  * @subpackage Plugin
  */
-
-namespace Aimeos\MShop\Plugin\Provider\Order;
+namespace Aimeos\M_Shop\Plugin\Provider\Order;
 
 /**
  * Checks the products in a basket for changed prices
@@ -35,27 +33,9 @@ namespace Aimeos\MShop\Plugin\Provider\Order;
  * @package MShop
  * @subpackage Plugin
  */
-class ProductPrice extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements \Aimeos\MShop\Plugin\Provider\Iface, \Aimeos\MShop\Plugin\Provider\Factory\Iface
+class Product_Price extends \Aimeos\M_Shop\Plugin\Provider\Factory\Base implements \Aimeos\M_Shop\Plugin\Provider\Iface, \Aimeos\M_Shop\Plugin\Provider\Factory\Iface
 {
-    private array $beConfig = [
-        'warn' => [
-            'code' => 'warn',
-            'internalcode' => 'warn',
-            'label' => 'Warn customers if price has changed',
-            'type' => 'bool',
-            'default' => '0',
-            'required' => false,
-        ],
-        'ignore-modified' => [
-            'code' => 'ignore-modified',
-            'internalcode' => 'ignore-modified',
-            'label' => 'Ignore order items with a modified price (e.g. by another plugin)',
-            'type' => 'bool',
-            'default' => '1',
-            'required' => false,
-        ],
-    ];
-
+    private array $be_config = ['warn' => ['code' => 'warn', 'internalcode' => 'warn', 'label' => 'Warn customers if price has changed', 'type' => 'bool', 'default' => '0', 'required' => false], 'ignore-modified' => ['code' => 'ignore-modified', 'internalcode' => 'ignore-modified', 'label' => 'Ignore order items with a modified price (e.g. by another plugin)', 'type' => 'bool', 'default' => '1', 'required' => false]];
     /**
      * Checks the backend configuration attributes for validity.
      *
@@ -63,36 +43,32 @@ class ProductPrice extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @return array An array with the attribute keys as key and an error message as values for all attributes that are
      * 	known by the provider but aren't valid
      */
-    public function checkConfigBE(array $attributes): array
+    public function check_config_be(array $attributes): array
     {
-        $errors = parent::checkConfigBE($attributes);
-
-        return array_merge($errors, $this->checkConfig($this->beConfig, $attributes));
+        $errors = parent::check_config_be($attributes);
+        return array_merge($errors, $this->check_config($this->be_config, $attributes));
     }
-
     /**
      * Returns the configuration attribute definitions of the provider to generate a list of available fields and
      * rules for the value of each field in the administration interface.
      *
      * @return array List of attribute definitions implementing \Aimeos\Base\Critera\Attribute\Iface
      */
-    public function getConfigBE(): array
+    public function get_config_be(): array
     {
-        return $this->getConfigItems($this->beConfig);
+        return $this->get_config_items($this->be_config);
     }
-
     /**
      * Subscribes itself to a publisher
      *
      * @param \Aimeos\MShop\Order\Item\Iface $p Object implementing publisher interface
      * @return \Aimeos\MShop\Plugin\Provider\Iface Plugin object for method chaining
      */
-    public function register(\Aimeos\MShop\Order\Item\Iface $p): \Aimeos\MShop\Plugin\Provider\Iface
+    public function register(\Aimeos\M_Shop\Order\Item\Iface $p): \Aimeos\M_Shop\Plugin\Provider\Iface
     {
         $p->attach($this->object(), 'check.after');
         return $this;
     }
-
     /**
      * Receives a notification from a publisher object
      *
@@ -102,95 +78,75 @@ class ProductPrice extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @return mixed Modified value parameter
      * @throws \Aimeos\MShop\Plugin\Provider\Exception if checks fail
      */
-    public function update(\Aimeos\MShop\Order\Item\Iface $order, string $action, $value = null)
+    public function update(\Aimeos\M_Shop\Order\Item\Iface $order, string $action, $value = null)
     {
         if (!in_array('order/product', (array) $value)) {
             return $value;
         }
-
-        $changedProducts = [];
-        $attrIds = $prodIds = map();
-        $orderProducts = $order->getProducts();
-
-        foreach ($orderProducts as $pos => $item) {
-            if ($item->getFlags() & \Aimeos\MShop\Order\Item\Product\Base::FLAG_IMMUTABLE
-                || $this->getConfigValue('ignore-modified') && $item->getPrice()->isModified()
-            ) {
-                unset($orderProducts[$pos]);
+        $changed_products = [];
+        $attr_ids = $prod_ids = map();
+        $order_products = $order->get_products();
+        foreach ($order_products as $pos => $item) {
+            if ($item->get_flags() & \Aimeos\M_Shop\Order\Item\Product\Base::FLAG_IMMUTABLE || $this->get_config_value('ignore-modified') && $item->get_price()->is_modified()) {
+                unset($order_products[$pos]);
             }
-
-            $attrIds->merge($item->getAttributeItems()->getAttributeId());
-            $prodIds->push($item->getParentProductId())->push($item->getProductId());
+            $attr_ids->merge($item->get_attribute_items()->get_attribute_id());
+            $prod_ids->push($item->get_parent_product_id())->push($item->get_product_id());
         }
-
-        $attributes = $this->getAttributeItems($attrIds->unique());
-        $products = $this->getProductItems($prodIds->filter());
-
-        foreach ($orderProducts as $pos => $orderProduct) {
-            $product = $products->get($orderProduct->getProductId());
-            $parent = $products->get($orderProduct->getParentProductId());
-
-            if (!$product || !$product->getRefItems('attribute', 'price', 'custom')->isEmpty()
-                || $parent && !$parent->getRefItems('attribute', 'price', 'custom')->isEmpty()
-            ) {
-                continue; // Product isn't available or excluded
+        $attributes = $this->get_attribute_items($attr_ids->unique());
+        $products = $this->get_product_items($prod_ids->filter());
+        foreach ($order_products as $pos => $order_product) {
+            $product = $products->get($order_product->get_product_id());
+            $parent = $products->get($order_product->get_parent_product_id());
+            if (!$product || !$product->get_ref_items('attribute', 'price', 'custom')->is_empty() || $parent && !$parent->get_ref_items('attribute', 'price', 'custom')->is_empty()) {
+                continue;
+                // Product isn't available or excluded
             }
-
             // fetch price of articles/sub-products
-            $price = $this->getPrice($orderProduct, $attributes, $this->prices($product, $parent, $pos));
-
-            if ($orderProduct->getPrice()->compare($price) === false) {
-                $order->addProduct($orderProduct->setPrice($price), $pos);
-                $changedProducts[$pos] = 'price.changed';
+            $price = $this->get_price($order_product, $attributes, $this->prices($product, $parent, $pos));
+            if ($order_product->get_price()->compare($price) === false) {
+                $order->add_product($order_product->set_price($price), $pos);
+                $changed_products[$pos] = 'price.changed';
             }
         }
-
-        if ($this->getConfigValue('warn', false) == true && count($changedProducts) > 0) {
-            $code = ['product' => $changedProducts];
+        if ($this->get_config_value('warn', false) == true && count($changed_products) > 0) {
+            $code = ['product' => $changed_products];
             $msg = $this->context()->translate('mshop', 'Please have a look at the prices of the products in your basket');
-            throw new \Aimeos\MShop\Plugin\Provider\Exception($msg, -1, null, $code);
+            throw new \Aimeos\M_Shop\Plugin\Provider\Exception($msg, -1, null, $code);
         }
-
         return $value;
     }
-
     /**
      * Returns the attribute items for the given IDs.
      *
      * @param \Aimeos\Map $list List of attribute IDs
      * @return \Aimeos\Map List of items implementing \Aimeos\MShop\Attribute\Item\Iface
      */
-    protected function getAttributeItems(\Aimeos\Map $list): \Aimeos\Map
+    protected function get_attribute_items(\Aimeos\Map $list): \Aimeos\Map
     {
-        if ($list->isEmpty()) {
+        if ($list->is_empty()) {
             return map();
         }
-
-        $attrManager = \Aimeos\MShop::create($this->context(), 'attribute');
-        $search = $attrManager->filter(true)->add(['attribute.id' => $list])->slice(0, count($list));
-
-        return $attrManager->search($search, ['price']);
+        $attr_manager = \Aimeos\M_Shop::create($this->context(), 'attribute');
+        $search = $attr_manager->filter(true)->add(['attribute.id' => $list])->slice(0, count($list));
+        return $attr_manager->search($search, ['price']);
     }
-
     /**
      * Returns the product items for the given product IDs.
      *
      * @param \Aimeos\Map $prodIds Product IDs
      * @return \Aimeos\Map Associative list of IDs as keys and product items as values
      */
-    protected function getProductItems(\Aimeos\Map $prodIds): \Aimeos\Map
+    protected function get_product_items(\Aimeos\Map $prod_ids): \Aimeos\Map
     {
-        if ($prodIds->isEmpty()) {
+        if ($prod_ids->is_empty()) {
             return map();
         }
-
-        $productManager = \Aimeos\MShop::create($this->context(), 'product');
-        $search = $productManager->filter(true)->add(['product.id' => $prodIds])->slice(0, count($prodIds));
-
-        $items = $productManager->search($search, ['catalog', 'price', 'attribute' => ['custom']]);
-        return \Aimeos\MShop::create($this->context(), 'rule')->apply($items, 'catalog');
+        $product_manager = \Aimeos\M_Shop::create($this->context(), 'product');
+        $search = $product_manager->filter(true)->add(['product.id' => $prod_ids])->slice(0, count($prod_ids));
+        $items = $product_manager->search($search, ['catalog', 'price', 'attribute' => ['custom']]);
+        return \Aimeos\M_Shop::create($this->context(), 'rule')->apply($items, 'catalog');
     }
-
     /**
      * Returns the actual price for the given order product.
      *
@@ -199,32 +155,24 @@ class ProductPrice extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @param \Aimeos\Map $prices List of available product prices
      * @return \Aimeos\MShop\Price\Item\Iface Price item including the calculated price
      */
-    private function getPrice(
-        \Aimeos\MShop\Order\Item\Product\Iface $orderProduct,
-        \Aimeos\Map $attributes,
-        \Aimeos\Map $prices
-    ): \Aimeos\MShop\Price\Item\Iface {
-        $siteId = $orderProduct->getSiteId();
-        $currency = $orderProduct->getPrice()->getCurrencyId();
-
-        $priceManager = \Aimeos\MShop::create($this->context(), 'price');
-        $price = clone $priceManager->getLowestPrice($prices, $orderProduct->getQuantity(), $currency, $siteId);
-
+    private function get_price(\Aimeos\M_Shop\Order\Item\Product\Iface $order_product, \Aimeos\Map $attributes, \Aimeos\Map $prices): \Aimeos\M_Shop\Price\Item\Iface
+    {
+        $site_id = $order_product->get_site_id();
+        $currency = $order_product->get_price()->get_currency_id();
+        $price_manager = \Aimeos\M_Shop::create($this->context(), 'price');
+        $price = clone $price_manager->get_lowest_price($prices, $order_product->get_quantity(), $currency, $site_id);
         // add prices of product attributes to compute the end price for comparison
-        foreach ($orderProduct->getAttributeItems() as $orderAttribute) {
-            $attrItem = $attributes->get($orderAttribute->getAttributeId());
-            $attrPrices = $attrItem ? $attrItem->getRefItems('price', 'default', 'default') : map();
-
-            if (!$attrPrices->isEmpty()) {
-                $lowPrice = $priceManager->getLowestPrice($attrPrices, $orderAttribute->getQuantity(), $currency, $siteId);
-                $price = $price->addItem($lowPrice, $orderAttribute->getQuantity());
+        foreach ($order_product->get_attribute_items() as $order_attribute) {
+            $attr_item = $attributes->get($order_attribute->get_attribute_id());
+            $attr_prices = $attr_item ? $attr_item->get_ref_items('price', 'default', 'default') : map();
+            if (!$attr_prices->is_empty()) {
+                $low_price = $price_manager->get_lowest_price($attr_prices, $order_attribute->get_quantity(), $currency, $site_id);
+                $price = $price->add_item($low_price, $order_attribute->get_quantity());
             }
         }
-
         // reset product rebates like in the basket controller
-        return $price->setRebate('0.00');
+        return $price->set_rebate('0.00');
     }
-
     /**
      * Returns the available prices for the ordered product
      *
@@ -233,24 +181,18 @@ class ProductPrice extends \Aimeos\MShop\Plugin\Provider\Factory\Base implements
      * @param int $pos Position of the product in the basket
      * @return \Aimeos\Map List of available product prices
      */
-    protected function prices(
-        \Aimeos\MShop\Product\Item\Iface $product,
-        ?\Aimeos\MShop\Product\Item\Iface $parent,
-        int $pos
-    ): \Aimeos\Map {
-        $prices = $product->getRefItems('price', 'default', 'default');
-
+    protected function prices(\Aimeos\M_Shop\Product\Item\Iface $product, ?\Aimeos\M_Shop\Product\Item\Iface $parent, int $pos): \Aimeos\Map
+    {
+        $prices = $product->get_ref_items('price', 'default', 'default');
         // fetch prices of selection/parent products
-        if ($parent && $prices->isEmpty()) {
-            $prices = $parent->getRefItems('price', 'default', 'default');
+        if ($parent && $prices->is_empty()) {
+            $prices = $parent->get_ref_items('price', 'default', 'default');
         }
-
-        if ($prices->isEmpty()) {
+        if ($prices->is_empty()) {
             $codes = ['product' => [$pos => 'product.price']];
             $msg = $this->context()->translate('mshop', 'No price for product available');
-            throw new \Aimeos\MShop\Plugin\Provider\Exception($msg, -1, null, $codes);
+            throw new \Aimeos\M_Shop\Plugin\Provider\Exception($msg, -1, null, $codes);
         }
-
         return $prices;
     }
 }

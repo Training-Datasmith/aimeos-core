@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Customer
  */
-
-namespace Aimeos\MShop\Customer\Manager\Address;
+namespace Aimeos\M_Shop\Customer\Manager\Address;
 
 /**
  * Implementation for customer address manager.
@@ -17,7 +15,7 @@ namespace Aimeos\MShop\Customer\Manager\Address;
  * @package MShop
  * @subpackage Customer
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aimeos\MShop\Customer\Manager\Address\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Address\Base implements \Aimeos\M_Shop\Customer\Manager\Address\Iface
 {
     /**
      * Removes old entries from the storage.
@@ -25,47 +23,35 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param iterable $siteids List of IDs for sites whose entries should be deleted
      * @return \Aimeos\MShop\Customer\Manager\Address\Iface Manager object for chaining method calls
      */
-    public function clear(iterable $siteids): \Aimeos\MShop\Common\Manager\Iface
+    public function clear(iterable $siteids): \Aimeos\M_Shop\Common\Manager\Iface
     {
         $path = 'mshop/customer/manager/address/submanagers';
         foreach ($this->context()->config()->get($path, []) as $domain) {
-            $this->object()->getSubManager($domain)->clear($siteids);
+            $this->object()->get_sub_manager($domain)->clear($siteids);
         }
-
-        return $this->clearBase($siteids, 'mshop/customer/manager/address/clear');
+        return $this->clear_base($siteids, 'mshop/customer/manager/address/clear');
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Address\Iface New order address item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $values['customer.address.siteid'] ??= $this->context()->locale()->getSiteId();
-        return new \Aimeos\MShop\Customer\Item\Address\Standard('customer.address.', $values);
+        $values['customer.address.siteid'] ??= $this->context()->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Customer\Item\Address\Standard('customer.address.', $values);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'customer.address.id' => [
-                'label' => 'Customer address ID',
-                'internalcode' => 'id',
-                'internaldeps' => ['LEFT JOIN "mshop_customer_address" AS mcusad ON ( mcus."id" = mcusad."parentid" )'],
-                'type' => 'int',
-                'public' => false,
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['customer.address.id' => ['label' => 'Customer address ID', 'internalcode' => 'id', 'internaldeps' => ['LEFT JOIN "mshop_customer_address" AS mcusad ON ( mcus."id" = mcusad."parentid" )'], 'type' => 'int', 'public' => false]]));
     }
-
     /**
      * Deletes items.
      *
@@ -75,50 +61,36 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param string $name Name of the ID column
      * @return \Aimeos\MShop\Common\Manager\Iface Manager object for chaining method calls
      */
-    protected function deleteItemsBase(
-        $items,
-        string $cfgpath,
-        bool $siteid = true,
-        string $name = 'id'
-    ): \Aimeos\MShop\Common\Manager\Iface {
-        if (map($items)->isEmpty()) {
+    protected function delete_items_base($items, string $cfgpath, bool $siteid = true, string $name = 'id'): \Aimeos\M_Shop\Common\Manager\Iface
+    {
+        if (map($items)->is_empty()) {
             return $this;
         }
-
         $search = $this->object()->filter();
-        $search->setConditions($search->compare('==', $name, $items));
-
-        $types = [ $name => \Aimeos\Base\DB\Statement\Base::PARAM_STR ];
-        $translations = [ $name => '"' . $name . '"' ];
-
-        $cond = $search->getConditionSource($types, $translations);
-        $sql = str_replace(':cond', $cond, $this->getSqlConfig($cfgpath));
-
+        $search->set_conditions($search->compare('==', $name, $items));
+        $types = [$name => \Aimeos\Base\DB\Statement\Base::PARAM_STR];
+        $translations = [$name => '"' . $name . '"'];
+        $cond = $search->get_condition_source($types, $translations);
+        $sql = str_replace(':cond', $cond, $this->get_sql_config($cfgpath));
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
+        $conn = $context->db($this->get_resource_name());
         $stmt = $conn->create($sql);
-
         if ($siteid) {
-            $stmt->bind(1, $context->locale()->getSiteId() . '%');
-            $stmt->bind(2, $context->user()?->getSiteId());
+            $stmt->bind(1, $context->locale()->get_site_id() . '%');
+            $stmt->bind(2, $context->user()?->get_site_id());
         }
-
         $stmt->execute()->finish();
-
         return $this;
     }
-
     /**
      * Returns the config path for retrieving the configuration values.
      *
      * @return string Configuration path
      */
-    protected function getConfigPath(): string
+    protected function get_config_path(): string
     {
         return 'mshop/customer/manager/address/';
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -128,7 +100,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
     {
         return 'customer.address.';
     }
-
     /**
      * Saves a common address item object.
      *
@@ -136,57 +107,48 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Common\Item\Address\Iface $item Updated item including the generated ID
      */
-    protected function saveBase(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    protected function save_base(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        if (!$item->isModified()) {
+        if (!$item->is_modified()) {
             return $item;
         }
-
         $context = $this->context();
-        $conn = $context->db($this->getResourceName());
-
-        $id = $item->getId();
-        $columns = array_column($this->object()->getSaveAttributes(), null, 'internalcode');
-
+        $conn = $context->db($this->get_resource_name());
+        $id = $item->get_id();
+        $columns = array_column($this->object()->get_save_attributes(), null, 'internalcode');
         if ($id === null) {
             $path = 'mshop/customer/manager/address/insert';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path));
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path));
         } else {
             $path = 'mshop/customer/manager/address/update';
-            $sql = $this->addSqlColumns(array_keys($columns), $this->getSqlConfig($path), false);
+            $sql = $this->add_sql_columns(array_keys($columns), $this->get_sql_config($path), false);
         }
-
         $idx = 1;
-        $values = $item->toArray(true);
-        $stmt = $this->getCachedStatement($conn, $path, $sql);
-
-        foreach ($this->object()->getSaveAttributes() as $entry) {
-            $value = $values[$entry->getCode()] ?? null;
-            $value = $entry->getType() === 'json' ? json_encode($value, JSON_FORCE_OBJECT) : $value;
-            $stmt->bind($idx++, $value, \Aimeos\Base\Criteria\SQL::type($entry->getType()));
+        $values = $item->to_array(true);
+        $stmt = $this->get_cached_statement($conn, $path, $sql);
+        foreach ($this->object()->get_save_attributes() as $entry) {
+            $value = $values[$entry->get_code()] ?? null;
+            $value = $entry->get_type() === 'json' ? json_encode($value, JSON_FORCE_OBJECT) : $value;
+            $stmt->bind($idx++, $value, \Aimeos\Base\Criteria\SQL::type($entry->get_type()));
         }
-
-        $stmt->bind($idx++, $context->datetime()); //mtime
+        $stmt->bind($idx++, $context->datetime());
+        //mtime
         $stmt->bind($idx++, $context->editor());
-
         if ($id !== null) {
-            $stmt->bind($idx++, $context->locale()->getSiteId() . '%');
-            $stmt->bind($idx++, $context->user()?->getSiteId());
+            $stmt->bind($idx++, $context->locale()->get_site_id() . '%');
+            $stmt->bind($idx++, $context->user()?->get_site_id());
             $stmt->bind($idx++, $id, \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         } else {
-            $stmt->bind($idx++, $this->siteId($item->getSiteId(), \Aimeos\MShop\Locale\Manager\Base::SITE_SUBTREE));
-            $stmt->bind($idx++, $context->datetime()); // ctime
+            $stmt->bind($idx++, $this->site_id($item->get_site_id(), \Aimeos\M_Shop\Locale\Manager\Base::SITE_SUBTREE));
+            $stmt->bind($idx++, $context->datetime());
+            // ctime
         }
-
         $stmt->execute()->finish();
-
         if ($id === null && $fetch === true) {
-            $id = $this->newId($conn, 'mshop/common/manager/newid');
+            $id = $this->new_id($conn, 'mshop/common/manager/newid');
         }
-
-        return $item->setId($id);
+        return $item->set_id($id);
     }
-
     /** mshop/customer/manager/address/name
      * Class name of the used customer address manager implementation
      *
@@ -219,7 +181,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param string Last part of the class name
      * @since 2015.10
      */
-
     /** mshop/customer/manager/address/decorators/excludes
      * Excludes decorators added by the "common" option from the customer address manager
      *
@@ -244,7 +205,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/decorators/global
      * @see mshop/customer/manager/address/decorators/local
      */
-
     /** mshop/customer/manager/address/decorators/global
      * Adds a list of globally available decorators only to the customer address manager
      *
@@ -268,7 +228,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/decorators/excludes
      * @see mshop/customer/manager/address/decorators/local
      */
-
     /** mshop/customer/manager/address/decorators/local
      * Adds a list of local decorators only to the customer address manager
      *
@@ -293,7 +252,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/decorators/excludes
      * @see mshop/customer/manager/address/decorators/global
      */
-
     /** mshop/customer/manager/address/submanagers
      * List of manager names that can be instantiated by the customer address manager
      *
@@ -310,13 +268,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @param array List of sub-manager names
      * @since 2015.10
      */
-
     /** mshop/customer/manager/address/insert/mysql
      * Inserts a new customer address record into the database table
      *
      * @see mshop/customer/manager/address/insert/ansi
      */
-
     /** mshop/customer/manager/address/insert/ansi
      * Inserts a new customer address record into the database table
      *
@@ -345,13 +301,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/search/ansi
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/update/mysql
      * Updates an existing customer address record in the database
      *
      * @see mshop/customer/manager/address/update/ansi
      */
-
     /** mshop/customer/manager/address/update/ansi
      * Updates an existing customer address record in the database
      *
@@ -377,13 +331,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/search/ansi
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/newid/mysql
      * Retrieves the ID generated by the database when inserting a new record
      *
      * @see mshop/customer/manager/address/newid/ansi
      */
-
     /** mshop/customer/manager/address/newid/ansi
      * Retrieves the ID generated by the database when inserting a new record
      *
@@ -413,13 +365,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/search/ansi
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/delete/mysql
      * Deletes the items matched by the given IDs from the database
      *
      * @see mshop/customer/manager/address/delete/ansi
      */
-
     /** mshop/customer/manager/address/delete/ansi
      * Deletes the items matched by the given IDs from the database
      *
@@ -443,13 +393,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/search/ansi
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/search/mysql
      * Retrieves the records matched by the given criteria in the database
      *
      * @see mshop/customer/manager/address/search/ansi
      */
-
     /** mshop/customer/manager/address/search/ansi
      * Retrieves the records matched by the given criteria in the database
      *
@@ -498,13 +446,11 @@ class Standard extends \Aimeos\MShop\Common\Manager\Address\Base implements \Aim
      * @see mshop/customer/manager/address/delete/ansi
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/count/mysql
      * Counts the number of records matched by the given criteria in the database
      *
      * @see mshop/customer/manager/address/count/ansi
      */
-
     /** mshop/customer/manager/address/count/ansi
      * Counts the number of records matched by the given criteria in the database
      *

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Order
  */
-
-namespace Aimeos\MShop\Order\Manager\Service;
+namespace Aimeos\M_Shop\Order\Manager\Service;
 
 /**
  * Default order service manager implementation.
@@ -17,45 +15,9 @@ namespace Aimeos\MShop\Order\Manager\Service;
  * @package MShop
  * @subpackage Order
  */
-class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MShop\Order\Manager\Service\Iface, \Aimeos\MShop\Common\Manager\Factory\Iface
+class Standard extends \Aimeos\M_Shop\Common\Manager\Base implements \Aimeos\M_Shop\Order\Manager\Service\Iface, \Aimeos\M_Shop\Common\Manager\Factory\Iface
 {
-    private array $searchConfig = [
-        'order.service.parentid' => [
-            'label' => 'Order ID',
-            'internalcode' => 'parentid',
-            'type' => 'int',
-            'public' => false,
-        ],
-        'order.service.serviceid' => [
-            'label' => 'Service original service ID',
-            'internalcode' => 'servid',
-            'public' => false,
-        ],
-        'order.service.name' => [
-            'label' => 'Service name',
-            'internalcode' => 'name',
-        ],
-        'order.service.code' => [
-            'label' => 'Service code',
-            'internalcode' => 'code',
-        ],
-        'order.service.type' => [
-            'label' => 'Service type',
-            'internalcode' => 'type',
-        ],
-        'order.service.mediaurl' => [
-            'label' => 'Service media url',
-            'internalcode' => 'mediaurl',
-            'public' => false,
-        ],
-        'order.service.position' => [
-            'label' => 'Service position',
-            'internalcode' => 'pos',
-            'type' => 'int',
-            'public' => false,
-        ],
-    ];
-
+    private array $search_config = ['order.service.parentid' => ['label' => 'Order ID', 'internalcode' => 'parentid', 'type' => 'int', 'public' => false], 'order.service.serviceid' => ['label' => 'Service original service ID', 'internalcode' => 'servid', 'public' => false], 'order.service.name' => ['label' => 'Service name', 'internalcode' => 'name'], 'order.service.code' => ['label' => 'Service code', 'internalcode' => 'code'], 'order.service.type' => ['label' => 'Service type', 'internalcode' => 'type'], 'order.service.mediaurl' => ['label' => 'Service media url', 'internalcode' => 'mediaurl', 'public' => false], 'order.service.position' => ['label' => 'Service position', 'internalcode' => 'pos', 'type' => 'int', 'public' => false]];
     /**
      * Counts the number items that are available for the values of the given key.
      *
@@ -72,7 +34,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          *
          * @see mshop/order/manager/service/aggregate/ansi
          */
-
         /** mshop/order/manager/service/aggregate/ansi
          * Counts the number of records grouped by the values in the key column and matched by the given criteria
          *
@@ -115,7 +76,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/service/search/ansi
          * @see mshop/order/manager/service/count/ansi
          */
-
         /** mshop/order/manager/service/aggregateavg/mysql
          * Computes the average of all values grouped by the key column and matched by the given criteria
          *
@@ -124,7 +84,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/service/aggregateavg/ansi
          * @see mshop/order/manager/service/aggregate/mysql
          */
-
         /** mshop/order/manager/service/aggregateavg/ansi
          * Computes the average of all values grouped by the key column and matched by the given criteria
          *
@@ -132,7 +91,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2017.10
          * @see mshop/order/manager/service/aggregate/ansi
          */
-
         /** mshop/order/manager/service/aggregatesum/mysql
          * Computes the sum of all values grouped by the key column and matched by the given criteria
          *
@@ -141,7 +99,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @see mshop/order/manager/service/aggregatesum/ansi
          * @see mshop/order/manager/service/aggregate/mysql
          */
-
         /** mshop/order/manager/service/aggregatesum/ansi
          * Computes the sum of all values grouped by the key column and matched by the given criteria
          *
@@ -149,49 +106,42 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
          * @since 2017.10
          * @see mshop/order/manager/service/aggregate/ansi
          */
-
         $cfgkey = 'mshop/order/manager/service/aggregate';
-        return $this->aggregateBase($search, $key, $cfgkey, ['order.service'], $value, $type);
+        return $this->aggregate_base($search, $key, $cfgkey, ['order.service'], $value, $type);
     }
-
     /**
      * Creates a new empty item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Service\Iface New order service item object
      */
-    public function create(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
         $context = $this->context();
-
-        $values['.price'] ??= \Aimeos\MShop::create($context, 'price')->create();
-        $values['order.service.siteid'] ??= $context->locale()->getSiteId();
-
-        return new \Aimeos\MShop\Order\Item\Service\Standard('order.service.', $values);
+        $values['.price'] ??= \Aimeos\M_Shop::create($context, 'price')->create();
+        $values['order.service.siteid'] ??= $context->locale()->get_site_id();
+        return new \Aimeos\M_Shop\Order\Item\Service\Standard('order.service.', $values);
     }
-
     /**
      * Creates a new order service attribute item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Service\Attribute\Iface New order service attribute item object
      */
-    public function createAttributeItem(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create_attribute_item(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->object()->getSubManager('attribute')->create($values);
+        return $this->object()->get_sub_manager('attribute')->create($values);
     }
-
     /**
      * Creates a new order service transaction item instance
      *
      * @param array $values Values the item should be initialized with
      * @return \Aimeos\MShop\Order\Item\Service\Transaction\Iface New order service transaction item object
      */
-    public function createTransaction(array $values = []): \Aimeos\MShop\Common\Item\Iface
+    public function create_transaction(array $values = []): \Aimeos\M_Shop\Common\Item\Iface
     {
-        return $this->object()->getSubManager('transaction')->create($values);
+        return $this->object()->get_sub_manager('transaction')->create($values);
     }
-
     /**
      * Creates a filter object.
      *
@@ -203,70 +153,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return parent::filter($default)->order('order.service.id');
     }
-
     /**
      * Returns the additional column/search definitions
      *
      * @return array Associative list of column names as keys and items implementing \Aimeos\Base\Criteria\Attribute\Iface
      */
-    public function getSaveAttributes(): array
+    public function get_save_attributes(): array
     {
-        return $this->createAttributes($this->searchConfig);
+        return $this->create_attributes($this->search_config);
     }
-
     /**
      * Returns the attributes that can be used for searching.
      *
      * @param bool $withsub Return also attributes of sub-managers if true
      * @return \Aimeos\Base\Criteria\Attribute\Iface[] List of search attribute items
      */
-    public function getSearchAttributes(bool $withsub = true): array
+    public function get_search_attributes(bool $withsub = true): array
     {
-        return array_replace(parent::getSearchAttributes($withsub), $this->createAttributes([
-            'order.service.id' => [
-                'label' => 'Service ID',
-                'internaldeps' => ['LEFT JOIN "mshop_order_service" AS mordse ON ( mord."id" = mordse."parentid" )'],
-                'internalcode' => 'id',
-                'type' => 'int',
-                'public' => false,
-            ],
-            'order.service.currencyid' => [
-                'label' => 'Service currencyid code',
-                'internalcode' => 'currencyid',
-            ],
-            'order.service.price' => [
-                'label' => 'Service price',
-                'internalcode' => 'price',
-                'type' => 'decimal',
-            ],
-            'order.service.costs' => [
-                'label' => 'Service shipping',
-                'internalcode' => 'costs',
-                'type' => 'decimal',
-            ],
-            'order.service.rebate' => [
-                'label' => 'Service rebate',
-                'internalcode' => 'rebate',
-                'type' => 'decimal',
-            ],
-            'order.service.taxrates' => [
-                'label' => 'Service taxrates',
-                'internalcode' => 'taxrate',
-                'type' => 'json',
-            ],
-            'order.service.taxvalue' => [
-                'label' => 'Service tax value',
-                'internalcode' => 'tax',
-                'type' => 'decimal',
-            ],
-            'order.service.taxflag' => [
-                'label' => 'Service tax flag (0=net, 1=gross)',
-                'internalcode' => 'taxflag',
-                'type' => 'int',
-            ],
-        ]));
+        return array_replace(parent::get_search_attributes($withsub), $this->create_attributes(['order.service.id' => ['label' => 'Service ID', 'internaldeps' => ['LEFT JOIN "mshop_order_service" AS mordse ON ( mord."id" = mordse."parentid" )'], 'internalcode' => 'id', 'type' => 'int', 'public' => false], 'order.service.currencyid' => ['label' => 'Service currencyid code', 'internalcode' => 'currencyid'], 'order.service.price' => ['label' => 'Service price', 'internalcode' => 'price', 'type' => 'decimal'], 'order.service.costs' => ['label' => 'Service shipping', 'internalcode' => 'costs', 'type' => 'decimal'], 'order.service.rebate' => ['label' => 'Service rebate', 'internalcode' => 'rebate', 'type' => 'decimal'], 'order.service.taxrates' => ['label' => 'Service taxrates', 'internalcode' => 'taxrate', 'type' => 'json'], 'order.service.taxvalue' => ['label' => 'Service tax value', 'internalcode' => 'tax', 'type' => 'decimal'], 'order.service.taxflag' => ['label' => 'Service tax flag (0=net, 1=gross)', 'internalcode' => 'taxflag', 'type' => 'int']]));
     }
-
     /**
      * Saves the dependent items of the item
      *
@@ -274,14 +179,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be returned in the item
      * @return \Aimeos\MShop\Common\Item\Iface Updated item
      */
-    public function saveRefs(\Aimeos\MShop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\MShop\Common\Item\Iface
+    public function save_refs(\Aimeos\M_Shop\Common\Item\Iface $item, bool $fetch = true): \Aimeos\M_Shop\Common\Item\Iface
     {
-        $this->saveAttributeItems($item, $fetch);
-        $this->saveTransactions($item, $fetch);
-
+        $this->save_attribute_items($item, $fetch);
+        $this->save_transactions($item, $fetch);
         return $item;
     }
-
     /**
      * Merges the data from the given map and the referenced items
      *
@@ -289,39 +192,24 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param array $ref List of referenced items to fetch and add to the entries
      * @return array Associative list of ID as key and the updated entries as value
      */
-    public function searchRefs(array $entries, array $ref): array
+    public function search_refs(array $entries, array $ref): array
     {
-        $servItems = [];
-        $parentIds = array_keys($entries);
-        $manager = \Aimeos\MShop::create($this->context(), 'price');
-
-        $attributes = $this->getAttributeItems($parentIds);
-        $transactions = $this->getTransactions($parentIds);
-
-        if ($this->hasRef($ref, 'service')) {
-            $servItems = $this->getServiceItems(map($entries)->col('order.service.serviceid')->filter()->all(), $ref);
+        $serv_items = [];
+        $parent_ids = array_keys($entries);
+        $manager = \Aimeos\M_Shop::create($this->context(), 'price');
+        $attributes = $this->get_attribute_items($parent_ids);
+        $transactions = $this->get_transactions($parent_ids);
+        if ($this->has_ref($ref, 'service')) {
+            $serv_items = $this->get_service_items(map($entries)->col('order.service.serviceid')->filter()->all(), $ref);
         }
-
         foreach ($entries as $id => $row) {
-            $entries[$id]['.price'] = $manager->create([
-                'price.currencyid' => $row['order.service.currencyid'],
-                'price.taxrates' => $row['order.service.taxrates'],
-                'price.value' => $row['order.service.price'],
-                'price.costs' => $row['order.service.costs'],
-                'price.rebate' => $row['order.service.rebate'],
-                'price.taxflag' => $row['order.service.taxflag'],
-                'price.taxvalue' => $row['order.service.taxvalue'],
-                'price.siteid' => $row['order.service.siteid'],
-            ]);
-
-            $entries[$id]['.service'] = $servItems[$row['order.service.serviceid']] ?? null;
+            $entries[$id]['.price'] = $manager->create(['price.currencyid' => $row['order.service.currencyid'], 'price.taxrates' => $row['order.service.taxrates'], 'price.value' => $row['order.service.price'], 'price.costs' => $row['order.service.costs'], 'price.rebate' => $row['order.service.rebate'], 'price.taxflag' => $row['order.service.taxflag'], 'price.taxvalue' => $row['order.service.taxvalue'], 'price.siteid' => $row['order.service.siteid']]);
+            $entries[$id]['.service'] = $serv_items[$row['order.service.serviceid']] ?? null;
             $entries[$id]['.transactions'] = $transactions[$id] ?? map();
             $entries[$id]['.attributes'] = $attributes[$id] ?? map();
         }
-
         return $entries;
     }
-
     /**
      * Binds additional values to the statement before execution.
      *
@@ -330,21 +218,18 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param int $idx Current bind index
      * @return \Aimeos\Base\DB\Statement\Iface Database statement object with bound values
      */
-    protected function bind(\Aimeos\MShop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
+    protected function bind(\Aimeos\M_Shop\Common\Item\Iface $item, \Aimeos\Base\DB\Statement\Iface $stmt, int &$idx): \Aimeos\Base\DB\Statement\Iface
     {
-        $price = $item->getPrice();
-
-        $stmt->bind($idx++, $price->getCurrencyId());
-        $stmt->bind($idx++, $price->getValue());
-        $stmt->bind($idx++, $price->getCosts());
-        $stmt->bind($idx++, $price->getRebate());
-        $stmt->bind($idx++, $price->getTaxValue());
-        $stmt->bind($idx++, json_encode($price->getTaxRates(), JSON_FORCE_OBJECT));
-        $stmt->bind($idx++, $price->getTaxFlag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
-
+        $price = $item->get_price();
+        $stmt->bind($idx++, $price->get_currency_id());
+        $stmt->bind($idx++, $price->get_value());
+        $stmt->bind($idx++, $price->get_costs());
+        $stmt->bind($idx++, $price->get_rebate());
+        $stmt->bind($idx++, $price->get_tax_value());
+        $stmt->bind($idx++, json_encode($price->get_tax_rates(), JSON_FORCE_OBJECT));
+        $stmt->bind($idx++, $price->get_tax_flag(), \Aimeos\Base\DB\Statement\Base::PARAM_INT);
         return $stmt;
     }
-
     /**
      * Searches for attribute items connected with order service item.
      *
@@ -352,14 +237,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @return \Aimeos\Map Associative list of order service IDs as keys and order service attribute items
      *  implementing \Aimeos\MShop\Order\Item\Service\Attribute\Iface as values
      */
-    protected function getAttributeItems(array $ids): \Aimeos\Map
+    protected function get_attribute_items(array $ids): \Aimeos\Map
     {
-        $manager = $this->object()->getSubManager('attribute');
+        $manager = $this->object()->get_sub_manager('attribute');
         $filter = $manager->filter()->add('order.service.attribute.parentid', '==', $ids)->slice(0, 0x7fffffff);
-
-        return $manager->search($filter)->groupBy('order.service.attribute.parentid');
+        return $manager->search($filter)->group_by('order.service.attribute.parentid');
     }
-
     /**
      * Fetches service items connected with order service item.
      *
@@ -367,14 +250,12 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @return \Aimeos\Map Associative list of order service IDs as keys and order service attribute items
      *  implementing \Aimeos\MShop\Order\Item\Service\Attribute\Iface as values
      */
-    protected function getServiceItems(array $ids, array $ref): \Aimeos\Map
+    protected function get_service_items(array $ids, array $ref): \Aimeos\Map
     {
-        $manager = \Aimeos\MShop::create($this->context(), 'service');
+        $manager = \Aimeos\M_Shop::create($this->context(), 'service');
         $search = $manager->filter()->add('service.id', '==', array_unique($ids))->slice(0, 0x7fffffff);
-
         return $manager->search($search, $ref);
     }
-
     /**
      * Searches for transaction items connected with order service item.
      *
@@ -382,28 +263,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @return \Aimeos\Map Associative list of order service IDs as keys and order service transaction items
      *  implementing \Aimeos\MShop\Order\Item\Service\Transaction\Iface as values
      */
-    protected function getTransactions(array $ids): \Aimeos\Map
+    protected function get_transactions(array $ids): \Aimeos\Map
     {
-        $manager = $this->object()->getSubManager('transaction');
+        $manager = $this->object()->get_sub_manager('transaction');
         $filter = $manager->filter()->add('order.service.transaction.parentid', '==', $ids)->slice(0, 0x7fffffff);
-
-        return $manager->search($filter)->groupBy('order.service.attribute.parentid');
+        return $manager->search($filter)->group_by('order.service.attribute.parentid');
     }
-
     /**
      * Checks if the item is modified
      *
      * @param \Aimeos\MShop\Common\Item\Iface $item Item object
      * @return bool True if the item is modified, false if not
      */
-    protected function isModified(\Aimeos\MShop\Common\Item\Iface $item): bool
+    protected function is_modified(\Aimeos\M_Shop\Common\Item\Iface $item): bool
     {
-        if ($item->isModified()) {
+        if ($item->is_modified()) {
             return true;
         }
-        return (bool) $item->getPrice()->isModified();
+        return (bool) $item->get_price()->is_modified();
     }
-
     /**
      * Returns the prefix for the item properties and search keys.
      *
@@ -413,7 +291,6 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
     {
         return 'order.service.';
     }
-
     /**
      * Saves the attribute items included in the order service item
      *
@@ -421,30 +298,25 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be set in the attribute item
      * @return \Aimeos\MShop\Order\Item\Service\Iface Object with saved attribute items and IDs
      */
-    protected function saveAttributeItems(\Aimeos\MShop\Order\Item\Service\Iface $item, bool $fetch): \Aimeos\MShop\Order\Item\Service\Iface
+    protected function save_attribute_items(\Aimeos\M_Shop\Order\Item\Service\Iface $item, bool $fetch): \Aimeos\M_Shop\Order\Item\Service\Iface
     {
-        $attrItems = $item->getAttributeItems();
-
-        foreach ($attrItems as $key => $attrItem) {
-            if ($attrItem->getType() === 'session') {
-                unset($attrItems[$key]);
+        $attr_items = $item->get_attribute_items();
+        foreach ($attr_items as $key => $attr_item) {
+            if ($attr_item->get_type() === 'session') {
+                unset($attr_items[$key]);
                 continue;
             }
-
-            if ($attrItem->getParentId() != $item->getId()) {
-                $attrItem->setId(null); // create new property item if copied
+            if ($attr_item->get_parent_id() != $item->get_id()) {
+                $attr_item->set_id(null);
+                // create new property item if copied
             }
-
-            $attrItem->setParentId($item->getId());
+            $attr_item->set_parent_id($item->get_id());
         }
-
-        $manager = $this->object()->getSubManager('attribute');
-        $manager->delete($item->getAttributeItemsDeleted());
-        $manager->save($attrItems, $fetch);
-
+        $manager = $this->object()->get_sub_manager('attribute');
+        $manager->delete($item->get_attribute_items_deleted());
+        $manager->save($attr_items, $fetch);
         return $item;
     }
-
     /**
      * Saves the transaction items included in the order service item
      *
@@ -452,19 +324,17 @@ class Standard extends \Aimeos\MShop\Common\Manager\Base implements \Aimeos\MSho
      * @param bool $fetch True if the new ID should be set in the transaction item
      * @return \Aimeos\MShop\Order\Item\Service\Iface Object with saved transaction items and IDs
      */
-    protected function saveTransactions(\Aimeos\MShop\Order\Item\Service\Iface $item, bool $fetch): \Aimeos\MShop\Order\Item\Service\Iface
+    protected function save_transactions(\Aimeos\M_Shop\Order\Item\Service\Iface $item, bool $fetch): \Aimeos\M_Shop\Order\Item\Service\Iface
     {
-        $list = $item->getTransactions();
-
-        foreach ($list as $txItem) {
-            if ($txItem->getParentId() != $item->getId()) {
-                $txItem->setId(null); // create new property item if copied
+        $list = $item->get_transactions();
+        foreach ($list as $tx_item) {
+            if ($tx_item->get_parent_id() != $item->get_id()) {
+                $tx_item->set_id(null);
+                // create new property item if copied
             }
-
-            $txItem->setParentId($item->getId());
+            $tx_item->set_parent_id($item->get_id());
         }
-
-        $this->object()->getSubManager('transaction')->save($list, $fetch);
+        $this->object()->get_sub_manager('transaction')->save($list, $fetch);
         return $item;
     }
 }

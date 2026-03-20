@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2019-2026
  * @package MShop
  * @subpackage Common
  */
-
-namespace Aimeos\MShop\Common\Helper\Config;
+namespace Aimeos\M_Shop\Common\Helper\Config;
 
 /**
  * Generic interface for the helper config item
@@ -25,7 +23,6 @@ interface Iface
      * @param \Aimeos\Base\Criteria\Attribute\Iface $criteria Criteria attribute objects
      */
     public function __construct(array $criteria);
-
     /**
      * Checks required fields and the types of the config array
      *

@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license LGPLv3, https://opensource.org/licenses/LGPL-3.0
  * @copyright Aimeos (aimeos.org), 2015-2026
  * @package MShop
  * @subpackage Supplier
  */
-
-namespace Aimeos\MShop\Supplier\Manager\Address;
+namespace Aimeos\M_Shop\Supplier\Manager\Address;
 
 /**
  * Interface for supplier address managers.
@@ -17,6 +15,6 @@ namespace Aimeos\MShop\Supplier\Manager\Address;
  * @package MShop
  * @subpackage Supplier
  */
-interface Iface extends \Aimeos\MShop\Common\Manager\Address\Iface
+interface Iface extends \Aimeos\M_Shop\Common\Manager\Address\Iface
 {
 }
